@@ -2,6 +2,7 @@ import system from 'system';
 
 import {
     parseUsage, snapshotToCacheJson, parseCacheJson, openaiSeverity, openaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS,
+    parseResetCredits, mergeResetCredits,
 } from '../../../../lib/vendors/openai/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -272,6 +273,121 @@ describe('fakeSnapshot', () => {
         assertEqual(s.codeReview.utilizationPct, 23);
         assertEqual(openaiPeakUsage(s).percent, 23);
         assertEqual(s.credits, null);
+    });
+});
+
+const SAME_TITLE = 'Full reset (Weekly + 5 hr)';
+
+function withResetBlock(block) {
+    return JSON.stringify({plan_type: 'plus', rate_limit_reset_credits: block});
+}
+
+describe('reset credits', () => {
+    it('keeps each available credit, two with the same title stay two', () => {
+        const s = parseUsage(withResetBlock({
+            available_count: 2,
+            credits: [
+                {id: 'c1', status: 'redeemed', title: SAME_TITLE, expires_at: '2026-07-01T00:00:00Z'},
+                {id: 'c2', status: 'available', title: SAME_TITLE, expires_at: '2026-07-17T00:00:00Z'},
+                {id: 'c3', status: 'available', title: SAME_TITLE, expires_at: '2026-07-20T00:00:00Z'},
+            ],
+        }), null);
+        assertEqual(s.resetCredits.available, 2);
+        assertEqual(s.resetCredits.credits.length, 2);
+        assertEqual(s.resetCredits.credits[0].title, SAME_TITLE);
+        assertEqual(s.resetCredits.credits[1].title, SAME_TITLE);
+        assertEqual(s.resetCredits.credits[0].expiresAt.getTime(), Date.parse('2026-07-17T00:00:00Z'));
+    });
+
+    it('never keeps the redemption id', () => {
+        const s = parseUsage(withResetBlock({available_count: 1, credits: [{id: 'secret-handle', status: 'available'}]}), null);
+        assertEqual('id' in s.resetCredits.credits[0], false);
+        assertEqual(snapshotToCacheJson(s).includes('secret-handle'), false);
+    });
+
+    it('credits: null keeps the count alone', () => {
+        const s = parseUsage(withResetBlock({available_count: 3, credits: null}), null);
+        assertDeepEqual(s.resetCredits, {available: 3, credits: []});
+    });
+
+    it('no block → nothing available', () => {
+        assertDeepEqual(parseUsage('{"plan_type":"plus"}', null).resetCredits, {available: 0, credits: []});
+    });
+
+    it('a 90-character title is dropped, the credit kept', () => {
+        const s = parseUsage(withResetBlock({available_count: 1, credits: [{status: 'available', title: 'x'.repeat(90)}]}), null);
+        assertEqual(s.resetCredits.credits.length, 1);
+        assertEqual(s.resetCredits.credits[0].title, null);
+    });
+
+    it('a blank title is dropped', () => {
+        const s = parseUsage(withResetBlock({available_count: 1, credits: [{status: 'available', title: '   '}]}), null);
+        assertEqual(s.resetCredits.credits[0].title, null);
+    });
+
+    it('expires_at null → expiresAt null', () => {
+        const s = parseUsage(withResetBlock({available_count: 1, credits: [{status: 'available', expires_at: null}]}), null);
+        assertEqual(s.resetCredits.credits[0].expiresAt, null);
+    });
+
+    it('parseResetCredits reads the detail response', () => {
+        const credits = parseResetCredits(JSON.stringify({
+            available_count: 9,
+            credits: [{id: 'x', status: 'available', title: 'T', expires_at: '2026-07-17T00:00:00Z'}, {status: 'redeemed'}],
+        }));
+        assertEqual(credits.length, 1);
+        assertEqual(credits[0].title, 'T');
+    });
+
+    it('parseResetCredits throws on a malformed body', () => {
+        assertThrows(() => parseResetCredits('not json'));
+        assertThrows(() => parseResetCredits('[]'));
+        assertThrows(() => parseResetCredits('{"credits":"x"}'));
+    });
+
+    it('mergeResetCredits keeps the usage count, not the detail count', () => {
+        const s = parseUsage(withResetBlock({available_count: 2}), null);
+        const merged = mergeResetCredits(s, [{title: 'T', expiresAt: null}]);
+        assertEqual(merged.resetCredits.available, 2);
+        assertEqual(merged.resetCredits.credits.length, 1);
+        assertEqual(s.resetCredits.credits.length, 0);
+    });
+
+    it('credits survive the cache round-trip', () => {
+        const s = parseUsage(withResetBlock({
+            available_count: 2,
+            credits: [
+                {status: 'available', title: SAME_TITLE, expires_at: '2026-07-17T00:00:00Z'},
+                {status: 'available', expires_at: null},
+            ],
+        }), null);
+        const back = parseCacheJson(snapshotToCacheJson(s));
+        assertEqual(back.resetCredits.available, 2);
+        assertEqual(back.resetCredits.credits[0].title, SAME_TITLE);
+        assertEqual(back.resetCredits.credits[0].expiresAt.getTime(), Date.parse('2026-07-17T00:00:00Z'));
+        assertEqual(back.resetCredits.credits[1].title, null);
+        assertEqual(back.resetCredits.credits[1].expiresAt, null);
+    });
+
+    it('placeholders expose the count and its phrase', () => {
+        const now = new Date('2026-06-05T12:00:00Z');
+        const m = placeholders(parseUsage(withResetBlock({available_count: 2}), null), now);
+        assertEqual(m.get('oai_resets_available'), '2');
+        assertEqual(m.get('oai_resets'), '2 resets available');
+        const one = placeholders(parseUsage(withResetBlock({available_count: 1}), null), now);
+        assertEqual(one.get('oai_resets'), '1 reset available');
+    });
+
+    it('placeholders with no credits → 0', () => {
+        const m = placeholders(parseUsage('{"plan_type":"plus"}', null), new Date());
+        assertEqual(m.get('oai_resets_available'), '0');
+        assertEqual(m.get('oai_resets'), '0 resets available');
+    });
+
+    it('placeholders use the injected ngettext', () => {
+        const ngettext = (one, many, n) => (n === 1 ? `<${one}>` : `<${many}>`);
+        const m = placeholders(parseUsage(withResetBlock({available_count: 2}), null), new Date(), ngettext);
+        assertEqual(m.get('oai_resets'), '<2 resets available>');
     });
 });
 

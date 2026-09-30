@@ -251,7 +251,8 @@ class Indicator extends PanelMenu.Button {
                 {stale: res.stale, lastError: res.lastError, fetchedAt},
                 now,
                 this._theme,
-                _
+                _,
+                ngettext
             );
             // A non-empty tooltip-format prepends additive text rows built from
             // this vendor's placeholders, above the structured layout.

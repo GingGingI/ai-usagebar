@@ -6,6 +6,8 @@ import {
     localTimeHm,
     formatMoney,
     sanitizeUntrusted,
+    checkedResetTitle,
+    resetsAvailableText,
 } from '../lib/format.js';
 import {describe, it, assertEqual, summary} from './_assert.js';
 
@@ -138,6 +140,41 @@ describe('vformat', () => {
 
     it('leaves a template with no conversions untouched', () => {
         assertEqual(vformat('plain'), 'plain');
+    });
+});
+
+describe('checkedResetTitle', () => {
+    it('trims a plausible title', () => {
+        assertEqual(checkedResetTitle('  Full reset  '), 'Full reset');
+    });
+
+    it('drops a blank, non-string or over-80-character title', () => {
+        assertEqual(checkedResetTitle('   '), null);
+        assertEqual(checkedResetTitle(null), null);
+        assertEqual(checkedResetTitle(42), null);
+        assertEqual(checkedResetTitle('x'.repeat(81)), null);
+    });
+
+    it('keeps exactly 80 characters, counted as code points', () => {
+        assertEqual(checkedResetTitle('é'.repeat(80)), 'é'.repeat(80));
+    });
+
+    it('drops a title with a control character', () => {
+        assertEqual(checkedResetTitle('a\u0007b'), null);
+        assertEqual(checkedResetTitle('a\nb'), null);
+    });
+});
+
+describe('resetsAvailableText', () => {
+    it('pluralizes in English by default', () => {
+        assertEqual(resetsAvailableText(0), '0 resets available');
+        assertEqual(resetsAvailableText(1), '1 reset available');
+        assertEqual(resetsAvailableText(3), '3 resets available');
+    });
+
+    it('uses the injected ngettext', () => {
+        const ngettext = (one, many, n) => (n === 1 ? `[${one}]` : `[${many}]`);
+        assertEqual(resetsAvailableText(1, ngettext), '[1 reset available]');
     });
 });
 

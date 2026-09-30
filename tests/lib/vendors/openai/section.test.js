@@ -3,6 +3,7 @@ import system from 'system';
 import {buildSection} from '../../../../lib/vendors/openai/section.js';
 import {SESSION_MS, WEEKLY_MS} from '../../../../lib/vendors/openai/parser.js';
 import {calc} from '../../../../lib/pacing.js';
+import {localDateHm, format as formatCountdown} from '../../../../lib/countdown.js';
 import {defaultTheme} from '../../../../lib/theme.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../../_assert.js';
 
@@ -126,6 +127,60 @@ describe('buildSection (openai) — injected translator', () => {
             approxLocalMessages: null, approxCloudMessages: null};
         const m = buildSection(s, META, NOW, theme, T);
         assertEqual(m.rows[3].text, '«balance: «unlimited»»');
+    });
+});
+
+describe('buildSection (openai) — reset credits', () => {
+    const later = new Date(NOW.getTime() + 3 * 24 * 60 * MIN);
+    const sooner = new Date(NOW.getTime() + 90 * MIN);
+    const expires = d => `expires ${localDateHm(d)} (${formatCountdown(d, NOW)})`;
+
+    function withResets(resetCredits) {
+        return {...base(), resetCredits};
+    }
+
+    function resetRows(model) {
+        const start = model.rows.findIndex(r => r.kind === 'group-heading');
+        return start < 0 ? [] : [model.rows[start], ...model.rows.slice(start + 1).filter(r => r.kind === 'text')];
+    }
+
+    it('no credits → no Resets heading', () => {
+        const model = buildSection(withResets({available: 0, credits: []}), META, NOW, theme);
+        assertEqual(model.rows.some(r => r.kind === 'group-heading'), false);
+    });
+
+    it('an older snapshot without resetCredits renders no heading', () => {
+        assertEqual(buildSection(base(), META, NOW, theme).rows.some(r => r.kind === 'group-heading'), false);
+    });
+
+    it('one line per credit, sorted by expiry, same titles not collapsed', () => {
+        const model = buildSection(withResets({
+            available: 2,
+            credits: [{title: 'Full reset', expiresAt: later}, {title: 'Full reset', expiresAt: sooner}],
+        }), META, NOW, theme);
+        const rows = resetRows(model);
+        assertDeepEqual(rows[0], {kind: 'group-heading', label: 'Resets'});
+        assertEqual(rows.length, 3);
+        assertEqual(rows[1].text, `Full reset · ${expires(sooner)}`);
+        assertEqual(rows[2].text, `Full reset · ${expires(later)}`);
+    });
+
+    it('an untitled credit reads "Reset credit"', () => {
+        const model = buildSection(withResets({available: 1, credits: [{title: null, expiresAt: null}]}), META, NOW, theme);
+        assertEqual(resetRows(model)[1].text, 'Reset credit · no expiry reported');
+    });
+
+    it('a count without detail (second call failed) is a single summary line', () => {
+        const model = buildSection(withResets({available: 2, credits: []}), META, NOW, theme);
+        const rows = resetRows(model);
+        assertEqual(rows.length, 2);
+        assertEqual(rows[1].text, '2 resets available');
+    });
+
+    it('the summary line goes through the injected ngettext', () => {
+        const ngettext = (one, many, n) => (n === 1 ? `<${one}>` : `<${many}>`);
+        const model = buildSection(withResets({available: 1, credits: []}), META, NOW, theme, s => s, ngettext);
+        assertEqual(resetRows(model)[1].text, '<1 reset available>');
     });
 });
 

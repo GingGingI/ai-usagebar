@@ -7,11 +7,13 @@ import {
     footerRow,
     groupHeading,
     groupedUsage,
+    resetCreditRows,
     ICON_ERR_SERVER,
     ICON_ERR_CLIENT,
     ICON_FOOTER,
 } from '../lib/vendors/section-common.js';
 import {localTimeHm} from '../lib/format.js';
+import {localDateHm, format as formatCountdown} from '../lib/countdown.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
 
 const theme = {red: '#red', orange: '#orange'};
@@ -203,6 +205,52 @@ describe('groupedUsage', () => {
         const a = groupedUsage({group: 'a/b', label: 'c', percent: 1, valueText: '1%'}, palette);
         const b = groupedUsage({group: 'a', label: 'b/c', percent: 1, valueText: '1%'}, palette);
         assertEqual(a.key === b.key, false);
+    });
+});
+
+describe('resetCreditRows', () => {
+    const NOW = new Date('2026-06-05T12:00:00Z');
+    const later = new Date(NOW.getTime() + 3 * 86400 * 1000);
+    const sooner = new Date(NOW.getTime() + 3600 * 1000);
+    const past = new Date(NOW.getTime() - 3600 * 1000);
+
+    it('no credits → no rows', () => {
+        assertDeepEqual(resetCreditRows([], NOW), []);
+        assertDeepEqual(resetCreditRows(null, NOW), []);
+    });
+
+    it('a Resets heading, then one line per credit, soonest first, undated first', () => {
+        const rows = resetCreditRows([
+            {title: 'B', expiresAt: later},
+            {title: 'A', expiresAt: sooner},
+            {title: 'C', expiresAt: null},
+        ], NOW);
+        assertDeepEqual(rows[0], {kind: 'group-heading', label: 'Resets'});
+        assertEqual(rows[1].text, 'C · no expiry reported');
+        assertEqual(rows[2].text, `A · expires ${localDateHm(sooner)} (${formatCountdown(sooner, NOW)})`);
+        assertEqual(rows[3].text, `B · expires ${localDateHm(later)} (${formatCountdown(later, NOW)})`);
+    });
+
+    it('a lapsed credit reads "expired <date>"', () => {
+        assertEqual(resetCreditRows([{title: 'A', expiresAt: past}], NOW)[1].text, `A · expired ${localDateHm(past)}`);
+    });
+
+    it('without a title: the fallback title, or the capitalized expiry alone', () => {
+        assertEqual(resetCreditRows([{title: null, expiresAt: null}], NOW, undefined, 'Reset credit')[1].text,
+            'Reset credit · no expiry reported');
+        assertEqual(resetCreditRows([{title: null, expiresAt: null}], NOW)[1].text, 'No expiry reported');
+    });
+
+    it('does not reorder the caller array', () => {
+        const credits = [{title: 'B', expiresAt: later}, {title: 'A', expiresAt: sooner}];
+        resetCreditRows(credits, NOW);
+        assertEqual(credits[0].title, 'B');
+    });
+
+    it('translates through the injected translator', () => {
+        const rows = resetCreditRows([{title: 'A', expiresAt: null}], NOW, bracket);
+        assertEqual(rows[0].label, '[Resets]');
+        assertEqual(rows[1].text, 'A · [no expiry reported]');
     });
 });
 

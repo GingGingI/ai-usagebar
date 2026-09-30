@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:58-0300\n"
+"POT-Creation-Date: 2026-09-30 00:02-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: French\n"
@@ -59,6 +59,13 @@ msgstr "Réinitialisation imminente"
 msgid "Resets in %s · %s"
 msgstr "Réinitialisé dans %s · %s"
 
+#: lib/format.js:103
+#, javascript-format
+msgid "%d reset available"
+msgid_plural "%d resets available"
+msgstr[0] "%d réinitialisation disponible"
+msgstr[1] "%d réinitialisations disponibles"
+
 #: lib/notify.js:47
 msgid "Usage is critical"
 msgstr "Utilisation critique"
@@ -68,60 +75,34 @@ msgstr "Utilisation critique"
 msgid "Usage at %d%%"
 msgstr "Utilisation à %d%%"
 
-#: lib/vendors/anthropic/parser.js:315
-#, javascript-format
-msgid "%d reset available"
-msgid_plural "%d resets available"
-msgstr[0] "%d réinitialisation disponible"
-msgstr[1] "%d réinitialisations disponibles"
-
-#: lib/vendors/anthropic/section.js:38
-msgid "no expiry reported"
-msgstr "aucune expiration indiquée"
-
-#: lib/vendors/anthropic/section.js:40
-#, javascript-format
-msgid "expired %s"
-msgstr "expirée le %s"
-
-#. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
-#: lib/vendors/anthropic/section.js:42
-#, javascript-format
-msgid "expires %s (%s)"
-msgstr "expire le %s (%s)"
-
-#: lib/vendors/anthropic/section.js:57
-msgid "Resets"
-msgstr "Réinitialisations"
-
-#: lib/vendors/anthropic/section.js:68
+#: lib/vendors/anthropic/section.js:39
 msgid "Session"
 msgstr "Session"
 
-#: lib/vendors/anthropic/section.js:69 lib/vendors/kimi/section.js:40
+#: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
 #: lib/vendors/zai/section.js:35
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
-#: lib/vendors/anthropic/section.js:71
+#: lib/vendors/anthropic/section.js:42
 msgid "Sonnet only"
 msgstr "Sonnet uniquement"
 
-#: lib/vendors/anthropic/section.js:85 lib/vendors/anthropic/section.js:95
+#: lib/vendors/anthropic/section.js:56 lib/vendors/anthropic/section.js:66
 msgid "Extra usage"
 msgstr "Utilisation supplémentaire"
 
-#: lib/vendors/anthropic/section.js:87
+#: lib/vendors/anthropic/section.js:58
 msgid "Limit: none reported"
 msgstr "Limite : aucune indiquée"
 
-#: lib/vendors/anthropic/section.js:98
+#: lib/vendors/anthropic/section.js:69
 #, javascript-format
 msgid "Limit: %s"
 msgstr "Limite : %s"
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:112 ui/indicator.js:272
+#: lib/vendors/anthropic/section.js:84 ui/indicator.js:273
 #, javascript-format
 msgid "Claude %s"
 msgstr "Claude %s"
@@ -162,43 +143,51 @@ msgstr "Mensuel"
 msgid "Kimi %s"
 msgstr "Kimi %s"
 
-#: lib/vendors/openai/section.js:35
+#: lib/vendors/openai/section.js:37 lib/vendors/section-common.js:134
+msgid "Resets"
+msgstr "Réinitialisations"
+
+#: lib/vendors/openai/section.js:38
+msgid "Reset credit"
+msgstr "Crédit de réinitialisation"
+
+#: lib/vendors/openai/section.js:45
 msgid "Codex 5h"
 msgstr "Codex 5h"
 
-#: lib/vendors/openai/section.js:37
+#: lib/vendors/openai/section.js:47
 msgid "Codex weekly"
 msgstr "Codex hebdomadaire"
 
-#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:40
+#: lib/vendors/openai/section.js:49 lib/vendors/zai/section.js:40
 msgid "no usage windows reported"
 msgstr "aucune fenêtre d’utilisation signalée"
 
-#: lib/vendors/openai/section.js:41
+#: lib/vendors/openai/section.js:51
 msgid "Code review (weekly)"
 msgstr "Revue de code (hebdomadaire)"
 
-#: lib/vendors/openai/section.js:45
+#: lib/vendors/openai/section.js:55
 msgid "Credits"
 msgstr "Crédits"
 
-#: lib/vendors/openai/section.js:46
+#: lib/vendors/openai/section.js:56
 #, javascript-format
 msgid "balance: %s"
 msgstr "solde : %s"
 
-#: lib/vendors/openai/section.js:46
+#: lib/vendors/openai/section.js:56
 msgid "unlimited"
 msgstr "illimité"
 
 #. Translators: %s-%s is an approximate count range (e.g. "100-200").
-#: lib/vendors/openai/section.js:49
+#: lib/vendors/openai/section.js:59
 #, javascript-format
 msgid "~ %s-%s local messages"
 msgstr "~ %s-%s messages locaux"
 
 #. Translators: %s-%s is an approximate count range (e.g. "30-50").
-#: lib/vendors/openai/section.js:52
+#: lib/vendors/openai/section.js:62
 #, javascript-format
 msgid "~ %s-%s cloud messages"
 msgstr "~ %s-%s messages cloud"
@@ -260,6 +249,21 @@ msgstr "HTTP %s"
 #, javascript-format
 msgid "Updated %s"
 msgstr "Mis à jour %s"
+
+#: lib/vendors/section-common.js:113
+msgid "no expiry reported"
+msgstr "aucune expiration indiquée"
+
+#: lib/vendors/section-common.js:115
+#, javascript-format
+msgid "expired %s"
+msgstr "expirée le %s"
+
+#. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
+#: lib/vendors/section-common.js:117
+#, javascript-format
+msgid "expires %s (%s)"
+msgstr "expire le %s (%s)"
 
 #: lib/vendors/zai/section.js:33
 msgid "Session (5h)"
@@ -514,6 +518,6 @@ msgstr "Préférences"
 msgid "No data — use \"Refresh all\""
 msgstr "Aucune donnée — utilisez « Tout actualiser »"
 
-#: ui/indicator.js:265 ui/indicator.js:422
+#: ui/indicator.js:266 ui/indicator.js:423
 msgid "Loading…"
 msgstr "Chargement…"

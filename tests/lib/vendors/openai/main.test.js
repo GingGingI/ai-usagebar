@@ -3,8 +3,8 @@ import Gio from 'gi://Gio';
 import system from 'system';
 
 import {Cache} from '../../../../lib/cache.js';
-import {parseUsage, snapshotToCacheJson} from '../../../../lib/vendors/openai/parser.js';
-import {fetchSnapshot, USAGE_URL, USER_AGENT} from '../../../../lib/vendors/openai/main.js';
+import {parseUsage, snapshotToCacheJson, CACHE_VERSION} from '../../../../lib/vendors/openai/parser.js';
+import {fetchSnapshot, resetCreditsUrl, USAGE_URL, USER_AGENT} from '../../../../lib/vendors/openai/main.js';
 import {describe, it, assertEqual, summary} from '../../../_assert.js';
 
 const USAGE = JSON.stringify({
@@ -164,7 +164,7 @@ describe('fetchSnapshot (openai)', () => {
         const onDisk = new TextDecoder().decode(runSync(cache.maybePayload()));
         for (const needle of ['email', 'someone@example.com', 'user_id', 'user-123', 'account_id', 'acct-456'])
             assertEqual(onDisk.includes(needle), false, needle);
-        assertEqual(JSON.parse(onDisk).cacheVersion, 1);
+        assertEqual(JSON.parse(onDisk).cacheVersion, CACHE_VERSION);
     }));
 
     it('a raw body cached by an older release is refetched, not served', withTemp(({cache, credsPath}) => {
@@ -262,6 +262,69 @@ describe('fetchSnapshot (openai)', () => {
         assertEqual(http.calls.length, 0);
         assertEqual(r.ok, false);
         assertEqual(r.kind, 'error');
+    }));
+});
+
+describe('fetchSnapshot (openai) — reset credit details', () => {
+    const withCount = n => JSON.stringify(Object.assign(JSON.parse(USAGE), {rate_limit_reset_credits: {available_count: n}}));
+    const DETAIL = JSON.stringify({
+        available_count: 5,
+        credits: [
+            {id: 'c1', status: 'available', title: 'Full reset', expires_at: '2026-07-17T00:00:00Z'},
+            {id: 'c2', status: 'available', title: 'Full reset', expires_at: '2026-07-20T00:00:00Z'},
+        ],
+    });
+
+    it('derives the detail URL from the usage URL', () => {
+        assertEqual(resetCreditsUrl(USAGE_URL), 'https://chatgpt.com/backend-api/wham/rate-limit-reset-credits');
+    });
+
+    it('a count > 0 makes a second GET with the same headers and merges the credits', withTemp(({cache, credsPath}) => {
+        const http = httpStub([res(200, withCount(2)), res(200, DETAIL)]);
+        const r = runSync(fetchSnapshot({cache, http, credsPath}));
+        assertEqual(http.calls.length, 2);
+        assertEqual(http.calls[1].url, resetCreditsUrl(USAGE_URL));
+        assertEqual(http.calls[1].headers.Authorization, 'Bearer AT');
+        assertEqual(http.calls[1].headers['User-Agent'], USER_AGENT);
+        assertEqual(http.calls[1].headers['ChatGPT-Account-Id'], 'acc');
+        assertEqual(r.snapshot.resetCredits.available, 2);
+        assertEqual(r.snapshot.resetCredits.credits.length, 2);
+    }));
+
+    it('the merged credits are cached without their ids', withTemp(({cache, credsPath}) => {
+        runSync(fetchSnapshot({cache, http: httpStub([res(200, withCount(2)), res(200, DETAIL)]), credsPath}));
+        const onDisk = new TextDecoder().decode(runSync(cache.maybePayload()));
+        assertEqual(onDisk.includes('Full reset'), true);
+        assertEqual(onDisk.includes('"c1"'), false);
+    }));
+
+    it('a failing second call is silent: count kept, no detail, no lastError', withTemp(({cache, credsPath}) => {
+        const http = httpStub([res(200, withCount(2)), res(500, '{"detail":"account acct-456 broke"}')]);
+        const r = runSync(fetchSnapshot({cache, http, credsPath}));
+        assertEqual(r.ok, true);
+        assertEqual(r.stale, false);
+        assertEqual(r.lastError, null);
+        assertEqual(r.snapshot.resetCredits.available, 2);
+        assertEqual(r.snapshot.resetCredits.credits.length, 0);
+        assertEqual(runSync(cache.readLastError()), null);
+    }));
+
+    it('a transport failure on the second call is silent too', withTemp(({cache, credsPath}) => {
+        const r = runSync(fetchSnapshot({cache, http: httpStub([res(200, withCount(1)), resTransport()]), credsPath}));
+        assertEqual(r.ok, true);
+        assertEqual(r.snapshot.resetCredits.credits.length, 0);
+    }));
+
+    it('an unparseable detail body is ignored', withTemp(({cache, credsPath}) => {
+        const r = runSync(fetchSnapshot({cache, http: httpStub([res(200, withCount(1)), res(200, 'nope')]), credsPath}));
+        assertEqual(r.ok, true);
+        assertEqual(r.snapshot.resetCredits.available, 1);
+    }));
+
+    it('a count of 0 makes no second call', withTemp(({cache, credsPath}) => {
+        const http = httpStub(res(200, withCount(0)));
+        runSync(fetchSnapshot({cache, http, credsPath}));
+        assertEqual(http.calls.length, 1);
     }));
 });
 
