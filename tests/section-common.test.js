@@ -5,6 +5,8 @@ import {
     httpErrorRow,
     errorText,
     footerRow,
+    groupHeading,
+    groupedUsage,
     ICON_ERR_SERVER,
     ICON_ERR_CLIENT,
     ICON_FOOTER,
@@ -141,6 +143,66 @@ describe('footerRow', () => {
         const row = footerRow({fetchedAt: null});
         assertEqual(row.updated, '—');
         assertEqual(row.text, 'Updated —');
+    });
+});
+
+describe('groupHeading', () => {
+    it('builds a group-heading row carrying its label', () => {
+        assertDeepEqual(groupHeading('Session'), {kind: 'group-heading', label: 'Session'});
+    });
+});
+
+describe('groupedUsage', () => {
+    const palette = {red: '#red', orange: '#orange', yellow: '#yellow', green: '#green', fg: '#fg', dim: '#dim', barEmpty: '#empty'};
+
+    it('builds a grouped row with the value, detail and track color', () => {
+        const row = groupedUsage({
+            group: 'Weekly',
+            label: 'gpt-oss:120b',
+            percent: 42,
+            valueText: '42%',
+            detail: '1.2M tokens',
+            severity: null,
+        }, palette);
+        assertEqual(row.kind, 'grouped');
+        assertEqual(row.label, 'gpt-oss:120b');
+        assertEqual(row.pct, 42);
+        assertEqual(row.valueText, '42%');
+        assertEqual(row.detail, '1.2M tokens');
+        assertEqual(row.trackColor, '#empty');
+    });
+
+    it('a null severity paints the fill muted', () => {
+        const row = groupedUsage({label: 'm', percent: 95, valueText: '95%', severity: null}, palette);
+        assertEqual(row.severity, null);
+        assertEqual(row.color, '#dim');
+    });
+
+    it('a severity paints the fill in its color', () => {
+        const row = groupedUsage({label: 'ctx', percent: 80, valueText: '80%', severity: 'high'}, palette);
+        assertEqual(row.color, '#orange');
+    });
+
+    it('detail defaults to null', () => {
+        assertEqual(groupedUsage({label: 'm', percent: 1, valueText: '1%'}, palette).detail, null);
+    });
+
+    it('the key is stable for the same group + label', () => {
+        const a = groupedUsage({group: 'Session', label: 'm', percent: 1, valueText: '1%'}, palette);
+        const b = groupedUsage({group: 'Session', label: 'm', percent: 99, valueText: '99%'}, palette);
+        assertEqual(a.key, b.key);
+    });
+
+    it('the same label under another group gets another key', () => {
+        const a = groupedUsage({group: 'Session', label: 'm', percent: 1, valueText: '1%'}, palette);
+        const b = groupedUsage({group: 'Weekly', label: 'm', percent: 1, valueText: '1%'}, palette);
+        assertEqual(a.key === b.key, false);
+    });
+
+    it('the key does not collide when a separator character moves between group and label', () => {
+        const a = groupedUsage({group: 'a/b', label: 'c', percent: 1, valueText: '1%'}, palette);
+        const b = groupedUsage({group: 'a', label: 'b/c', percent: 1, valueText: '1%'}, palette);
+        assertEqual(a.key === b.key, false);
     });
 });
 

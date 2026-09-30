@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:53-0300\n"
+"POT-Creation-Date: 2026-09-29 23:56-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -213,24 +213,24 @@ msgstr ""
 msgid "paid tier"
 msgstr ""
 
-#: lib/vendors/section-common.js:33
+#: lib/vendors/section-common.js:34
 #, javascript-format
 msgid "rate limited; next attempt in %s"
 msgstr ""
 
-#: lib/vendors/section-common.js:37
+#: lib/vendors/section-common.js:38
 #, javascript-format
 msgid ""
 "HTTP %d: authentication rejected — credentials may be missing, expired, or "
 "invalid"
 msgstr ""
 
-#: lib/vendors/section-common.js:76
+#: lib/vendors/section-common.js:77
 #, javascript-format
 msgid "HTTP %s"
 msgstr ""
 
-#: lib/vendors/section-common.js:87
+#: lib/vendors/section-common.js:88
 #, javascript-format
 msgid "Updated %s"
 msgstr ""

@@ -91,6 +91,25 @@ function buildTextLine(row) {
     return line;
 }
 
+function buildGroupedRow(row) {
+    const r = new St.BoxLayout({vertical: true, x_expand: true, style_class: 'aiusagebar-grouped-row'});
+    const head = new St.BoxLayout({style_class: 'aiusagebar-row', x_expand: true});
+    const name = label(row.label, {styleClass: 'aiusagebar-dim'});
+    name.x_expand = true;
+    head.add_child(name);
+    head.add_child(label(row.valueText));
+    r.add_child(head);
+
+    const bar = makeBar(row.pct, row.color);
+    bar.add_style_class_name('aiusagebar-grouped-bar');
+    bar.set_style(`background-color: ${row.trackColor};`);
+    r.add_child(bar);
+
+    if (row.detail)
+        r.add_child(label(row.detail, {styleClass: 'aiusagebar-dim aiusagebar-grouped-detail'}));
+    return r;
+}
+
 function buildHttpError(row) {
     const block = new St.BoxLayout({vertical: true, x_expand: true, style_class: 'aiusagebar-section'});
     block.add_child(new St.Widget({style_class: 'aiusagebar-rule', x_expand: true}));
@@ -153,6 +172,14 @@ export function renderSection(menuSection, model, showPace = false) {
         case 'text':
             card = null;
             container.add_child(buildTextLine(row));
+            break;
+        case 'group-heading':
+            card = null;
+            container.add_child(label(row.label, {styleClass: 'aiusagebar-group-heading'}));
+            break;
+        case 'grouped':
+            card = null;
+            container.add_child(buildGroupedRow(row));
             break;
         case 'http-error':
             card = null;
