@@ -121,6 +121,24 @@ function backdate(cache, secs) {
     f.set_attribute_uint32('time::modified-usec', 0, Gio.FileQueryInfoFlags.NONE, null);
 }
 
+function readText(path) {
+    const [, contents] = Gio.File.new_for_path(path).load_contents(null);
+    return new TextDecoder().decode(contents);
+}
+
+function chmod(path, mode) {
+    Gio.File.new_for_path(path).set_attribute_uint32('unix::mode', mode, Gio.FileQueryInfoFlags.NONE, null);
+}
+
+function expiredCreds(dir, rel) {
+    const path = GLib.build_filenamev([dir, rel]);
+    GLib.mkdir_with_parents(GLib.path_get_dirname(path), 0o755);
+    const doc = {tokens: {access_token: 'AT', refresh_token: 'RT', id_token: fakeJwt({exp: 1}), account_id: 'acc'}};
+    Gio.File.new_for_path(path).replace_contents(
+        new TextEncoder().encode(JSON.stringify(doc)), null, false, Gio.FileCreateFlags.NONE, null);
+    return path;
+}
+
 describe('fetchSnapshot (openai)', () => {
     it('live 200 returns a snapshot with the Codex headers, non-stale', withTemp(({cache, credsPath}) => {
         const http = httpStub(res(200, USAGE));
@@ -163,6 +181,57 @@ describe('fetchSnapshot (openai)', () => {
         assertEqual(r.ok, true);
         assertEqual(r.stale, true);
         assertEqual(r.lastError, null);
+    }));
+
+    it('a refresh without a new id_token persists expires_at so the next poll skips refresh', withTemp(({cache, dir}) => {
+        const credsPath = expiredCreds(dir, 'auth.json');
+        const token = res(200, JSON.stringify({access_token: 'AT2', expires_in: 3600}));
+        const http = httpStub([token, res(200, USAGE)]);
+        const r = runSync(fetchSnapshot({cache, http, credsPath, cacheTtlMs: 0}));
+        assertEqual(r.ok, true);
+        const saved = JSON.parse(readText(credsPath)).tokens;
+        assertEqual(saved.access_token, 'AT2');
+        assertEqual(typeof saved.expires_at, 'string');
+
+        const http2 = httpStub(res(200, USAGE));
+        runSync(fetchSnapshot({cache, http: http2, credsPath, cacheTtlMs: 0}));
+        assertEqual(http2.calls.length, 1);
+        assertEqual(http2.calls[0].url, USAGE_URL);
+    }));
+
+    it('an unsaved rotated refresh token is an auth error with stale fallback', withTemp(({cache, dir}) => {
+        cache.writePayload(CACHED);
+        backdate(cache, 120);
+        const credsPath = expiredCreds(dir, 'ro/auth.json');
+        chmod(GLib.path_get_dirname(credsPath), 0o555);
+        try {
+            const token = res(200, JSON.stringify({access_token: 'AT2', refresh_token: 'RT2', expires_in: 3600}));
+            const http = httpStub([token, res(200, USAGE)]);
+            const r = runSync(fetchSnapshot({cache, http, credsPath}));
+            assertEqual(http.calls.length, 1);
+            assertEqual(r.ok, true);
+            assertEqual(r.stale, true);
+            assertEqual(r.snapshot.session.utilizationPct, 50);
+            assertEqual(r.lastError.body.startsWith('refreshed token could not be saved'), true);
+        } finally {
+            chmod(GLib.path_get_dirname(credsPath), 0o755);
+        }
+    }));
+
+    it('an unsaved access token alone stays best-effort', withTemp(({cache, dir}) => {
+        const credsPath = expiredCreds(dir, 'ro/auth.json');
+        chmod(GLib.path_get_dirname(credsPath), 0o555);
+        try {
+            const token = res(200, JSON.stringify({access_token: 'AT2', expires_in: 3600}));
+            const http = httpStub([token, res(200, USAGE)]);
+            const r = runSync(fetchSnapshot({cache, http, credsPath}));
+            assertEqual(http.calls.length, 2);
+            assertEqual(http.calls[1].headers.Authorization, 'Bearer AT2');
+            assertEqual(r.ok, true);
+            assertEqual(r.stale, false);
+        } finally {
+            chmod(GLib.path_get_dirname(credsPath), 0o755);
+        }
     }));
 
     it('missing credentials → error, no fetch', withTemp(({cache}) => {
