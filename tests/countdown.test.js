@@ -1,6 +1,6 @@
 import system from 'system';
 
-import {format, formatBackoff, formatWithClock, resetClock} from '../lib/countdown.js';
+import {format, formatBackoff, formatWithClock, resetClock, localDateHm} from '../lib/countdown.js';
 import {localTimeHm} from '../lib/format.js';
 import {describe, it, assertEqual, summary} from './_assert.js';
 
@@ -136,6 +136,18 @@ describe('countdown.format — injected translator', () => {
 
     it('leaves the null em-dash marker untranslated', () => {
         assertEqual(format(null, now, T), '—');
+    });
+});
+
+describe('localDateHm', () => {
+    it('shows the date even on the same day', () => {
+        const d = at(2 * HOUR);
+        assertEqual(localDateHm(d) === localTimeHm(d), false);
+        assertEqual(localDateHm(d).includes('23'), true);
+    });
+
+    it('matches resetClock on another day', () => {
+        assertEqual(localDateHm(at(3 * DAY)), resetClock(at(3 * DAY), now));
     });
 });
 

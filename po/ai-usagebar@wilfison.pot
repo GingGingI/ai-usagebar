@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:56-0300\n"
+"POT-Creation-Date: 2026-09-29 23:58-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. Translators: compact duration — s = seconds.
 #: lib/countdown.js:9
@@ -51,12 +52,12 @@ msgstr ""
 msgid "%dh %02dm"
 msgstr ""
 
-#: lib/countdown.js:55
+#: lib/countdown.js:59
 msgid "Reset due"
 msgstr ""
 
 #. Translators: "Resets in 4h 05m · 13:54" — a countdown, then the clock time (or date and time).
-#: lib/countdown.js:57
+#: lib/countdown.js:61
 #, javascript-format
 msgid "Resets in %s · %s"
 msgstr ""
@@ -70,34 +71,60 @@ msgstr ""
 msgid "Usage at %d%%"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:39
+#: lib/vendors/anthropic/parser.js:315
+#, javascript-format
+msgid "%d reset available"
+msgid_plural "%d resets available"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/vendors/anthropic/section.js:38
+msgid "no expiry reported"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:40
+#, javascript-format
+msgid "expired %s"
+msgstr ""
+
+#. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
+#: lib/vendors/anthropic/section.js:42
+#, javascript-format
+msgid "expires %s (%s)"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:57
+msgid "Resets"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:68
 msgid "Session"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
+#: lib/vendors/anthropic/section.js:69 lib/vendors/kimi/section.js:40
 #: lib/vendors/zai/section.js:35
 msgid "Weekly"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:42
+#: lib/vendors/anthropic/section.js:71
 msgid "Sonnet only"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:56 lib/vendors/anthropic/section.js:66
+#: lib/vendors/anthropic/section.js:85 lib/vendors/anthropic/section.js:95
 msgid "Extra usage"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:58
+#: lib/vendors/anthropic/section.js:87
 msgid "Limit: none reported"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:69
+#: lib/vendors/anthropic/section.js:98
 #, javascript-format
 msgid "Limit: %s"
 msgstr ""
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:81 ui/indicator.js:272
+#: lib/vendors/anthropic/section.js:112 ui/indicator.js:272
 #, javascript-format
 msgid "Claude %s"
 msgstr ""

@@ -4,7 +4,7 @@ import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {gettext as _, ngettext} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -256,7 +256,7 @@ class Indicator extends PanelMenu.Button {
             // A non-empty tooltip-format prepends additive text rows built from
             // this vendor's placeholders, above the structured layout.
             if (this._config.tooltipFormat) {
-                const extra = tooltipRows(this._config.tooltipFormat, adapter.placeholders(res.snapshot, now));
+                const extra = tooltipRows(this._config.tooltipFormat, adapter.placeholders(res.snapshot, now, ngettext));
                 if (extra.length)
                     model.rows = [...extra, ...model.rows];
             }
@@ -490,7 +490,7 @@ class Indicator extends PanelMenu.Button {
     }
 
     _paintLabelOk(snapshot, stale, now) {
-        let text = substitute(this._barFormat, this._adapter.placeholders(snapshot, now));
+        let text = substitute(this._barFormat, this._adapter.placeholders(snapshot, now, ngettext));
         if (stale)
             text += STALE_MARK;
         this._setLabel(text, severityColor(this._adapter.severity(snapshot), this._theme));

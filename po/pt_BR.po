@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:56-0300\n"
+"POT-Creation-Date: 2026-09-29 23:58-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: Portuguese (Brazil)\n"
@@ -49,12 +49,12 @@ msgstr "%dd %dh"
 msgid "%dh %02dm"
 msgstr "%dh %02dm"
 
-#: lib/countdown.js:55
+#: lib/countdown.js:59
 msgid "Reset due"
 msgstr "Reinício pendente"
 
 #. Translators: "Resets in 4h 05m · 13:54" — a countdown, then the clock time (or date and time).
-#: lib/countdown.js:57
+#: lib/countdown.js:61
 #, javascript-format
 msgid "Resets in %s · %s"
 msgstr "Reinicia em %s · %s"
@@ -68,34 +68,60 @@ msgstr "Uso crítico"
 msgid "Usage at %d%%"
 msgstr "Uso em %d%%"
 
-#: lib/vendors/anthropic/section.js:39
+#: lib/vendors/anthropic/parser.js:315
+#, javascript-format
+msgid "%d reset available"
+msgid_plural "%d resets available"
+msgstr[0] "%d reset disponível"
+msgstr[1] "%d resets disponíveis"
+
+#: lib/vendors/anthropic/section.js:38
+msgid "no expiry reported"
+msgstr "sem validade informada"
+
+#: lib/vendors/anthropic/section.js:40
+#, javascript-format
+msgid "expired %s"
+msgstr "expirou em %s"
+
+#. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
+#: lib/vendors/anthropic/section.js:42
+#, javascript-format
+msgid "expires %s (%s)"
+msgstr "expira em %s (%s)"
+
+#: lib/vendors/anthropic/section.js:57
+msgid "Resets"
+msgstr "Resets"
+
+#: lib/vendors/anthropic/section.js:68
 msgid "Session"
 msgstr "Sessão"
 
-#: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
+#: lib/vendors/anthropic/section.js:69 lib/vendors/kimi/section.js:40
 #: lib/vendors/zai/section.js:35
 msgid "Weekly"
 msgstr "Semanal"
 
-#: lib/vendors/anthropic/section.js:42
+#: lib/vendors/anthropic/section.js:71
 msgid "Sonnet only"
 msgstr "Apenas Sonnet"
 
-#: lib/vendors/anthropic/section.js:56 lib/vendors/anthropic/section.js:66
+#: lib/vendors/anthropic/section.js:85 lib/vendors/anthropic/section.js:95
 msgid "Extra usage"
 msgstr "Uso extra"
 
-#: lib/vendors/anthropic/section.js:58
+#: lib/vendors/anthropic/section.js:87
 msgid "Limit: none reported"
 msgstr "Limite: nenhum informado"
 
-#: lib/vendors/anthropic/section.js:69
+#: lib/vendors/anthropic/section.js:98
 #, javascript-format
 msgid "Limit: %s"
 msgstr "Limite: %s"
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:81 ui/indicator.js:272
+#: lib/vendors/anthropic/section.js:112 ui/indicator.js:272
 #, javascript-format
 msgid "Claude %s"
 msgstr "Claude %s"

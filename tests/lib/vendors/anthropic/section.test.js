@@ -3,7 +3,7 @@ import system from 'system';
 import {buildSection, wrapWords} from '../../../../lib/vendors/anthropic/section.js';
 import {SESSION_MS, WEEKLY_MS} from '../../../../lib/vendors/anthropic/parser.js';
 import {calc} from '../../../../lib/pacing.js';
-import {resetClock} from '../../../../lib/countdown.js';
+import {resetClock, localDateHm, format as formatCountdown} from '../../../../lib/countdown.js';
 import {defaultTheme} from '../../../../lib/theme.js';
 import {localTimeHm} from '../../../../lib/format.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../../_assert.js';
@@ -296,6 +296,82 @@ describe('wrapWords — greedy word wrap', () => {
     it('empty string → []', () => assertDeepEqual(wrapWords('', 35), []));
 
     it('whitespace-only → []', () => assertDeepEqual(wrapWords('   \t  ', 35), []));
+});
+
+describe('buildSection — resets', () => {
+    const meta = {stale: false, lastError: null, fetchedAt: NOW};
+    const later = new Date(NOW.getTime() + 3 * 24 * 60 * MIN);
+    const sooner = new Date(NOW.getTime() + 90 * MIN);
+    const past = new Date(NOW.getTime() - 60 * MIN);
+
+    function withResets(resets) {
+        return {...fullSnapshot(), extra: null, resets};
+    }
+
+    function resetRows(model) {
+        const start = model.rows.findIndex(r => r.kind === 'group-heading');
+        if (start < 0)
+            return [];
+        const rows = [model.rows[start]];
+        for (const r of model.rows.slice(start + 1).filter(row => row.kind === 'text'))
+            rows.push(r);
+        return rows;
+    }
+
+    it('no grants → no heading and no reset rows', () => {
+        const model = buildSection(withResets([]), meta, NOW, theme);
+        assertEqual(model.rows.some(r => r.kind === 'group-heading'), false);
+        assertEqual(model.rows.some(r => r.kind === 'text'), false);
+    });
+
+    it('a snapshot without the resets field renders no reset rows', () => {
+        const model = buildSection(fullSnapshot(), meta, NOW, theme);
+        assertEqual(model.rows.some(r => r.kind === 'group-heading'), false);
+    });
+
+    it('a Resets heading, then one line per grant sorted by expiry', () => {
+        const model = buildSection(withResets([
+            {label: 'Later', resetsLeft: 1, endsAt: later},
+            {label: 'Sooner', resetsLeft: 2, endsAt: sooner},
+        ]), meta, NOW, theme);
+        const rows = resetRows(model);
+        assertDeepEqual(rows[0], {kind: 'group-heading', label: 'Resets'});
+        assertEqual(rows[1].text, `Sooner · expires ${localDateHm(sooner)} (${formatCountdown(sooner, NOW)})`);
+        assertEqual(rows[2].text, `Later · expires ${localDateHm(later)} (${formatCountdown(later, NOW)})`);
+    });
+
+    it('no ends_at reads "no expiry reported" and sorts first', () => {
+        const model = buildSection(withResets([
+            {label: 'Dated', resetsLeft: 1, endsAt: later},
+            {label: 'Open', resetsLeft: 1, endsAt: null},
+        ]), meta, NOW, theme);
+        const rows = resetRows(model);
+        assertEqual(rows[1].text, 'Open · no expiry reported');
+    });
+
+    it('an expiry in the past reads "expired <date>"', () => {
+        const model = buildSection(withResets([{label: 'Old', resetsLeft: 1, endsAt: past}]), meta, NOW, theme);
+        assertEqual(resetRows(model)[1].text, `Old · expired ${localDateHm(past)}`);
+    });
+
+    it('a grant without a label shows the capitalized expiry alone', () => {
+        const model = buildSection(withResets([{label: null, resetsLeft: 1, endsAt: null}]), meta, NOW, theme);
+        assertEqual(resetRows(model)[1].text, 'No expiry reported');
+    });
+
+    it('reset rows come before the footer', () => {
+        const model = buildSection(withResets([{label: 'X', resetsLeft: 1, endsAt: later}]), meta, NOW, theme);
+        assertEqual(model.rows[model.rows.length - 1].kind, 'footer');
+        assertEqual(model.rows[model.rows.length - 2].kind, 'text');
+    });
+
+    it('translates the heading and expiry through the injected translator', () => {
+        const tr = s => `<${s}>`;
+        const model = buildSection(withResets([{label: 'X', resetsLeft: 1, endsAt: null}]), meta, NOW, theme, tr);
+        const rows = resetRows(model);
+        assertEqual(rows[0].label, '<Resets>');
+        assertEqual(rows[1].text, 'X · <no expiry reported>');
+    });
 });
 
 system.exit(summary());

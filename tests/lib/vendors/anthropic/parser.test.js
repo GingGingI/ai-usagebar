@@ -10,6 +10,7 @@ import {
     formatExtraAmount,
     placeholders,
     fakeSnapshot,
+    resetsAvailable,
     SchemaError,
 } from '../../../../lib/vendors/anthropic/parser.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -358,6 +359,143 @@ describe('fakeSnapshot', () => {
         assertEqual(s.scoped[0].utilizationPct, 23);
         assertEqual(anthropicPeakUsage(s).percent, 23);
         assertEqual(s.extra, null);
+    });
+});
+
+function withGrants(cedarEmber) {
+    return JSON.stringify({
+        five_hour: {utilization: 2, resets_at: '2026-09-24T17:49:59Z'},
+        seven_day: {utilization: 63, resets_at: '2026-09-25T08:59:59Z'},
+        ...(cedarEmber === undefined ? {} : {cedar_ember: cedarEmber}),
+    });
+}
+
+function grant(overrides = {}) {
+    return {
+        id: 'a-redemption-handle',
+        label: 'Claude Opus 5.5 launch reset',
+        resets_total: 2,
+        resets_left: 2,
+        starts_at: '2026-09-22T16:00:00+00:00',
+        ends_at: '2026-10-22T16:00:00+00:00',
+        paused: false,
+        usable_now: true,
+        ...overrides,
+    };
+}
+
+describe('parseUsage — cedar_ember resets', () => {
+    it('counts only usable, unpaused grants with resets left', () => {
+        const s = parseUsage(withGrants({
+            eligible: true,
+            grants: [grant(), grant({label: 'Paused', paused: true}), grant({label: 'Spent', resets_left: 0})],
+        }), 'Team');
+        assertEqual(s.resets.length, 1);
+        assertEqual(s.resets[0].label, 'Claude Opus 5.5 launch reset');
+        assertEqual(s.resets[0].resetsLeft, 2);
+        assertEqual(s.resets[0].endsAt.getTime(), Date.parse('2026-10-22T16:00:00Z'));
+    });
+
+    it('never keeps the redemption id', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant()]}), 'Team');
+        assertEqual('id' in s.resets[0], false);
+        assertEqual(snapshotToCacheJson(s).includes('a-redemption-handle'), false);
+    });
+
+    it('a grant missing usable_now is not counted', () => {
+        const g = grant();
+        delete g.usable_now;
+        assertEqual(parseUsage(withGrants({eligible: true, grants: [g]}), 'Team').resets.length, 0);
+    });
+
+    it('no cedar_ember block → []', () => {
+        assertEqual(parseUsage(withGrants(undefined), 'Team').resets.length, 0);
+    });
+
+    it('eligible absent → []', () => {
+        assertEqual(parseUsage(withGrants({grants: [grant()]}), 'Team').resets.length, 0);
+    });
+
+    it('eligible false → []', () => {
+        const s = parseUsage(withGrants({eligible: false, ineligible_reason: 'surface', grants: [grant()]}), 'Team');
+        assertEqual(s.resets.length, 0);
+    });
+
+    it('a 90-character label is dropped but the grant still counts', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant({label: 'x'.repeat(90)})]}), 'Team');
+        assertEqual(s.resets.length, 1);
+        assertEqual(s.resets[0].label, null);
+    });
+
+    it('a label with a control character is dropped', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant({label: 'bad\u001b[31m'})]}), 'Team');
+        assertEqual(s.resets[0].label, null);
+    });
+
+    it('an 80-character label is kept', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant({label: 'y'.repeat(80)})]}), 'Team');
+        assertEqual(s.resets[0].label, 'y'.repeat(80));
+    });
+
+    it('ends_at absent → endsAt null', () => {
+        const g = grant();
+        delete g.ends_at;
+        assertEqual(parseUsage(withGrants({eligible: true, grants: [g]}), 'Team').resets[0].endsAt, null);
+    });
+
+    it('grants survive the cache round-trip', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant(), grant({label: 'Second', resets_left: 1})]}), 'Team');
+        const back = parseCacheJson(snapshotToCacheJson(s));
+        assertEqual(back.resets.length, 2);
+        assertEqual(back.resets[1].label, 'Second');
+        assertEqual(back.resets[1].resetsLeft, 1);
+        assertEqual(back.resets[0].endsAt instanceof Date, true);
+        assertEqual(back.resets[0].endsAt.getTime(), s.resets[0].endsAt.getTime());
+    });
+
+    it('a cache from the previous version is refused', () => {
+        let thrown = false;
+        try {
+            parseCacheJson(JSON.stringify({cacheVersion: 1, snapshot: {}}));
+        } catch (e) {
+            thrown = e instanceof SchemaError;
+        }
+        assertEqual(thrown, true);
+    });
+});
+
+describe('placeholders — resets', () => {
+    const NOW = new Date('2026-09-24T12:00:00Z');
+
+    it('sums resets_left across grants', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant(), grant({resets_left: 1})]}), 'Team');
+        assertEqual(resetsAvailable(s), 3);
+        const m = placeholders(s, NOW);
+        assertEqual(m.get('resets_available'), '3');
+        assertEqual(m.get('resets'), '3 resets available');
+    });
+
+    it('one reset is singular', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant({resets_left: 1})]}), 'Team');
+        assertEqual(placeholders(s, NOW).get('resets'), '1 reset available');
+    });
+
+    it('no grants → 0', () => {
+        const m = placeholders(parseUsage(withGrants(undefined), 'Team'), NOW);
+        assertEqual(m.get('resets_available'), '0');
+        assertEqual(m.get('resets'), '0 resets available');
+    });
+
+    it('uses the injected ngettext', () => {
+        const s = parseUsage(withGrants({eligible: true, grants: [grant({resets_left: 1})]}), 'Team');
+        const ngettext = (one, many, n) => (n === 1 ? `[${one}]` : `[${many}]`);
+        assertEqual(placeholders(s, NOW, ngettext).get('resets'), '[1 reset available]');
+    });
+
+    it('a snapshot without resets (fake, old shape) → 0', () => {
+        const s = parseUsage(withGrants(undefined), 'Team');
+        delete s.resets;
+        assertEqual(placeholders(s, NOW).get('resets_available'), '0');
     });
 });
 

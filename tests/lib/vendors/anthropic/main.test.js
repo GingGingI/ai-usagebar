@@ -141,6 +141,8 @@ describe('fetchSnapshot', () => {
         assertEqual(http.calls[0].headers['anthropic-beta'], USAGE_BETA_HEADER);
         assertEqual(http.calls[0].headers['User-Agent'], USAGE_USER_AGENT);
         assertEqual(http.calls[0].headers['Content-Type'], 'application/json');
+        assertEqual(http.calls[0].url.endsWith('?cedar_ember=1'), true);
+        assertEqual(http.calls[0].headers['User-Agent'], 'claude-cli/2.1.281 (external, cli)');
         assertEqual(r.ok, true);
         assertEqual(r.stale, false);
         assertEqual(r.cacheAgeMs, 0);
