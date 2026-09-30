@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:46-0300\n"
+"POT-Creation-Date: 2026-09-29 23:49-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,6 +100,10 @@ msgstr ""
 #: lib/vendors/anthropic/section.js:81 ui/indicator.js:270
 #, javascript-format
 msgid "Claude %s"
+msgstr ""
+
+#: lib/vendors/custom/section.js:39
+msgid "Custom provider"
 msgstr ""
 
 #: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/section.js:18
