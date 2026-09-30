@@ -1,7 +1,7 @@
 import system from 'system';
 
 import {
-    parseUsage, openaiSeverity, openaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS,
+    parseUsage, snapshotToCacheJson, parseCacheJson, openaiSeverity, openaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS,
 } from '../../../../lib/vendors/openai/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -247,6 +247,20 @@ describe('placeholders — absent windows', () => {
         assertEqual(m.get('session_pct'), '');
         assertEqual(m.get('oai_session_reset'), '');
         assertEqual(m.get('oai_weekly_pct'), '66');
+    });
+});
+
+describe('cache round-trip', () => {
+    it('restores windows, dates and credits; rejects a raw body', () => {
+        const snap = parseUsage(JSON.stringify(Object.assign(JSON.parse(REAL),
+            {credits: {balance: '0', has_credits: false, unlimited: false, approx_local_messages: [1, 2]}})), null);
+        const back = parseCacheJson(snapshotToCacheJson(snap));
+        assertEqual(back.plan, 'ChatGPT Plus');
+        assertEqual(back.session.resetsAt.getTime(), snap.session.resetsAt.getTime());
+        assertEqual(back.weekly.windowMs, WEEKLY_MS);
+        assertEqual(back.credits.balance, '$0.00');
+        assertDeepEqual(back.credits.approxLocalMessages, [1, 2]);
+        assertThrows(() => parseCacheJson(REAL));
     });
 });
 

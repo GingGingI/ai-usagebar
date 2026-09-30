@@ -1,7 +1,7 @@
 import system from 'system';
 
 import {
-    parseEnvelope, validateEnvelope, SchemaError, zaiSeverity, zaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS, MCP_MS,
+    parseEnvelope, validateEnvelope, snapshotToCacheJson, parseCacheJson, SchemaError, zaiSeverity, zaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS, MCP_MS,
 } from '../../../../lib/vendors/zai/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -119,6 +119,18 @@ describe('parseEnvelope', () => {
     it('throws SchemaError on a non-object top level', () => {
         assertThrows(() => parseEnvelope('[]', null));
         assertThrows(() => parseEnvelope('not json', null));
+    });
+});
+
+describe('cache round-trip', () => {
+    it('restores every window with its reset; rejects a raw envelope', () => {
+        const snap = parseEnvelope(REAL, null);
+        const back = parseCacheJson(snapshotToCacheJson(snap));
+        assertEqual(back.plan, 'GLM Coding Pro');
+        assertEqual(back.weekly.resetsAt.getTime(), snap.weekly.resetsAt.getTime());
+        assertEqual(back.mcp.windowMs, MCP_MS);
+        assertEqual(back.session.resetsAt, null);
+        assertThrows(() => parseCacheJson(REAL));
     });
 });
 

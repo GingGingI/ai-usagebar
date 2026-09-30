@@ -5,6 +5,8 @@ import {
     anthropicSeverity,
     anthropicPeakUsage,
     formatMinor,
+    snapshotToCacheJson,
+    parseCacheJson,
     formatExtraAmount,
     placeholders,
     fakeSnapshot,
@@ -321,6 +323,22 @@ describe('placeholders', () => {
         assertEqual(m.get('extra_spent'), 'R$141.57');
         assertEqual(m.get('extra_limit'), '—');
         assertEqual(m.get('extra_pct'), '0');
+    });
+});
+
+describe('cache round-trip', () => {
+    it('restores windows, scoped limits and the currency-aware extra block', () => {
+        const snap = parseUsage(JSON.stringify(Object.assign(JSON.parse(FULL), {
+            extra_usage: {is_enabled: true, monthly_limit: null, used_credits: 14157, currency: 'BRL', decimal_places: 2},
+            limits: [{kind: 'weekly_scoped', percent: 30, resets_at: '2026-05-30T12:00:00Z', scope: {model: {display_name: 'Fable'}}}],
+        })), 'Max 5x');
+        const back = parseCacheJson(snapshotToCacheJson(snap));
+        assertEqual(back.session.resetsAt.getTime(), snap.session.resetsAt.getTime());
+        assertEqual(back.scoped[0].label, 'Fable');
+        assertEqual(back.scoped[0].resetsAt instanceof Date, true);
+        assertEqual(back.extra.limitCents, null);
+        assertEqual(back.extra.currency, 'BRL');
+        assertThrows(() => parseCacheJson(FULL));
     });
 });
 

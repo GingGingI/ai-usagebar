@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 import system from 'system';
 
 import {Cache} from '../../../../lib/cache.js';
+import {parseEnvelope, snapshotToCacheJson} from '../../../../lib/vendors/zai/parser.js';
 import {fetchSnapshot, QUOTA_URL} from '../../../../lib/vendors/zai/main.js';
 import {describe, it, assertEqual, summary} from '../../../_assert.js';
 
@@ -20,6 +21,8 @@ const LIVE = JSON.stringify({
 const SEED = JSON.stringify({
     code: 200, data: {limits: [{type: 'TOKENS_LIMIT', unit: 3, percentage: 10}], level: 'lite'}, success: true,
 });
+
+const cached = (raw) => snapshotToCacheJson(parseEnvelope(raw, null));
 
 function runSync(promise) {
     const loop = GLib.MainLoop.new(null, false);
@@ -107,7 +110,7 @@ describe('fetchSnapshot (zai)', () => {
     }));
 
     it('HTTP 401 falls back to stale cache with lastError.code 401', withTemp(({cache}) => {
-        cache.writePayload(SEED);
+        cache.writePayload(cached(SEED));
         backdate(cache, 120);
         const http = httpStub(res(401, '{"code":401,"msg":"Unauthorized"}'));
         const r = runSync(fetchSnapshot({cache, http, apiKey: 'k'}));
@@ -118,14 +121,14 @@ describe('fetchSnapshot (zai)', () => {
     }));
 
     it('a 200 with success:false is not cached and falls back to the good cache', withTemp(({cache}) => {
-        cache.writePayload(SEED);
+        cache.writePayload(cached(SEED));
         backdate(cache, 120);
         const http = httpStub(res(200, '{"code":1001,"msg":"Token expired","success":false,"data":null}'));
         const r = runSync(fetchSnapshot({cache, http, apiKey: 'k'}));
         assertEqual(r.ok, true);
         assertEqual(r.stale, true);
         assertEqual(r.snapshot.session.utilizationPct, 10);
-        assertEqual(new TextDecoder().decode(runSync(cache.maybePayload())), SEED);
+        assertEqual(new TextDecoder().decode(runSync(cache.maybePayload())), cached(SEED));
     }));
 
     it('a 200 with data:null and no cache → error, nothing cached', withTemp(({cache}) => {

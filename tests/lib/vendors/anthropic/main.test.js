@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 import system from 'system';
 
 import {Cache} from '../../../../lib/cache.js';
+import {parseUsage, snapshotToCacheJson} from '../../../../lib/vendors/anthropic/parser.js';
 import {fetchSnapshot, USAGE_URL, USAGE_BETA_HEADER, USAGE_USER_AGENT} from '../../../../lib/vendors/anthropic/main.js';
 import {readCreds, TOKEN_URL} from '../../../../lib/oauth/anthropic.js';
 import {describe, it, assertEqual, summary} from '../../../_assert.js';
@@ -11,6 +12,8 @@ const USAGE = JSON.stringify({
     five_hour: {utilization: 42, resets_at: '2026-05-23T17:30:00Z'},
     seven_day: {utilization: 10},
 });
+
+const cached = (raw) => snapshotToCacheJson(parseUsage(raw, 'Pro 5x'));
 
 function runSync(promise) {
     const loop = GLib.MainLoop.new(null, false);
@@ -120,7 +123,7 @@ function backdate(cache, secs) {
 
 describe('fetchSnapshot', () => {
     it('fresh cache skips the network', withTemp(({cache, credsPath}) => {
-        cache.writePayload(USAGE);
+        cache.writePayload(cached(USAGE));
         const http = httpStub(res(200, USAGE));
         const r = runSync(fetchSnapshot({cache, http, credsPath}));
         assertEqual(http.calls.length, 0, 'no HTTP call when cache is fresh');
@@ -175,7 +178,7 @@ describe('fetchSnapshot', () => {
     }));
 
     it('an unsaved rotated refresh token is an auth error with stale fallback', withTemp(({cache, dir}) => {
-        cache.writePayload(USAGE);
+        cache.writePayload(cached(USAGE));
         backdate(cache, 120);
         const credsPath = writeCreds(dir, 'ro/creds.json', {expiresAt: 0});
         chmod(GLib.path_get_dirname(credsPath), 0o555);
@@ -206,8 +209,15 @@ describe('fetchSnapshot', () => {
         }
     }));
 
+    it('a cached snapshot takes its plan from the current credentials', withTemp(({cache, credsPath}) => {
+        cache.writePayload(snapshotToCacheJson(parseUsage(USAGE, 'Old Plan')));
+        const r = runSync(fetchSnapshot({cache, http: httpStub(res(200, USAGE)), credsPath}));
+        assertEqual(r.ok, true);
+        assertEqual(r.snapshot.plan, 'Pro 5x');
+    }));
+
     it('HTTP 429 falls back to stale cache with lastError.code 429', withTemp(({cache, credsPath}) => {
-        cache.writePayload(USAGE);
+        cache.writePayload(cached(USAGE));
         backdate(cache, 120); // older than the 60s TTL → not "fresh"
         const http = httpStub(res(429, 'slow down'));
         const r = runSync(fetchSnapshot({cache, http, credsPath}));
@@ -218,7 +228,7 @@ describe('fetchSnapshot', () => {
     }));
 
     it('after a 429 the next poll makes no request, token refresh included', withTemp(({cache, credsPath}) => {
-        cache.writePayload(USAGE);
+        cache.writePayload(cached(USAGE));
         backdate(cache, 120);
         runSync(fetchSnapshot({cache, http: httpStub(res(429, 'slow down')), credsPath}));
 
@@ -241,7 +251,7 @@ describe('fetchSnapshot', () => {
     }, {expiresAt: 0}));
 
     it('transient failure with cache → silent stale (no last_error)', withTemp(({cache, credsPath}) => {
-        cache.writePayload(USAGE);
+        cache.writePayload(cached(USAGE));
         backdate(cache, 120);
         const http = httpStub(resTransport());
         const r = runSync(fetchSnapshot({cache, http, credsPath}));

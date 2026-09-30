@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 import system from 'system';
 
 import {Cache} from '../../../../lib/cache.js';
+import {parseUsage, snapshotToCacheJson} from '../../../../lib/vendors/kimi/parser.js';
 import {fetchSnapshot, USAGES_URL, ME_URL} from '../../../../lib/vendors/kimi/main.js';
 import {describe, it, assertEqual, summary} from '../../../_assert.js';
 
@@ -17,6 +18,8 @@ const LIVE = JSON.stringify({
     ],
 });
 const SEED = JSON.stringify({usage: {limit: '100', used: '10', remaining: '90'}});
+
+const cached = (raw) => snapshotToCacheJson(parseUsage(raw));
 
 function runSync(promise) {
     const loop = GLib.MainLoop.new(null, false);
@@ -139,7 +142,7 @@ describe('fetchSnapshot (kimi)', () => {
     }));
 
     it('HTTP 401 falls back to stale cache with lastError.code 401', withTemp(({cache}) => {
-        cache.writePayload(SEED);
+        cache.writePayload(cached(SEED));
         backdate(cache, 120);
         const http = httpStub(res(401, '{"secret":"do-not-leak"}'));
         const r = runSync(fetchSnapshot({cache, http, apiKey: 'k'}));

@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 import system from 'system';
 
 import {Cache} from '../../../../lib/cache.js';
+import {parseUsage, snapshotToCacheJson} from '../../../../lib/vendors/openai/parser.js';
 import {fetchSnapshot, USAGE_URL, USER_AGENT} from '../../../../lib/vendors/openai/main.js';
 import {describe, it, assertEqual, summary} from '../../../_assert.js';
 
@@ -17,6 +18,8 @@ const CACHED = JSON.stringify({
     plan_type: 'pro',
     rate_limit: {primary_window: {used_percent: 50, limit_window_seconds: 18000}},
 });
+
+const cached = (raw) => snapshotToCacheJson(parseUsage(raw, null));
 
 function runSync(promise) {
     const loop = GLib.MainLoop.new(null, false);
@@ -154,8 +157,27 @@ describe('fetchSnapshot (openai)', () => {
         assertEqual(r.snapshot.session.utilizationPct, 1);
     }));
 
-    it('fresh cache skips the network', withTemp(({cache, credsPath}) => {
+    it('the cache holds the projected snapshot: no email, user_id or account_id', withTemp(({cache, credsPath}) => {
+        const body = JSON.stringify(Object.assign(JSON.parse(USAGE),
+            {email: 'someone@example.com', user_id: 'user-123', account_id: 'acct-456'}));
+        runSync(fetchSnapshot({cache, http: httpStub(res(200, body)), credsPath}));
+        const onDisk = new TextDecoder().decode(runSync(cache.maybePayload()));
+        for (const needle of ['email', 'someone@example.com', 'user_id', 'user-123', 'account_id', 'acct-456'])
+            assertEqual(onDisk.includes(needle), false, needle);
+        assertEqual(JSON.parse(onDisk).cacheVersion, 1);
+    }));
+
+    it('a raw body cached by an older release is refetched, not served', withTemp(({cache, credsPath}) => {
         cache.writePayload(USAGE);
+        const http = httpStub(res(200, USAGE));
+        const r = runSync(fetchSnapshot({cache, http, credsPath}));
+        assertEqual(http.calls.length, 1);
+        assertEqual(r.ok, true);
+        assertEqual(r.stale, false);
+    }));
+
+    it('fresh cache skips the network', withTemp(({cache, credsPath}) => {
+        cache.writePayload(cached(USAGE));
         const http = httpStub(res(200, USAGE));
         const r = runSync(fetchSnapshot({cache, http, credsPath}));
         assertEqual(http.calls.length, 0);
@@ -164,7 +186,7 @@ describe('fetchSnapshot (openai)', () => {
     }));
 
     it('HTTP 500 falls back to stale cache with lastError.code 500', withTemp(({cache, credsPath}) => {
-        cache.writePayload(CACHED);
+        cache.writePayload(cached(CACHED));
         backdate(cache, 120);
         const http = httpStub(res(500, '{"error":{"message":"upstream"}}'));
         const r = runSync(fetchSnapshot({cache, http, credsPath}));
@@ -175,7 +197,7 @@ describe('fetchSnapshot (openai)', () => {
     }));
 
     it('transient failure with cache → silent stale', withTemp(({cache, credsPath}) => {
-        cache.writePayload(CACHED);
+        cache.writePayload(cached(CACHED));
         backdate(cache, 120);
         const r = runSync(fetchSnapshot({cache, http: httpStub(resTransport()), credsPath}));
         assertEqual(r.ok, true);
@@ -200,7 +222,7 @@ describe('fetchSnapshot (openai)', () => {
     }));
 
     it('an unsaved rotated refresh token is an auth error with stale fallback', withTemp(({cache, dir}) => {
-        cache.writePayload(CACHED);
+        cache.writePayload(cached(CACHED));
         backdate(cache, 120);
         const credsPath = expiredCreds(dir, 'ro/auth.json');
         chmod(GLib.path_get_dirname(credsPath), 0o555);

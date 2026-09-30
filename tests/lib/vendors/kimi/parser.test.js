@@ -2,7 +2,7 @@ import system from 'system';
 
 import {
     parseUsage, kimiSeverity, kimiPeakUsage, placeholders, fakeSnapshot, pct,
-    humanizeLevel, planLabelFromMe, withPlanLabel,
+    humanizeLevel, planLabelFromMe, snapshotToCacheJson, parseCacheJson,
     WEEKLY_MS, WINDOW_MS, SchemaError,
 } from '../../../../lib/vendors/kimi/parser.js';
 import {substitute} from '../../../../lib/format.js';
@@ -202,16 +202,17 @@ describe('plan label', () => {
         assertEqual(planLabelFromMe('not json'), null);
     });
 
-    it('a /me label carried in the payload wins over the humanized enum', () => {
-        const body = withPlanLabel(new TextEncoder().encode(MONTHLY), 'Allegretto');
-        assertEqual(parseUsage(body).plan, 'Allegretto');
-        assertEqual(parseUsage(withPlanLabel(new TextEncoder().encode(MONTHLY), null)).plan, 'Intermediate');
+    it('the plan survives the cache round-trip', () => {
+        const snap = parseUsage(MONTHLY);
+        snap.plan = 'Allegretto';
+        const back = parseCacheJson(snapshotToCacheJson(snap));
+        assertEqual(back.plan, 'Allegretto');
+        assertEqual(back.monthly.resetsAt instanceof Date, true);
+        assertEqual(back.monthly.utilizationPct, 43);
     });
 
-    it('withPlanLabel leaves an unparseable body untouched', () => {
-        const raw = new TextEncoder().encode('not json');
-        assertEqual(withPlanLabel(raw, 'Allegro'), raw);
-    });
+    it('a raw /usages body in the cache is treated as corrupt', () =>
+        assertThrows(() => parseCacheJson(MONTHLY)));
 });
 
 describe('pct', () => {

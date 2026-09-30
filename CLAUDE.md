@@ -125,8 +125,15 @@ holds the pure resolution helpers (`normalizeActive`, `enabledVendors`,
 `cycleVendor`, `resolveApiKey`).
 
 `lib/cache.js` is a per-vendor directory with a payload file plus `.stale` /
-`.last_error` sidecars; a 60s fresh-TTL fast path skips HTTP, and a failed fetch
-falls back to the cached payload as a `stale` result.
+`.last_error` / `.retry_after` sidecars; a 60s fresh-TTL fast path skips HTTP,
+and a failed fetch falls back to the cached payload as a `stale` result
+(`staleResult` in `lib/vendors/fetch-common.js`). The payload is always the
+**projected snapshot** (`snapshotToCacheJson` / `parseCacheJson`, versioned via
+`lib/vendors/snapshot-cache.js` or a vendor's own normalized form), never a raw
+response body — bump a vendor's `CACHE_VERSION` when its snapshot shape
+changes. A payload older than 7 days, unparseable, or of another version is
+never served: the original error is returned instead. Any `writeLastError(429)`
+arms a 5-minute backoff during which `main.js` makes no request at all.
 
 ### HTTP & prefs (the other gi:// boundaries)
 
