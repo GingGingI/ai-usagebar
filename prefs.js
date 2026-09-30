@@ -8,7 +8,7 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 import {rgbToHex} from './lib/color.js';
 import {vformat} from './lib/format.js';
 import {defaultTheme} from './lib/theme.js';
-import {VENDOR_LABELS} from './lib/vendors.js';
+import {VENDOR_LABELS, vendorIconName} from './lib/vendors.js';
 import {parseExtraHeaders, validateMapping} from './lib/vendors/custom/parser.js';
 
 const INTERVAL_MIN = 300;
@@ -84,6 +84,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             settings.disconnect(comboResyncId);
         });
         displayGroup.add(combo);
+        displayGroup.add(this._switchRow(settings, 'show-vendor-icons', _('Show vendor logos')));
         page.add(displayGroup);
 
         const cadenceGroup = new Adw.PreferencesGroup({
@@ -247,7 +248,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "Anthropic" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('Anthropic'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('anthropic'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('Anthropic'),
@@ -281,7 +282,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "OpenAI" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('OpenAI'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('openai'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('OpenAI'),
@@ -297,7 +298,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "Z.AI" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('Z.AI'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('zai'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('Z.AI'),
@@ -315,7 +316,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "OpenRouter" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('OpenRouter'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('openrouter'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('OpenRouter'),
@@ -332,7 +333,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "DeepSeek" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('DeepSeek'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('deepseek'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('DeepSeek'),
@@ -349,7 +350,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "Kimi" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('Kimi'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('kimi'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('Kimi'),
@@ -366,7 +367,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         // Translators: "Ollama" is a brand name — usually keep untranslated.
         const page = new Adw.PreferencesPage({
             title: _('Ollama'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('ollama'),
         });
         const group = new Adw.PreferencesGroup({
             title: _('Ollama Cloud'),
@@ -383,7 +384,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildCustomPage(settings, cleanups) {
         const page = new Adw.PreferencesPage({
             title: _('Custom'),
-            icon_name: 'ai-symbolic',
+            icon_name: vendorIconName('custom'),
         });
 
         const group = new Adw.PreferencesGroup({

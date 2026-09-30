@@ -31,6 +31,7 @@ function makeSettings() {
 describe('readConfig — schema defaults', () => {
     const cfg = readConfig(makeSettings());
     it('refresh interval defaults to 300', () => assertEqual(cfg.refreshIntervalSecs, 300));
+    it('vendor logos shown by default', () => assertEqual(cfg.showVendorIcons, true));
     it('default bar format', () =>
         assertEqual(cfg.barFormat, '{session_pct}% · {session_reset}'));
     it('primary vendor defaults to anthropic', () => assertEqual(cfg.primaryVendor, 'anthropic'));

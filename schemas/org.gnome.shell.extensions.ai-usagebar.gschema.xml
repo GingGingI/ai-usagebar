@@ -69,6 +69,12 @@
       <description>Hex color (#rrggbb) for the critical-severity tier. Empty derives the color from the active theme.</description>
     </key>
 
+    <key name="show-vendor-icons" type="b">
+      <default>true</default>
+      <summary>Show vendor logos</summary>
+      <description>Show each vendor's logo as the panel badge and in the popup headers. Off shows the vendor's short code on the panel and a generic icon in the popup.</description>
+    </key>
+
     <key name="show-pace-marker" type="b">
       <default>false</default>
       <summary>Show the elapsed-position marker on popup bars</summary>

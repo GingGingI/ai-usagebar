@@ -155,14 +155,17 @@ Open preferences with `gnome-extensions prefs ai-usagebar@wilfison` (or the
 gear button in the popup footer). The prefs window exposes:
 
 - **Primary vendor** — the default active vendor on startup.
+- **Show vendor logos** — each vendor's logo as the panel badge and in the popup
+  headers; off shows the short code and a generic icon.
 - **Refresh interval** — seconds between polls (minimum 300; the vendor
   endpoints rate-limit below that).
 - **Per-vendor enable** — toggle each of the seven vendors on or off; only enabled
   vendors appear in the popup and the scroll cycle.
 - **Panel label format** (`bar-format`) — a template with `{token}` placeholders,
-  e.g. the default `{session_pct}% · {session_reset}`. The active vendor's
-  identity is shown as an SVG icon before the text; add the `{vendor_short}`
-  token if you also want the textual short code (`cld`, `gpt`, …).
+  e.g. the default `{session_pct}% · {session_reset}`. The active vendor is
+  identified by a badge before the text: its logo, or its short code (`CLD`,
+  `GPT`, …) when **Show vendor logos** is off or for the custom provider. Add
+  the `{vendor_short}` token if you also want the short code in the text.
 - **Tooltip / extra rows format** (`tooltip-format`) — optional additive rows
   prepended to a vendor's popup section.
 - **Severity colors** — the green / orange / red / critical threshold colors.
@@ -238,14 +241,17 @@ implied.
 
 ## Trademarks & logos
 
-This extension bundles **no vendor logos**. It ships a single generic symbolic
-mark ([`icons/ai-symbolic.svg`](icons/ai-symbolic.svg)) and identifies each
-provider by name only —
-Claude, OpenAI, Z.AI/GLM, OpenRouter, DeepSeek, Kimi, Ollama — used nominatively to say
-which service a panel entry refers to. No affiliation with, sponsorship by, or
-endorsement from those companies is implied; this project is not affiliated with
-any of them. The short codes shown in the panel (CLD, GPT, ZAI, OPR, DSK, KMI)
-are plain abbreviations, not brand marks.
+The extension ships a monochrome logo for each vendor under [`icons/`](icons/)
+— Claude, OpenAI, Z.AI/GLM, OpenRouter, DeepSeek, Kimi, and Ollama — shown in the
+panel badge, the popup headers and the preferences pages only to identify
+which service an entry refers to (nominative use). The custom provider, which
+the user names, uses the generic [`icons/ai-symbolic.svg`](icons/ai-symbolic.svg).
+Sources and licences for every mark are listed in
+[`icons/README.md`](icons/README.md). The marks remain the property of their
+owners; no affiliation with, sponsorship by, or endorsement from those companies
+is implied, and this project is not affiliated with any of them. Turn **Show
+vendor logos** off in preferences to show the plain short codes (CLD, GPT, ZAI,
+OPR, DSK, KMI, OLL) instead.
 
 ## License
 

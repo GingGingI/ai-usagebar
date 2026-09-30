@@ -1,6 +1,6 @@
 import system from 'system';
 
-import {VENDOR_IDS, VENDOR_LABELS, isVendorId, vendorLabel} from '../lib/vendors.js';
+import {VENDOR_IDS, VENDOR_LABELS, isVendorId, vendorLabel, vendorIconName} from '../lib/vendors.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
 
 describe('VENDOR_IDS — canonical order', () => {
@@ -43,6 +43,12 @@ describe('vendorLabel — custom provider', () => {
     it('uses the configured name', () => assertEqual(vendorLabel('custom', config), 'My Tool'));
     it('falls back to Custom without a config', () => assertEqual(vendorLabel('custom'), 'Custom'));
     it('leaves other vendors alone', () => assertEqual(vendorLabel('openai', config), 'OpenAI'));
+});
+
+describe('vendorIconName', () => {
+    it('a vendor with a mark', () => assertEqual(vendorIconName('ollama'), 'ollama-symbolic'));
+    it('the custom provider falls back to the generic mark', () => assertEqual(vendorIconName('custom'), 'ai-symbolic'));
+    it('an unknown id falls back too', () => assertEqual(vendorIconName('gemini'), 'ai-symbolic'));
 });
 
 system.exit(summary());

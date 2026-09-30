@@ -17,7 +17,7 @@ import {normalizeActive, cycleVendor, enabledVendors} from '../lib/config-resolv
 import {writeActiveVendorMirror} from '../lib/active-vendor.js';
 import {request, disposeSession} from '../lib/http.js';
 import {getAdapter} from '../lib/vendors/registry.js';
-import {vendorLabel} from '../lib/vendors.js';
+import {vendorLabel, vendorIconName, GENERIC_ICON} from '../lib/vendors.js';
 import {renderSection} from './vendorSection.js';
 import {errorText} from '../lib/vendors/section-common.js';
 import {scanSessions} from '../lib/context/scan.js';
@@ -98,9 +98,16 @@ class Indicator extends PanelMenu.Button {
             y_align: Clutter.ActorAlign.CENTER,
             y_expand: true,
         });
+        this._tagIcon = new St.Icon({
+            style_class: 'aiusagebar-vendor-icon',
+            icon_size: 16,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        this._box.add_child(this._tagIcon);
         this._box.add_child(this._tag);
         this._box.add_child(this._label);
         this.add_child(this._box);
+        this._setVendorTag(this._activeId);
 
         // Footer is a single non-reactive row of icon-only action buttons
         // (handlers connected once); per-vendor sub-sections are inserted above
@@ -214,9 +221,10 @@ class Indicator extends PanelMenu.Button {
             this._reRenderFromCache();
     }
 
-    // The custom provider's name is its sub-menu label, so a rename rebuilds too.
+    // The custom provider's name is its sub-menu label and the logos toggle
+    // swaps every header icon, so either one rebuilds the sub-menus too.
     _enabledSignature(config) {
-        return `${enabledVendors(config).join(',')}|${config.vendors.custom.name}`;
+        return `${enabledVendors(config).join(',')}|${config.vendors.custom.name}|${config.showVendorIcons}`;
     }
 
     _maybeRebuildVendorSections(config) {
@@ -231,7 +239,7 @@ class Indicator extends PanelMenu.Button {
 
         enabledVendors(config).forEach((id, idx) => {
             const sub = new PopupMenu.PopupSubMenuMenuItem('', true);
-            sub.icon.gicon = this._vendorGicon();
+            sub.icon.gicon = this._vendorGicon(id);
             sub.label.text = vendorLabel(id, config);
             this.menu.addMenuItem(sub, idx);
             this._vendorItems.set(id, sub);
@@ -615,15 +623,23 @@ class Indicator extends PanelMenu.Button {
         this._label.set_style(`color: ${color};`);
     }
 
-    _vendorGicon() {
-        // Symbolic name (-symbolic.svg) so St recolors it to the menu foreground;
-        // a plain icon would render its currentColor as black and vanish in dark.
-        const f = Gio.File.new_for_path(GLib.build_filenamev([this._path, 'icons', 'ai-symbolic.svg']));
+    // Symbolic name (-symbolic.svg) so St recolors it to the menu foreground;
+    // a plain icon would render its currentColor as black and vanish in dark.
+    _vendorGicon(id = null) {
+        const name = id !== null && this._config.showVendorIcons ? vendorIconName(id) : GENERIC_ICON;
+        const f = Gio.File.new_for_path(GLib.build_filenamev([this._path, 'icons', `${name}.svg`]));
         return new Gio.FileIcon({file: f});
     }
 
+    // The badge is the vendor's logo, or its short code with logos off or
+    // for a vendor without a mark of its own.
     _setVendorTag(id) {
         this._tag.text = vendorTag(id, this._config);
+        const logo = this._config.showVendorIcons && vendorIconName(id) !== GENERIC_ICON;
+        if (logo)
+            this._tagIcon.gicon = this._vendorGicon(id);
+        this._tagIcon.visible = logo;
+        this._tag.visible = !logo;
     }
 
     _makeActionButton(iconName, label, onClick) {
