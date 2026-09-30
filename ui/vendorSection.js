@@ -41,6 +41,8 @@ function rowHeader(iconName, title, opts = {}) {
     col.add_child(label(title, {styleClass: 'aiusagebar-row-title'}));
     if (opts.subtitle)
         col.add_child(label(opts.subtitle, {styleClass: 'aiusagebar-dim aiusagebar-row-subtitle'}));
+    if (opts.footnote)
+        col.add_child(label(opts.footnote, {styleClass: 'aiusagebar-dim aiusagebar-row-subtitle'}));
     head.add_child(col);
 
     if (opts.trailing)
@@ -58,6 +60,7 @@ function buildWindowRow(row, showPace) {
     const pctText = row.paceGlyph ? `${row.pct}% ${row.paceGlyph}` : `${row.pct}%`;
     r.add_child(rowHeader(row.icon, row.title, {
         subtitle: row.subtitle,
+        footnote: row.paceFootnote,
         trailing: pctText,
         trailingColor: row.color,
     }));

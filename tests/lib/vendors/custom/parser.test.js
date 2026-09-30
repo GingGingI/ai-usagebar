@@ -181,6 +181,19 @@ describe('placeholders / peak / severity', () => {
         assertEqual(m.get('weekly_pct'), '43');
     });
 
+    it('session_elapsed/weekly_elapsed: 0 without a window to pace against', () => {
+        const m = placeholders(s, NOW);
+        assertEqual(m.get('session_elapsed'), '0');
+        assertEqual(m.get('weekly_elapsed'), '0');
+    });
+
+    it('session_elapsed follows a paced first metric', () => {
+        const paced = parse({metrics: [
+            {label: 'A', used: '/usage/used', limit: '/usage/limit', resetsAfterSeconds: '/usage/left', windowSecs: 7200},
+        ]});
+        assertEqual(placeholders(paced, NOW).get('session_elapsed'), '50');
+    });
+
     it('peak and severity follow the highest metric', () => {
         assertEqual(customPeakUsage(s).percent, 43);
         assertEqual(customSeverity(s), Severity.LOW);

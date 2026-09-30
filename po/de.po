@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-30 00:02-0300\n"
+"POT-Creation-Date: 2026-09-30 00:07-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: German\n"
@@ -75,39 +75,39 @@ msgstr "Nutzung kritisch"
 msgid "Usage at %d%%"
 msgstr "Nutzung bei %d%%"
 
-#: lib/vendors/anthropic/section.js:39
+#: lib/vendors/anthropic/section.js:34
 msgid "Session"
 msgstr "Sitzung"
 
-#: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
-#: lib/vendors/zai/section.js:35
+#: lib/vendors/anthropic/section.js:35 lib/vendors/kimi/section.js:35
+#: lib/vendors/zai/section.js:29
 msgid "Weekly"
 msgstr "Wöchentlich"
 
-#: lib/vendors/anthropic/section.js:42
+#: lib/vendors/anthropic/section.js:37
 msgid "Sonnet only"
 msgstr "Nur Sonnet"
 
-#: lib/vendors/anthropic/section.js:56 lib/vendors/anthropic/section.js:66
+#: lib/vendors/anthropic/section.js:51 lib/vendors/anthropic/section.js:61
 msgid "Extra usage"
 msgstr "Zusätzliche Nutzung"
 
-#: lib/vendors/anthropic/section.js:58
+#: lib/vendors/anthropic/section.js:53
 msgid "Limit: none reported"
 msgstr "Limit: keines angegeben"
 
-#: lib/vendors/anthropic/section.js:69
+#: lib/vendors/anthropic/section.js:64
 #, javascript-format
 msgid "Limit: %s"
 msgstr "Limit: %s"
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:84 ui/indicator.js:273
+#: lib/vendors/anthropic/section.js:79 ui/indicator.js:273
 #, javascript-format
 msgid "Claude %s"
 msgstr "Claude %s"
 
-#: lib/vendors/custom/section.js:39
+#: lib/vendors/custom/section.js:34
 msgid "Custom provider"
 msgstr "Eigener Anbieter"
 
@@ -129,65 +129,65 @@ msgstr "API verfügbar"
 msgid "API unavailable"
 msgstr "API nicht verfügbar"
 
-#: lib/vendors/kimi/section.js:38
+#: lib/vendors/kimi/section.js:33
 msgid "Window (5h)"
 msgstr "Fenster (5h)"
 
-#: lib/vendors/kimi/section.js:42
+#: lib/vendors/kimi/section.js:37
 msgid "Monthly"
 msgstr "Monatlich"
 
 #. Translators: "Kimi" is a brand name — kept verbatim.
-#: lib/vendors/kimi/section.js:53
+#: lib/vendors/kimi/section.js:48
 #, javascript-format
 msgid "Kimi %s"
 msgstr "Kimi %s"
 
-#: lib/vendors/openai/section.js:37 lib/vendors/section-common.js:134
+#: lib/vendors/openai/section.js:31 lib/vendors/section-common.js:136
 msgid "Resets"
 msgstr "Resets"
 
-#: lib/vendors/openai/section.js:38
+#: lib/vendors/openai/section.js:32
 msgid "Reset credit"
 msgstr "Reset-Guthaben"
 
-#: lib/vendors/openai/section.js:45
+#: lib/vendors/openai/section.js:39
 msgid "Codex 5h"
 msgstr "Codex 5h"
 
-#: lib/vendors/openai/section.js:47
+#: lib/vendors/openai/section.js:41
 msgid "Codex weekly"
 msgstr "Codex wöchentlich"
 
-#: lib/vendors/openai/section.js:49 lib/vendors/zai/section.js:40
+#: lib/vendors/openai/section.js:43 lib/vendors/zai/section.js:34
 msgid "no usage windows reported"
 msgstr "keine Nutzungsfenster gemeldet"
 
-#: lib/vendors/openai/section.js:51
+#: lib/vendors/openai/section.js:45
 msgid "Code review (weekly)"
 msgstr "Code-Review (wöchentlich)"
 
-#: lib/vendors/openai/section.js:55
+#: lib/vendors/openai/section.js:49
 msgid "Credits"
 msgstr "Credits"
 
-#: lib/vendors/openai/section.js:56
+#: lib/vendors/openai/section.js:50
 #, javascript-format
 msgid "balance: %s"
 msgstr "Guthaben: %s"
 
-#: lib/vendors/openai/section.js:56
+#: lib/vendors/openai/section.js:50
 msgid "unlimited"
 msgstr "unbegrenzt"
 
 #. Translators: %s-%s is an approximate count range (e.g. "100-200").
-#: lib/vendors/openai/section.js:59
+#: lib/vendors/openai/section.js:53
 #, javascript-format
 msgid "~ %s-%s local messages"
 msgstr "~ %s-%s lokale Nachrichten"
 
 #. Translators: %s-%s is an approximate count range (e.g. "30-50").
-#: lib/vendors/openai/section.js:62
+#: lib/vendors/openai/section.js:56
 #, javascript-format
 msgid "~ %s-%s cloud messages"
 msgstr "~ %s-%s Cloud-Nachrichten"
@@ -226,12 +226,12 @@ msgstr "kostenlose Stufe"
 msgid "paid tier"
 msgstr "kostenpflichtige Stufe"
 
-#: lib/vendors/section-common.js:34
+#: lib/vendors/section-common.js:36
 #, javascript-format
 msgid "rate limited; next attempt in %s"
 msgstr "Anfragelimit erreicht; nächster Versuch in %s"
 
-#: lib/vendors/section-common.js:38
+#: lib/vendors/section-common.js:40
 #, javascript-format
 msgid ""
 "HTTP %d: authentication rejected — credentials may be missing, expired, or "
@@ -240,36 +240,64 @@ msgstr ""
 "HTTP %d: Authentifizierung abgelehnt — Zugangsdaten fehlen, sind abgelaufen "
 "oder ungültig"
 
-#: lib/vendors/section-common.js:77
+#: lib/vendors/section-common.js:79
 #, javascript-format
 msgid "HTTP %s"
 msgstr "HTTP %s"
 
-#: lib/vendors/section-common.js:88
+#: lib/vendors/section-common.js:90
 #, javascript-format
 msgid "Updated %s"
 msgstr "Aktualisiert %s"
 
-#: lib/vendors/section-common.js:113
+#: lib/vendors/section-common.js:115
 msgid "no expiry reported"
 msgstr "kein Ablaufdatum gemeldet"
 
-#: lib/vendors/section-common.js:115
+#: lib/vendors/section-common.js:117
 #, javascript-format
 msgid "expired %s"
 msgstr "abgelaufen am %s"
 
 #. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
-#: lib/vendors/section-common.js:117
+#: lib/vendors/section-common.js:119
 #, javascript-format
 msgid "expires %s (%s)"
 msgstr "läuft ab am %s (%s)"
 
-#: lib/vendors/zai/section.js:33
+#: lib/vendors/section-common.js:150
+msgid "Estimating…"
+msgstr "Wird geschätzt…"
+
+#: lib/vendors/section-common.js:152
+msgid "Limit reached"
+msgstr "Limit erreicht"
+
+#: lib/vendors/section-common.js:156
+msgid "on track"
+msgstr "im Plan"
+
+#: lib/vendors/section-common.js:158
+#, javascript-format
+msgid "%dpts ahead"
+msgstr "%d Pkt. voraus"
+
+#: lib/vendors/section-common.js:160
+#, javascript-format
+msgid "%dpts under"
+msgstr "%d Pkt. darunter"
+
+#. Translators: "42% elapsed · 3pts ahead" — how much of the window has passed, then the pace.
+#: lib/vendors/section-common.js:162
+#, javascript-format
+msgid "%d%% elapsed · %s"
+msgstr "%d%% vergangen · %s"
+
+#: lib/vendors/zai/section.js:27
 msgid "Session (5h)"
 msgstr "Sitzung (5h)"
 
-#: lib/vendors/zai/section.js:37
+#: lib/vendors/zai/section.js:31
 msgid "MCP tools (monthly)"
 msgstr "MCP-Tools (monatlich)"
 

@@ -8,6 +8,8 @@ import {
     groupHeading,
     groupedUsage,
     resetCreditRows,
+    paceFootnote,
+    paceFields,
     ICON_ERR_SERVER,
     ICON_ERR_CLIENT,
     ICON_FOOTER,
@@ -251,6 +253,64 @@ describe('resetCreditRows', () => {
         const rows = resetCreditRows([{title: 'A', expiresAt: null}], NOW, bracket);
         assertEqual(rows[0].label, '[Resets]');
         assertEqual(rows[1].text, 'A · [no expiry reported]');
+    });
+});
+
+describe('paceFootnote', () => {
+    const pace = (state, delta = 0, elapsedPct = 42) => ({state, delta, elapsedPct});
+
+    it('on track', () => assertEqual(paceFootnote(pace('ok', 0)), '42% elapsed · on track'));
+    it('ahead', () => assertEqual(paceFootnote(pace('ok', 3)), '42% elapsed · 3pts ahead'));
+    it('under', () => assertEqual(paceFootnote(pace('ok', -7)), '42% elapsed · 7pts under'));
+    it('estimating', () => assertEqual(paceFootnote(pace('estimating', -7)), 'Estimating…'));
+    it('limit', () => assertEqual(paceFootnote(pace('limit', 58)), 'Limit reached'));
+    it('neutral → empty', () => assertEqual(paceFootnote(pace('neutral')), ''));
+
+    it('translates through the injected translator', () => {
+        assertEqual(paceFootnote(pace('ok', 3), bracket), '[42% elapsed · [3pts ahead]]');
+        assertEqual(paceFootnote(pace('limit'), bracket), '[Limit reached]');
+    });
+});
+
+describe('paceFields', () => {
+    const palette = {green: '#g', yellow: '#y', orange: '#o', red: '#r', fg: '#fg'};
+    const pace = (state, extra = {}) => ({state, elapsedPct: 40, delta: -10, ratioPace: 'under', ...extra});
+
+    it('no pace → colour only', () => {
+        assertDeepEqual(paceFields(30, null, palette), {color: '#g', paceGlyph: ''});
+    });
+
+    it('ok → glyph, marker, over colour and footnote', () => {
+        const f = paceFields(30, pace('ok'), palette);
+        assertEqual(f.paceGlyph, '↓');
+        assertEqual(f.elapsedPct, 40);
+        assertEqual(typeof f.paceColor, 'string');
+        assertEqual(f.paceFootnote, '40% elapsed · 10pts under');
+    });
+
+    it('estimating keeps the marker but drops the glyph', () => {
+        const f = paceFields(30, pace('estimating'), palette);
+        assertEqual(f.paceGlyph, '');
+        assertEqual(f.elapsedPct, 40);
+        assertEqual(f.paceFootnote, 'Estimating…');
+    });
+
+    it('limit draws no marker and no glyph', () => {
+        const f = paceFields(100, pace('limit'), palette);
+        assertEqual(f.paceGlyph, '');
+        assertEqual('elapsedPct' in f, false);
+        assertEqual('paceColor' in f, false);
+        assertEqual(f.paceFootnote, 'Limit reached');
+    });
+
+    it('neutral draws no marker and an empty footnote', () => {
+        const f = paceFields(30, pace('neutral'), palette);
+        assertEqual('elapsedPct' in f, false);
+        assertEqual(f.paceFootnote, '');
+    });
+
+    it('footnote: false leaves the footnote out', () => {
+        assertEqual('paceFootnote' in paceFields(30, pace('ok'), palette, undefined, {footnote: false}), false);
     });
 });
 

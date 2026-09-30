@@ -301,4 +301,22 @@ describe('fakeSnapshot', () => {
     });
 });
 
+const PACE_NOW = new Date('2026-06-05T12:00:00Z');
+const halfway = windowMs => new Date(PACE_NOW.getTime() + windowMs / 2);
+
+describe('placeholders — elapsed aliases', () => {
+    const block = windowMs => ({limit: 100, used: 30, remaining: 70, resetAt: halfway(windowMs)});
+
+    it('session_elapsed follows the 5h window, weekly_elapsed the weekly one', () => {
+        const m = placeholders({plan: 'Moderato', window: block(WINDOW_MS), weekly: block(WEEKLY_MS), monthly: null}, PACE_NOW);
+        assertEqual(m.get('session_elapsed'), '50');
+        assertEqual(m.get('weekly_elapsed'), '50');
+    });
+
+    it('no weekly block → empty weekly_elapsed', () => {
+        const m = placeholders({plan: 'Moderato', window: block(WINDOW_MS), weekly: null, monthly: null}, PACE_NOW);
+        assertEqual(m.get('weekly_elapsed'), '');
+    });
+});
+
 system.exit(summary());

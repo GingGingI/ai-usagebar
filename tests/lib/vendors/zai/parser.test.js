@@ -230,4 +230,43 @@ describe('fakeSnapshot', () => {
     });
 });
 
+const PACE_NOW = new Date('2026-06-05T12:00:00Z');
+const halfway = windowMs => new Date(PACE_NOW.getTime() + windowMs / 2);
+
+describe('placeholders — pace', () => {
+    const snap = {
+        plan: 'Pro',
+        session: {utilizationPct: 60, resetsAt: halfway(SESSION_MS), windowMs: SESSION_MS},
+        weekly: {utilizationPct: 20, resetsAt: halfway(WEEKLY_MS), windowMs: WEEKLY_MS},
+        mcp: {utilizationPct: 100, resetsAt: halfway(MCP_MS), windowMs: MCP_MS},
+    };
+    const m = placeholders(snap, PACE_NOW);
+
+    it('zai_* elapsed, pace and pace_indicator for each window', () => {
+        assertEqual(m.get('zai_session_elapsed'), '50');
+        assertEqual(m.get('zai_session_pace'), '↑');
+        assertEqual(m.get('zai_session_pace_indicator'), '↑');
+        assertEqual(m.get('zai_weekly_pace'), '↓');
+        assertEqual(m.get('zai_mcp_elapsed'), '50');
+    });
+
+    it('a window at its cap shows no pace glyph', () => {
+        assertEqual(m.get('zai_mcp_pace'), '');
+        assertEqual(m.get('zai_mcp_pace_indicator'), '');
+    });
+
+    it('session_/weekly_ aliases', () => {
+        assertEqual(m.get('session_elapsed'), '50');
+        assertEqual(m.get('session_pace'), '↑');
+        assertEqual(m.get('weekly_elapsed'), '50');
+        assertEqual(m.get('weekly_pace'), '↓');
+    });
+
+    it('an absent window → 0 elapsed, no glyph', () => {
+        const empty = placeholders({plan: 'Pro', session: null, weekly: null, mcp: null}, PACE_NOW);
+        assertEqual(empty.get('zai_session_elapsed'), '0');
+        assertEqual(empty.get('zai_session_pace'), '');
+    });
+});
+
 system.exit(summary());

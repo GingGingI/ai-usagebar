@@ -129,4 +129,12 @@ describe('fakeSnapshot', () => {
     });
 });
 
+describe('placeholders — elapsed aliases', () => {
+    it('no window → 0', () => {
+        const m = placeholders({isAvailable: true, balance: 5, granted: 5, toppedUp: 0, currency: 'USD'}, new Date());
+        assertEqual(m.get('session_elapsed'), '0');
+        assertEqual(m.get('weekly_elapsed'), '0');
+    });
+});
+
 system.exit(summary());

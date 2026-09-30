@@ -374,4 +374,22 @@ describe('buildSection — resets', () => {
     });
 });
 
+describe('buildSection — pace footnote', () => {
+    const meta = {stale: false, lastError: null, fetchedAt: NOW};
+
+    it('paced windows carry a footnote; the unpaced Sonnet row does not', () => {
+        const rows = buildSection(fullSnapshot(), meta, NOW, theme).rows;
+        assertEqual(typeof rows[0].paceFootnote, 'string');
+        assertEqual(rows[0].paceFootnote.includes('elapsed'), true);
+        assertEqual('paceFootnote' in rows[2], false);
+    });
+
+    it('a weekly window a few minutes old reads Estimating…', () => {
+        const snap = {...fullSnapshot(), weekly: {utilizationPct: 7, resetsAt: new Date(NOW.getTime() + WEEKLY_MS - 5 * MIN)}};
+        const weekly = buildSection(snap, meta, NOW, theme).rows[1];
+        assertEqual(weekly.paceFootnote, 'Estimating…');
+        assertEqual(weekly.paceGlyph, '');
+    });
+});
+
 system.exit(summary());

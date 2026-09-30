@@ -391,4 +391,32 @@ describe('reset credits', () => {
     });
 });
 
+const PACE_NOW = new Date('2026-06-05T12:00:00Z');
+const halfway = windowMs => new Date(PACE_NOW.getTime() + windowMs / 2);
+
+describe('placeholders — session_/weekly_ pace aliases', () => {
+    const snap = {
+        plan: 'ChatGPT Plus',
+        session: {utilizationPct: 60, resetsAt: halfway(SESSION_MS), windowMs: SESSION_MS},
+        weekly: {utilizationPct: 20, resetsAt: halfway(WEEKLY_MS), windowMs: WEEKLY_MS},
+        codeReview: null,
+        credits: null,
+    };
+    const m = placeholders(snap, PACE_NOW);
+
+    it('mirror the oai_ keys', () => {
+        assertEqual(m.get('session_elapsed'), m.get('oai_session_elapsed'));
+        assertEqual(m.get('session_elapsed'), '50');
+        assertEqual(m.get('session_pace'), '↑');
+        assertEqual(m.get('weekly_elapsed'), '50');
+        assertEqual(m.get('weekly_pace'), '↓');
+    });
+
+    it('a window at its cap shows no pace glyph', () => {
+        const capped = placeholders({...snap, session: {...snap.session, utilizationPct: 100}}, PACE_NOW);
+        assertEqual(capped.get('session_pace'), '');
+        assertEqual(capped.get('oai_session_pace'), '');
+    });
+});
+
 system.exit(summary());

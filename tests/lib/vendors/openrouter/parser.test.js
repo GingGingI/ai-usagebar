@@ -138,4 +138,14 @@ describe('fakeSnapshot', () => {
     });
 });
 
+describe('placeholders — elapsed aliases', () => {
+    it('no window → 0', () => {
+        const snap = combine({totalCredits: 100, totalUsage: 25.5},
+            {label: 'prod', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: false});
+        const m = placeholders(snap, new Date());
+        assertEqual(m.get('session_elapsed'), '0');
+        assertEqual(m.get('weekly_elapsed'), '0');
+    });
+});
+
 system.exit(summary());

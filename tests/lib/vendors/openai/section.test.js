@@ -184,4 +184,13 @@ describe('buildSection (openai) — reset credits', () => {
     });
 });
 
+describe('buildSection (openai) — pace footnote', () => {
+    it('both Codex windows carry a footnote', () => {
+        const rows = buildSection(base(), META, NOW, theme).rows.filter(r => r.kind === 'window');
+        assertEqual(rows.length, 2);
+        for (const r of rows)
+            assertEqual(r.paceFootnote.includes('elapsed'), true);
+    });
+});
+
 system.exit(summary());

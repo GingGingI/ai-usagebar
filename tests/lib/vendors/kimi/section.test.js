@@ -94,4 +94,15 @@ describe('buildSection (kimi) — injected translator', () => {
     });
 });
 
+describe('buildSection (kimi) — no pace footnote', () => {
+    it('windows keep their glyph but carry no footnote', () => {
+        const now = new Date('2026-06-05T12:00:00Z');
+        const block = windowMs => ({limit: 100, used: 30, remaining: 70, resetAt: new Date(now.getTime() + windowMs / 2)});
+        const model = buildSection({plan: 'Moderato', window: block(WINDOW_MS), weekly: block(WEEKLY_MS), monthly: null},
+            {stale: false, lastError: null, fetchedAt: now}, now, defaultTheme());
+        for (const row of model.rows.filter(r => r.kind === 'window'))
+            assertEqual('paceFootnote' in row, false);
+    });
+});
+
 system.exit(summary());
