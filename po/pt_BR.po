@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:17-0300\n"
+"POT-Creation-Date: 2026-09-29 23:23-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: Portuguese (Brazil)\n"
@@ -40,7 +40,7 @@ msgstr "Uso crítico"
 msgid "Usage at %d%%"
 msgstr "Uso em %d%%"
 
-#: lib/vendors/anthropic/section.js:30 lib/vendors/kimi/section.js:23
+#: lib/vendors/anthropic/section.js:30 lib/vendors/kimi/section.js:24
 #: lib/vendors/openai/section.js:24 lib/vendors/zai/section.js:23
 #, javascript-format
 msgid "Resets in %s"
@@ -50,7 +50,7 @@ msgstr "Reinicia em %s"
 msgid "Session"
 msgstr "Sessão"
 
-#: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:33
+#: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
 #: lib/vendors/zai/section.js:36
 msgid "Weekly"
 msgstr "Semanal"
@@ -92,12 +92,16 @@ msgstr "API disponível"
 msgid "API unavailable"
 msgstr "API indisponível"
 
-#: lib/vendors/kimi/section.js:35
+#: lib/vendors/kimi/section.js:38
 msgid "Window (5h)"
 msgstr "Janela (5h)"
 
+#: lib/vendors/kimi/section.js:42
+msgid "Monthly"
+msgstr "Mensal"
+
 #. Translators: "Kimi" is a brand name — kept verbatim.
-#: lib/vendors/kimi/section.js:44
+#: lib/vendors/kimi/section.js:53
 #, javascript-format
 msgid "Kimi %s"
 msgstr "Kimi %s"
