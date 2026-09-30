@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:45-0300\n"
+"POT-Creation-Date: 2026-09-29 23:46-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: German\n"
@@ -49,6 +49,16 @@ msgstr "%dT %dh"
 msgid "%dh %02dm"
 msgstr "%dh %02dm"
 
+#: lib/countdown.js:55
+msgid "Reset due"
+msgstr "Zurücksetzung fällig"
+
+#. Translators: "Resets in 4h 05m · 13:54" — a countdown, then the clock time (or date and time).
+#: lib/countdown.js:57
+#, javascript-format
+msgid "Resets in %s · %s"
+msgstr "Zurücksetzung in %s · %s"
+
 #: lib/notify.js:47
 msgid "Usage is critical"
 msgstr "Nutzung kritisch"
@@ -58,18 +68,12 @@ msgstr "Nutzung kritisch"
 msgid "Usage at %d%%"
 msgstr "Nutzung bei %d%%"
 
-#: lib/vendors/anthropic/section.js:30 lib/vendors/kimi/section.js:24
-#: lib/vendors/openai/section.js:24 lib/vendors/zai/section.js:23
-#, javascript-format
-msgid "Resets in %s"
-msgstr "Zurücksetzung in %s"
-
 #: lib/vendors/anthropic/section.js:39
 msgid "Session"
 msgstr "Sitzung"
 
 #: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
-#: lib/vendors/zai/section.js:36
+#: lib/vendors/zai/section.js:35
 msgid "Weekly"
 msgstr "Wöchentlich"
 
@@ -136,7 +140,7 @@ msgstr "Codex 5h"
 msgid "Codex weekly"
 msgstr "Codex wöchentlich"
 
-#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:41
+#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:40
 msgid "no usage windows reported"
 msgstr "keine Nutzungsfenster gemeldet"
 
@@ -213,7 +217,9 @@ msgstr "Anfragelimit erreicht; nächster Versuch in %s"
 msgid ""
 "HTTP %d: authentication rejected — credentials may be missing, expired, or "
 "invalid"
-msgstr "HTTP %d: Authentifizierung abgelehnt — Zugangsdaten fehlen, sind abgelaufen oder ungültig"
+msgstr ""
+"HTTP %d: Authentifizierung abgelehnt — Zugangsdaten fehlen, sind abgelaufen "
+"oder ungültig"
 
 #: lib/vendors/section-common.js:76
 #, javascript-format
@@ -225,11 +231,11 @@ msgstr "HTTP %s"
 msgid "Updated %s"
 msgstr "Aktualisiert %s"
 
-#: lib/vendors/zai/section.js:34
+#: lib/vendors/zai/section.js:33
 msgid "Session (5h)"
 msgstr "Sitzung (5h)"
 
-#: lib/vendors/zai/section.js:38
+#: lib/vendors/zai/section.js:37
 msgid "MCP tools (monthly)"
 msgstr "MCP-Tools (monatlich)"
 

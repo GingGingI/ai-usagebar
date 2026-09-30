@@ -1,6 +1,7 @@
 import system from 'system';
 
-import {format, formatBackoff} from '../lib/countdown.js';
+import {format, formatBackoff, formatWithClock, resetClock} from '../lib/countdown.js';
+import {localTimeHm} from '../lib/format.js';
 import {describe, it, assertEqual, summary} from './_assert.js';
 
 const SECOND = 1000;
@@ -55,6 +56,40 @@ describe('countdown.format', () => {
     it('1 second remaining → "0h 00m"', () => {
         assertEqual(format(at(SECOND), now), '0h 00m');
     });
+});
+
+describe('formatWithClock', () => {
+    // `now` is local noon, so +4h05m stays on the same civil day in any zone.
+    it('same local day: countdown · HH:MM', () => {
+        const reset = at(4 * HOUR + 5 * MINUTE);
+        assertEqual(resetClock(reset, now), localTimeHm(reset));
+        assertEqual(formatWithClock(reset, now), `Resets in 4h 05m · ${localTimeHm(reset)}`);
+    });
+
+    it('another local day: countdown · locale date and time', () => {
+        const reset = at(2 * DAY + 3 * HOUR);
+        const clock = new Intl.DateTimeFormat(undefined, {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'}).format(reset);
+        assertEqual(resetClock(reset, now), clock);
+        assertEqual(formatWithClock(reset, now), `Resets in 2d 3h · ${clock}`);
+    });
+
+    it('crossing local midnight counts as another day', () => {
+        const reset = at(13 * HOUR);
+        assertEqual(resetClock(reset, now) === localTimeHm(reset), false);
+    });
+
+    it('a reset in the past is due', () => {
+        assertEqual(formatWithClock(at(-MINUTE), now), 'Reset due');
+        assertEqual(formatWithClock(now, now), 'Reset due');
+    });
+
+    it('no reset renders nothing', () => {
+        assertEqual(formatWithClock(null, now), '');
+        assertEqual(formatWithClock(undefined, now), '');
+    });
+
+    it('routes its prose through the translator', () =>
+        assertEqual(formatWithClock(at(-1), now, s => `«${s}»`), '«Reset due»'));
 });
 
 describe('formatBackoff', () => {

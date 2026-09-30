@@ -3,6 +3,7 @@ import system from 'system';
 import {buildSection, wrapWords} from '../../../../lib/vendors/anthropic/section.js';
 import {SESSION_MS, WEEKLY_MS} from '../../../../lib/vendors/anthropic/parser.js';
 import {calc} from '../../../../lib/pacing.js';
+import {resetClock} from '../../../../lib/countdown.js';
 import {defaultTheme} from '../../../../lib/theme.js';
 import {localTimeHm} from '../../../../lib/format.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../../_assert.js';
@@ -163,7 +164,8 @@ describe('buildSection — scoped windows', () => {
         s.scoped = [scopedWin('Fable', 84, 90)];
         const r = buildSection(s, meta, NOW, theme, t => `«${t}»`).rows[3];
         assertEqual(r.title, 'Fable'); // brand/model label — not translated
-        assertEqual(r.subtitle, '«Resets in «1h 30m»»'); // prose + countdown routed
+        // prose + countdown routed; the clock is locale data, not translated
+        assertEqual(r.subtitle, `«Resets in «1h 30m» · ${resetClock(s.scoped[0].resetsAt, NOW)}»`);
     });
 
     it('absent scoped → unchanged layout (no extra rows)', () => {
@@ -267,7 +269,7 @@ describe('buildSection — injected translator', () => {
         assertEqual(model.rows[0].title, '«Session»'));
 
     it('routes the "Resets in" subtitle and the countdown', () =>
-        assertEqual(model.rows[0].subtitle, '«Resets in «1h 30m»»'));
+        assertEqual(model.rows[0].subtitle, `«Resets in «1h 30m» · ${resetClock(fullSnapshot().session.resetsAt, NOW)}»`));
 
     it('routes the gauge sub-line', () =>
         assertEqual(model.rows[3].subLine, '«Limit: $50.00»'));

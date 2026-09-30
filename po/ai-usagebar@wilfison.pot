@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:45-0300\n"
+"POT-Creation-Date: 2026-09-29 23:46-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,6 +51,16 @@ msgstr ""
 msgid "%dh %02dm"
 msgstr ""
 
+#: lib/countdown.js:55
+msgid "Reset due"
+msgstr ""
+
+#. Translators: "Resets in 4h 05m · 13:54" — a countdown, then the clock time (or date and time).
+#: lib/countdown.js:57
+#, javascript-format
+msgid "Resets in %s · %s"
+msgstr ""
+
 #: lib/notify.js:47
 msgid "Usage is critical"
 msgstr ""
@@ -60,18 +70,12 @@ msgstr ""
 msgid "Usage at %d%%"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:30 lib/vendors/kimi/section.js:24
-#: lib/vendors/openai/section.js:24 lib/vendors/zai/section.js:23
-#, javascript-format
-msgid "Resets in %s"
-msgstr ""
-
 #: lib/vendors/anthropic/section.js:39
 msgid "Session"
 msgstr ""
 
 #: lib/vendors/anthropic/section.js:40 lib/vendors/kimi/section.js:40
-#: lib/vendors/zai/section.js:36
+#: lib/vendors/zai/section.js:35
 msgid "Weekly"
 msgstr ""
 
@@ -138,7 +142,7 @@ msgstr ""
 msgid "Codex weekly"
 msgstr ""
 
-#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:41
+#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:40
 msgid "no usage windows reported"
 msgstr ""
 
@@ -227,11 +231,11 @@ msgstr ""
 msgid "Updated %s"
 msgstr ""
 
-#: lib/vendors/zai/section.js:34
+#: lib/vendors/zai/section.js:33
 msgid "Session (5h)"
 msgstr ""
 
-#: lib/vendors/zai/section.js:38
+#: lib/vendors/zai/section.js:37
 msgid "MCP tools (monthly)"
 msgstr ""
 
