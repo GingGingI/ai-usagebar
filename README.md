@@ -18,8 +18,8 @@ button to cycle between them.
 
 | Vendor                 | What is shown                                    | Auth model                                                           |
 | ---------------------- | ------------------------------------------------ | -------------------------------------------------------------------- |
-| **Anthropic (Claude)** | Session + weekly usage %, reset countdowns, plan | OAuth credentials from `~/.claude/.credentials.json`, auto-refreshed |
-| **OpenAI (Codex)**     | Plan usage and reset windows                     | OAuth from `~/.codex/auth.json`; optional admin key for org usage    |
+| **Anthropic (Claude)** | Session + weekly usage %, model-scoped weekly caps, extra usage, banked resets, reset countdowns, plan; optionally your Claude Code sessions' context | OAuth credentials from `~/.claude/.credentials.json`, auto-refreshed |
+| **OpenAI (Codex)**     | 5h + weekly usage %, code review, credits, banked reset credits | OAuth from `~/.codex/auth.json`; optional admin key for org usage    |
 | **Z.AI / GLM**         | Plan usage and reset windows                     | API key (env var or prefs entry)                                     |
 | **OpenRouter**         | Credit balance and usage                         | API key (env var or prefs entry)                                     |
 | **DeepSeek**           | Balance / credits                                | API key (env var or prefs entry)                                     |
@@ -175,18 +175,84 @@ gear button in the popup footer). The prefs window exposes:
   and inline key (Z.AI/OpenRouter/DeepSeek/Kimi/Ollama), Z.AI plan tier, and
   Ollama plan name.
 
+## Placeholders
+
+`bar-format` and `tooltip-format` substitute `{token}` placeholders from the
+active vendor's values. A token the vendor does not provide is left as is; a
+window the vendor did not report resolves to an empty string rather than a
+made-up `0`. Reset tokens hold a countdown such as `4h 05m` (`—` when there is
+none).
+
+**Shared by every vendor** — `{icon}`, `{vendor_short}`, `{plan}`,
+`{session_pct}`, `{session_reset}`, `{session_elapsed}`, `{weekly_pct}`,
+`{weekly_reset}`, `{weekly_elapsed}`. `*_elapsed` is how much of the window has
+passed, in percent. Vendors with a reset instant also give `{session_pace}` and
+`{weekly_pace}`: `↑` ahead of pace, `→` on track, `↓` under, and nothing while
+the window is too new to judge, already at its cap, or has no reset.
+
+| Vendor | Its own tokens |
+| --- | --- |
+| Anthropic | `{sonnet_pct}`, `{sonnet_reset}`, `{sonnet_elapsed}`, `{sonnet_pace}`; for each of `session`, `weekly`, `sonnet`: `_pace_indicator`, `_pace_pct`, `_pace_pts`, `_pace_delta`, `_pace_abs_delta`; `{extra_spent}`, `{extra_limit}`, `{extra_pct}`; `{resets_available}` (banked resets), `{resets}` (`2 resets available`) |
+| OpenAI | `{oai_plan}`; `{oai_session_*}` and `{oai_weekly_*}` with `_pct`, `_reset`, `_elapsed`, `_pace`, `_pace_indicator`; `{oai_code_review_pct}`, `{oai_credit_balance}`, `{oai_local_msgs}`, `{oai_cloud_msgs}`; `{oai_resets_available}`, `{oai_resets}` |
+| Z.AI | `{zai_plan}`; `{zai_session_*}`, `{zai_weekly_*}`, `{zai_mcp_*}` with `_pct`, `_reset`, `_elapsed`, `_pace`, `_pace_indicator` |
+| OpenRouter | `{or_label}`, `{or_balance}`, `{or_total}`, `{or_used}`, `{or_used_today}`, `{or_used_week}`, `{or_used_month}`, `{or_consumed_pct}`, `{or_free_tier}`, `{or_limit}`, `{or_limit_remaining}` |
+| DeepSeek | `{ds_balance}`, `{ds_granted}`, `{ds_topped_up}`, `{ds_available}`, `{currency}` |
+| Kimi | `{kimi_plan}`, `{kimi_window_pct}`, `{kimi_window_reset}`, `{kimi_weekly_pct}`, `{kimi_weekly_reset}`, `{kimi_monthly_pct}`, `{kimi_monthly_reset}` |
+| Ollama Cloud | `{oll_plan}`, `{oll_cost}`; `{oll_session_*}`, `{oll_weekly_*}`, `{oll_monthly_*}` with `_pct`, `_reset`, `_elapsed` (never paced: the API reports no reset) |
+| Custom provider | `{custom_plan}`, `{custom_<i>_pct}`, `{custom_<i>_reset}` for each metric from 0 |
+
+For OpenRouter and DeepSeek, which have no usage windows, the shared
+`session_`/`weekly_` tokens hold the consumed share (OpenRouter) or `0`.
+
+## Refresh, cache and notifications
+
+- **Cache.** Each vendor keeps its last good figures in
+  `~/.cache/ai-usagebar/<vendor>/` — only the projected snapshot the popup
+  needs, never a raw response. A result younger than 60 seconds is reused
+  without a request. When a refresh fails, the last good figures stay on screen
+  with a `⏸` mark, for at most **7 days**; after that, or with no cache, the
+  error itself is shown.
+- **Rate limits.** An HTTP 429 from any endpoint pauses that vendor for **5
+  minutes**: no request at all (token refresh included) until it passes, and
+  the popup says when the next attempt is.
+- **Redirects.** Redirects are followed only within the same scheme, host and
+  port, at most 10 hops; a redirect to another origin stops there, so a
+  credential never follows it.
+- **Notifications.** Each usage window notifies once when it reaches the
+  threshold (default 97%; 100% and above is sent as critical). It fires again
+  only after usage drops more than 7 points below the threshold or the window
+  resets. A banked reset credit is announced once, 48 hours before it expires.
+  Only a fresh fetch notifies, never a cached or stale one.
+
+## Context monitor
+
+On the Anthropic preferences page, **Show session context** lists your most
+recent Claude Code sessions under the Claude section, each with how much of its
+context window the latest response used (input plus cache tokens). It reads the
+transcripts in `~/.claude/projects` (configurable) — only while the option is
+on, only after a successful Claude refresh, and only the last 2 MiB of the eight
+most recent sessions, asynchronously. Set a default window size and, optionally,
+a JSON map of per-model sizes; without one a session shows its raw token count
+instead of a guessed percentage.
+
 ## Privacy & security
 
 - The extension reads your **local** credential files
   (`~/.claude/.credentials.json`, `~/.codex/auth.json`) and any API keys you
   configure, only to authenticate requests to each vendor's usage endpoint.
 - It contacts **only** the vendor usage APIs, over HTTPS, to fetch your plan
-  status.
+  status — plus the URL you configure for the custom provider (HTTPS unless you
+  allow plain HTTP).
+- The context monitor, when you turn it on, reads your local Claude Code
+  transcripts; what it shows stays in the popup.
 - There is **no telemetry** and no third-party analytics. Nothing is sent
   anywhere other than the vendor whose usage you are viewing.
 - Credential files such as `*.credentials.json` and `auth.json` are never copied
-  or logged; refreshed Anthropic tokens are written back only to the same local
-  file they came from.
+  or logged; refreshed tokens are written back only to the same local file they
+  came from.
+- A 401/403 response body is never stored or shown (it can echo a credential);
+  other error bodies and all vendor text are stripped of control characters
+  before display.
 
 ## Development
 
