@@ -7,6 +7,7 @@
     <value nick="openrouter" value="3"/>
     <value nick="deepseek" value="4"/>
     <value nick="kimi" value="5"/>
+    <value nick="ollama" value="6"/>
   </enum>
 
   <schema id="org.gnome.shell.extensions.ai-usagebar"
@@ -192,6 +193,30 @@
       <default>''</default>
       <summary>Kimi inline API key</summary>
       <description>Inline Kimi API key used when the environment variable is unset. Empty means none.</description>
+    </key>
+
+    <key name="ollama-enabled" type="b">
+      <default>false</default>
+      <summary>Enable Ollama Cloud</summary>
+      <description>Whether the Ollama Cloud vendor is polled and shown. Off by default; requires an API key.</description>
+    </key>
+
+    <key name="ollama-api-key-env" type="s">
+      <default>'OLLAMA_API_KEY'</default>
+      <summary>Ollama API key environment variable</summary>
+      <description>Name of the environment variable holding the Ollama API key (takes precedence over the inline key).</description>
+    </key>
+
+    <key name="ollama-api-key" type="s">
+      <default>''</default>
+      <summary>Ollama inline API key</summary>
+      <description>Inline Ollama API key used when the environment variable is unset. Empty means none.</description>
+    </key>
+
+    <key name="ollama-plan" type="s">
+      <default>''</default>
+      <summary>Ollama plan name</summary>
+      <description>Plan name shown in the popup title and the {plan} placeholder; the usage route does not report one. Empty shows just "Ollama".</description>
     </key>
 
   </schema>
