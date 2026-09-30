@@ -1,7 +1,7 @@
 import GLib from 'gi://GLib';
 import system from 'system';
 
-import {withMutex, staleResult} from '../../../lib/vendors/fetch-common.js';
+import {withMutex, staleResult, MAX_STALE_MS} from '../../../lib/vendors/fetch-common.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../_assert.js';
 
 // The `it` harness is synchronous, so resolve promises against a main loop.
@@ -62,6 +62,33 @@ describe('staleResult', () => {
         runSync(staleResult(fakeCache({payload: 'PAYLOAD'}), (b) => { seen = b; return {}; }, NO_CACHE));
         assertEqual(seen, 'PAYLOAD');
     });
+});
+
+describe('staleResult — ceiling and original error', () => {
+    const ORIGINAL = {ok: false, kind: 'error', status: 401, message: 'usage request failed (HTTP 401)'};
+    const DAY = 86400 * 1000;
+
+    it('MAX_STALE_MS is seven days', () => assertEqual(MAX_STALE_MS, 7 * DAY));
+
+    it('an 8-day-old payload is not served; the original error is returned', () => {
+        const out = runSync(staleResult(fakeCache({payload: 'x', ageMs: 8 * DAY}), () => ({}), ORIGINAL));
+        assertEqual(out, ORIGINAL);
+    });
+
+    it('a payload exactly at the ceiling is still served', () => {
+        const out = runSync(staleResult(fakeCache({payload: 'x', ageMs: MAX_STALE_MS}), () => ({v: 1}), ORIGINAL));
+        assertEqual(out.ok, true);
+        assertEqual(out.stale, true);
+    });
+
+    it('a corrupt stale payload returns the original error, not a synthesized one', () => {
+        const out = runSync(staleResult(fakeCache({payload: '{', ageMs: 1000}), () => { throw new Error('bad'); }, ORIGINAL));
+        assertEqual(out, ORIGINAL);
+        assertEqual(out.status, 401);
+    });
+
+    it('no payload propagates the original error verbatim', () =>
+        assertEqual(runSync(staleResult(fakeCache({payload: null}), () => ({}), ORIGINAL)), ORIGINAL));
 });
 
 describe('withMutex', () => {

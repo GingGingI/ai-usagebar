@@ -74,6 +74,22 @@ describe('deepseekPeakUsage', () => {
     });
 });
 
+describe('corrupt payloads throw instead of coining a zero balance', () => {
+    it('parseBalance rejects unparseable, non-object and non-numeric bodies', () => {
+        assertThrows(() => parseBalance('not json'));
+        assertThrows(() => parseBalance('[]'));
+        assertThrows(() => parseBalance(JSON.stringify({is_available: true,
+            balance_infos: [{currency: 'USD', total_balance: 'lots', granted_balance: '0', topped_up_balance: '0'}]})));
+    });
+
+    it('parseCacheJson rejects a corrupt cache', () => {
+        assertThrows(() => parseCacheJson('{'));
+        assertThrows(() => parseCacheJson('null'));
+        assertThrows(() => parseCacheJson('{"is_available":true,"balance":"5","granted":0,"topped_up":0,"currency":"USD"}'));
+        assertThrows(() => parseCacheJson('{"is_available":true,"balance":5,"granted":0,"topped_up":0,"currency":""}'));
+    });
+});
+
 describe('cache JSON round-trip', () => {
     it('snapshotToCacheJson → parseCacheJson is identity', () => {
         const snap = {isAvailable: true, balance: 5.5, granted: 5, toppedUp: 0.5, currency: 'USD'};
