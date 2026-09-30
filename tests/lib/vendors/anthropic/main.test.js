@@ -46,6 +46,19 @@ function rmRf(path) {
     try { f.delete(null); } catch (_) { /* best-effort */ }
 }
 
+function chmod(path, mode) {
+    Gio.File.new_for_path(path).set_attribute_uint32('unix::mode', mode, Gio.FileQueryInfoFlags.NONE, null);
+}
+
+function writeCreds(dir, rel, {expiresAt, subscriptionType = 'pro'}) {
+    const path = GLib.build_filenamev([dir, rel]);
+    GLib.mkdir_with_parents(GLib.path_get_dirname(path), 0o755);
+    const doc = {claudeAiOauth: {accessToken: 'at', refreshToken: 'rt', expiresAt, subscriptionType, rateLimitTier: ''}};
+    Gio.File.new_for_path(path).replace_contents(
+        new TextEncoder().encode(JSON.stringify(doc)), null, false, Gio.FileCreateFlags.NONE, null);
+    return path;
+}
+
 function withTemp(fn, {expiresAt = 9_999_999_999_000} = {}) {
     return () => {
         const dir = GLib.Dir.make_tmp('ai-usagebar-fetch-XXXXXX');
@@ -146,6 +159,52 @@ describe('fetchSnapshot', () => {
         // Rotated token was written back to disk.
         assertEqual(runSync(readCreds(credsPath)).oauth.accessToken, 'new-at');
     }, {expiresAt: 0}));
+
+    it('usage failure with no cache carries the plan from the credentials', withTemp(({cache, credsPath}) => {
+        const r = runSync(fetchSnapshot({cache, http: httpStub(res(500, 'boom')), credsPath}));
+        assertEqual(r.ok, false);
+        assertEqual(r.kind, 'error');
+        assertEqual(r.plan, 'Pro 5x');
+    }));
+
+    it('an unknown plan is omitted from the error', withTemp(({cache, dir}) => {
+        const credsPath = writeCreds(dir, 'bare.json', {expiresAt: 9_999_999_999_000, subscriptionType: ''});
+        const r = runSync(fetchSnapshot({cache, http: httpStub(res(500, 'boom')), credsPath}));
+        assertEqual(r.kind, 'error');
+        assertEqual('plan' in r, false);
+    }));
+
+    it('an unsaved rotated refresh token is an auth error with stale fallback', withTemp(({cache, dir}) => {
+        cache.writePayload(USAGE);
+        backdate(cache, 120);
+        const credsPath = writeCreds(dir, 'ro/creds.json', {expiresAt: 0});
+        chmod(GLib.path_get_dirname(credsPath), 0o555);
+        try {
+            const http = httpStub([res(200, '{"access_token":"new-at","refresh_token":"new-rt","expires_in":3600}'), res(200, USAGE)]);
+            const r = runSync(fetchSnapshot({cache, http, credsPath}));
+            assertEqual(http.calls.length, 1);
+            assertEqual(r.ok, true);
+            assertEqual(r.stale, true);
+            assertEqual(r.lastError.body.startsWith('refreshed token could not be saved'), true);
+        } finally {
+            chmod(GLib.path_get_dirname(credsPath), 0o755);
+        }
+    }));
+
+    it('an unsaved access token alone stays best-effort', withTemp(({cache, dir}) => {
+        const credsPath = writeCreds(dir, 'ro/creds.json', {expiresAt: 0});
+        chmod(GLib.path_get_dirname(credsPath), 0o555);
+        try {
+            const http = httpStub([res(200, '{"access_token":"new-at","expires_in":3600}'), res(200, USAGE)]);
+            const r = runSync(fetchSnapshot({cache, http, credsPath}));
+            assertEqual(http.calls.length, 2);
+            assertEqual(http.calls[1].headers.Authorization, 'Bearer new-at');
+            assertEqual(r.ok, true);
+            assertEqual(r.stale, false);
+        } finally {
+            chmod(GLib.path_get_dirname(credsPath), 0o755);
+        }
+    }));
 
     it('HTTP 429 falls back to stale cache with lastError.code 429', withTemp(({cache, credsPath}) => {
         cache.writePayload(USAGE);

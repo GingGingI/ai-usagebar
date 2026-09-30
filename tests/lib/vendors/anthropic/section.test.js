@@ -90,6 +90,26 @@ describe('buildSection — omissions', () => {
         assertDeepEqual(kinds, ['window', 'window', 'gauge', 'footer']);
     });
 
+    it('extra with no cap → gauge with the spend, no bar, "none reported"', () => {
+        const s = fullSnapshot();
+        s.extra = {limitCents: null, spentCents: 14157, currency: 'BRL', decimalPlaces: 2};
+        const g = buildSection(s, meta, NOW, theme).rows.find(r => r.kind === 'gauge');
+        assertEqual(g.value, 'R$141.57');
+        assertEqual(g.subLine, 'Limit: none reported');
+        assertEqual('pct' in g, false);
+        assertEqual(buildSection(s, meta, NOW, theme, (t) => `«${t}»`).rows.find(r => r.kind === 'gauge').subLine,
+            '«Limit: none reported»');
+    });
+
+    it('extra with a cap renders its currency', () => {
+        const s = fullSnapshot();
+        s.extra = {limitCents: 50000, spentCents: 14157, currency: 'BRL', decimalPlaces: 2};
+        const g = buildSection(s, meta, NOW, theme).rows.find(r => r.kind === 'gauge');
+        assertEqual(g.value, 'R$141.57');
+        assertEqual(g.subLine, 'Limit: R$500.00');
+        assertEqual(g.pct, 28);
+    });
+
     it('omits extra when absent', () => {
         const s = fullSnapshot();
         s.extra = null;

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:23-0300\n"
+"POT-Creation-Date: 2026-09-29 23:29-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,17 +61,21 @@ msgstr ""
 msgid "Sonnet only"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:55
+#: lib/vendors/anthropic/section.js:56 lib/vendors/anthropic/section.js:66
 msgid "Extra usage"
 msgstr ""
 
 #: lib/vendors/anthropic/section.js:58
+msgid "Limit: none reported"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:69
 #, javascript-format
 msgid "Limit: %s"
 msgstr ""
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:70
+#: lib/vendors/anthropic/section.js:81 ui/indicator.js:269
 #, javascript-format
 msgid "Claude %s"
 msgstr ""
@@ -424,6 +428,6 @@ msgstr ""
 msgid "No data — use \"Refresh all\""
 msgstr ""
 
-#: ui/indicator.js:262 ui/indicator.js:395
+#: ui/indicator.js:262 ui/indicator.js:398
 msgid "Loading…"
 msgstr ""

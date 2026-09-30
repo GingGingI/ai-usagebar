@@ -17,7 +17,7 @@ import {request, disposeSession} from '../lib/http.js';
 import {getAdapter} from '../lib/vendors/registry.js';
 import {vendorLabel} from '../lib/vendors.js';
 import {renderSection} from './vendorSection.js';
-import {substitute, tooltipRows} from '../lib/format.js';
+import {substitute, tooltipRows, vformat} from '../lib/format.js';
 import {evaluateNotification, notificationText} from '../lib/notify.js';
 import {severityColor, Severity} from '../lib/severity.js';
 import {defaultTheme, withOverrides} from '../lib/theme.js';
@@ -264,6 +264,9 @@ class Indicator extends PanelMenu.Button {
             this._setSubmenuMessage(section, res.message, {
                 color: severityColor(Severity.CRITICAL, this._theme),
                 iconName: 'dialog-warning-symbolic',
+                // Only Anthropic errors carry a plan (read from its credentials).
+                // Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
+                title: res.plan ? vformat(_('Claude %s'), res.plan) : null,
             });
         }
     }
@@ -504,7 +507,14 @@ class Indicator extends PanelMenu.Button {
         else if (opts.dim)
             l.add_style_class_name('aiusagebar-dim');
         box.add_child(l);
-        item.add_child(box);
+        if (opts.title) {
+            const container = new St.BoxLayout({vertical: true, x_expand: true, style_class: 'aiusagebar-section'});
+            container.add_child(new St.Label({text: opts.title, style_class: 'aiusagebar-title'}));
+            container.add_child(box);
+            item.add_child(container);
+        } else {
+            item.add_child(box);
+        }
         menu.addMenuItem(item);
     }
 

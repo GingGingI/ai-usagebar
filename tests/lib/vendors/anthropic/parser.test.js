@@ -4,7 +4,8 @@ import {
     parseUsage,
     anthropicSeverity,
     anthropicPeakUsage,
-    fmtDollars,
+    formatMinor,
+    formatExtraAmount,
     placeholders,
     fakeSnapshot,
     SchemaError,
@@ -87,6 +88,40 @@ describe('parseUsage', () => {
         }), 'Pro');
         assertEqual(s.session.resetsAt, null);
         assertEqual(s.session.utilizationPct, 50);
+    });
+
+    const extraOf = (eu) => parseUsage(JSON.stringify({extra_usage: Object.assign({is_enabled: true}, eu)}), 'Pro').extra;
+
+    it('monthly_limit null keeps the block with no cap', () => {
+        const e = extraOf({monthly_limit: null, used_credits: 14157.0});
+        assertEqual(e.limitCents, null);
+        assertEqual(e.spentCents, 14157);
+    });
+
+    it('drops an enabled block without used_credits', () => {
+        assertEqual(extraOf({monthly_limit: 5000}), null);
+        assertEqual(extraOf({monthly_limit: 5000, used_credits: null}), null);
+    });
+
+    it('is_enabled:false drops the block even with a spend', () =>
+        assertEqual(extraOf({is_enabled: false, used_credits: 250}), null));
+
+    it('negative money values are schema drift', () => {
+        assertThrows(() => extraOf({monthly_limit: -1, used_credits: 0}));
+        assertThrows(() => extraOf({used_credits: -250}));
+    });
+
+    it('reads currency and decimal_places, accepting an integral float scale', () => {
+        const e = extraOf({used_credits: 14157, currency: 'BRL', decimal_places: 2.0});
+        assertEqual(e.currency, 'BRL');
+        assertEqual(e.decimalPlaces, 2);
+    });
+
+    it('rejects an invalid currency or decimal_places', () => {
+        for (const currency of ['brl', 'BR', 'R$', 'BRLX', 7])
+            assertThrows(() => extraOf({used_credits: 1, currency}));
+        for (const dp of [-1, 7, 2.5, '2'])
+            assertThrows(() => extraOf({used_credits: 1, decimal_places: dp}));
     });
 
     it('extra money values accept floats and truncate', () => {
@@ -205,18 +240,36 @@ describe('anthropicPeakUsage', () => {
     });
 });
 
-describe('fmtDollars', () => {
-    it('formats positive cents as $D.CC', () => {
-        assertEqual(fmtDollars(0), '$0.00');
-        assertEqual(fmtDollars(50), '$0.50');
-        assertEqual(fmtDollars(250), '$2.50');
-        assertEqual(fmtDollars(5000), '$50.00');
+describe('formatMinor', () => {
+    it('formats legacy cents as $D.CC', () => {
+        assertEqual(formatMinor(0, 2), '$0.00');
+        assertEqual(formatMinor(50, 2), '$0.50');
+        assertEqual(formatMinor(5000, 2), '$50.00');
     });
 
-    it('formats negative cents with a leading sign', () => {
-        assertEqual(fmtDollars(-150), '-$1.50');
-        assertEqual(fmtDollars(-1), '-$0.01');
+    it('formats negative amounts with the sign ahead of the symbol', () => {
+        assertEqual(formatMinor(-150, 2), '-$1.50');
+        assertEqual(formatMinor(-1, 2, 'EUR'), '-€0.01');
     });
+
+    it('uses the symbol table, else trails the code', () => {
+        assertEqual(formatMinor(14157, 2, 'BRL'), 'R$141.57');
+        assertEqual(formatMinor(350, 2, 'GBP'), '£3.50');
+        assertEqual(formatMinor(1200, 0, 'JPY'), '¥1200');
+        assertEqual(formatMinor(99, 2, 'CNY'), '¥0.99');
+        assertEqual(formatMinor(12345, 3, 'KWD'), '12.345 KWD');
+    });
+});
+
+describe('formatExtraAmount', () => {
+    const fmt = (currency, decimalPlaces, minor) => formatExtraAmount({currency, decimalPlaces}, minor);
+
+    it('both fields → that scale and currency', () => assertEqual(fmt('BRL', 2, 14157), 'R$141.57'));
+    it('currency without decimal_places → raw minor units', () => assertEqual(fmt('BRL', null, 14157), '14157 minor units BRL'));
+    it('decimal_places without currency → that scale with $', () => assertEqual(fmt(null, 3, 14157), '$14.157'));
+    it('neither → legacy $ cents', () => assertEqual(fmt(null, null, 14157), '$141.57'));
+    it('a snapshot built without the fields reads as legacy', () =>
+        assertEqual(formatExtraAmount({limitCents: 1, spentCents: 250}, 250), '$2.50'));
 });
 
 describe('placeholders', () => {
@@ -261,6 +314,13 @@ describe('placeholders', () => {
         assertEqual(m.get('extra_spent'), '$2.50');
         assertEqual(m.get('extra_limit'), '$50.00');
         assertEqual(m.get('extra_pct'), '5'); // 250*100/5000
+    });
+
+    it('no cap: extra_limit is — and extra_pct is 0', () => {
+        const m = placeholders({...s, extra: {limitCents: null, spentCents: 14157, currency: 'BRL', decimalPlaces: 2}}, now);
+        assertEqual(m.get('extra_spent'), 'R$141.57');
+        assertEqual(m.get('extra_limit'), '—');
+        assertEqual(m.get('extra_pct'), '0');
     });
 });
 
