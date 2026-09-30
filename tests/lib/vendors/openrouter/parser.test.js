@@ -37,6 +37,12 @@ describe('combine', () => {
         assertEqual(snap.usageMonthly, 30);
     });
 
+    it('sanitizes the key label', () => {
+        const key = parseKey(JSON.stringify({data: {label: 'pr‮od\u0000', limit: null, limit_remaining: null,
+            usage_daily: 0, usage_weekly: 0, usage_monthly: 0, is_free_tier: false}}));
+        assertEqual(key.label, 'prod');
+    });
+
     it('empty label → OpenRouter', () => {
         const snap = combine({totalCredits: 0, totalUsage: 0},
             {label: '', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: true});

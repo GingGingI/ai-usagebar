@@ -1,7 +1,7 @@
 import GLib from 'gi://GLib';
 import system from 'system';
 
-import {withMutex, staleResult, MAX_STALE_MS, RETRY_AFTER_MS, underBackoff, backoffResult} from '../../../lib/vendors/fetch-common.js';
+import {withMutex, staleResult, MAX_STALE_MS, RETRY_AFTER_MS, underBackoff, backoffResult, redactHttpError, recordHttpError} from '../../../lib/vendors/fetch-common.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../_assert.js';
 
 // The `it` harness is synchronous, so resolve promises against a main loop.
@@ -130,6 +130,41 @@ describe('429 backoff', () => {
             assertEqual(out.code, 'rate-limited');
             assertEqual(out.retryInMs, 60_000);
         }
+    });
+});
+
+describe('redactHttpError / recordHttpError', () => {
+    const TOKEN_BODY = JSON.stringify({error: 'invalid_token', access_token: 'sk-ant-secret-123'});
+
+    it('a 401/403 keeps only the status', () => {
+        for (const status of [401, 403]) {
+            const e = redactHttpError(status, TOKEN_BODY);
+            assertEqual(e.code, 'auth-rejected');
+            assertEqual(e.status, status);
+            assertEqual(JSON.stringify(e).includes('sk-ant-secret-123'), false);
+        }
+    });
+
+    it('any other status keeps a sanitized, capped body', () => {
+        const e = redactHttpError(500, `boom‮${'x'.repeat(5000)}`);
+        assertEqual(e.code, 'http');
+        assertEqual(e.body.startsWith('boom'), true);
+        assertEqual(e.body.includes('‮'), false);
+        assertEqual(Array.from(e.body).length, 4096);
+    });
+
+    it('records the redacted pair and returns the matching result', () => {
+        const written = [];
+        const cache = {writeLastError: (code, msg) => written.push([code, msg])};
+        const r = recordHttpError(cache, 401, TOKEN_BODY, 'usage request failed (HTTP 401)');
+        assertDeepEqual(written, [[401, '']]);
+        assertEqual(r.code, 'auth-rejected');
+        assertEqual(JSON.stringify(r).includes('sk-ant-secret-123'), false);
+
+        const r500 = recordHttpError(cache, 500, 'down', 'usage request failed (HTTP 500)');
+        assertDeepEqual(written[1], [500, 'down']);
+        assertEqual(r500.message, 'usage request failed (HTTP 500)');
+        assertEqual(r500.status, 500);
     });
 });
 

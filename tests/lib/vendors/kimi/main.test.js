@@ -151,15 +151,17 @@ describe('fetchSnapshot (kimi)', () => {
         assertEqual(r.snapshot.weekly.used, 10);
         assertEqual(r.lastError.code, 401);
         // The persisted diagnostic never echoes the upstream body.
-        assertEqual(r.lastError.body, 'Kimi authentication failed');
+        assertEqual(r.lastError.body, '');
     }));
 
-    it('HTTP 401 with no cache → kind:error with the generic auth message', withTemp(({cache}) => {
+    it('HTTP 401 with no cache → auth-rejected, body never echoed', withTemp(({cache}) => {
         const http = httpStub(res(401, '{"secret":"do-not-leak"}'));
         const r = runSync(fetchSnapshot({cache, http, apiKey: 'k'}));
         assertEqual(r.ok, false);
         assertEqual(r.kind, 'error');
-        assertEqual(r.message, 'Kimi authentication failed');
+        assertEqual(r.code, 'auth-rejected');
+        assertEqual(r.status, 401);
+        assertEqual(JSON.stringify(r).includes('do-not-leak'), false);
     }));
 
     it('HTTP 500 with no cache → kind:error mentioning the status', withTemp(({cache}) => {

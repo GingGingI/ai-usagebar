@@ -107,6 +107,25 @@ describe('rate-limited backoff', () => {
     });
 });
 
+describe('auth-rejected', () => {
+    it('a 401/403 lastError shows the translated notice and never its body', () => {
+        const row = httpErrorRow({lastError: {code: 401, body: '{"access_token":"secret"}'}}, theme);
+        assertEqual(row.status, 'HTTP 401: authentication rejected — credentials may be missing, expired, or invalid');
+        assertDeepEqual(row.lines, []);
+        assertEqual(httpErrorRow({lastError: {code: 403, body: 'x'}}, theme, bracket).status,
+            '[HTTP 403: authentication rejected — credentials may be missing, expired, or invalid]');
+    });
+
+    it('other bodies are sanitized at render', () => {
+        const row = httpErrorRow({lastError: {code: 500, body: 'bad‮gateway'}}, theme);
+        assertDeepEqual(row.lines, ['badgateway']);
+    });
+
+    it('errorText translates an auth-rejected result', () =>
+        assertEqual(errorText({ok: false, kind: 'error', code: 'auth-rejected', status: 403, message: 'x'}, bracket),
+            '[HTTP 403: authentication rejected — credentials may be missing, expired, or invalid]'));
+});
+
 describe('footerRow', () => {
     const fetchedAt = new Date(2026, 0, 1, 9, 5);
 

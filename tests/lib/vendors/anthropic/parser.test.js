@@ -92,6 +92,12 @@ describe('parseUsage', () => {
         assertEqual(s.session.utilizationPct, 50);
     });
 
+    it('sanitizes the scoped model label', () => {
+        const s = parseUsage(JSON.stringify({limits: [{kind: 'weekly_scoped', percent: 1,
+            scope: {model: {display_name: 'Fa‮ble\u0007'}}}]}), 'Pro');
+        assertEqual(s.scoped[0].label, 'Fable');
+    });
+
     const extraOf = (eu) => parseUsage(JSON.stringify({extra_usage: Object.assign({is_enabled: true}, eu)}), 'Pro').extra;
 
     it('monthly_limit null keeps the block with no cap', () => {

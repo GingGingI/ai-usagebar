@@ -158,12 +158,12 @@ describe('fetchSnapshot (zai)', () => {
     }));
 
     it('HTTP failure with no cache → kind:error with a message', withTemp(({cache}) => {
-        const http = httpStub(res(401, '{"code":401,"msg":"Unauthorized"}'));
+        const http = httpStub(res(500, '{"code":500,"msg":"boom"}'));
         const r = runSync(fetchSnapshot({cache, http, apiKey: 'k'}));
         assertEqual(r.ok, false);
         assertEqual(r.kind, 'error');
         assertEqual(typeof r.message, 'string');
-        assertEqual(r.message.includes('401'), true);
+        assertEqual(r.message.includes('500'), true);
     }));
 });
 

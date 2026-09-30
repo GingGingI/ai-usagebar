@@ -5,6 +5,7 @@ import {
     vformat,
     localTimeHm,
     formatMoney,
+    sanitizeUntrusted,
 } from '../lib/format.js';
 import {describe, it, assertEqual, summary} from './_assert.js';
 
@@ -91,6 +92,27 @@ describe('formatMoney', () => {
     });
 
     it('trails an unknown code', () => assertEqual(formatMoney(12.3, 'XYZ'), '12.30 XYZ'));
+});
+
+describe('sanitizeUntrusted', () => {
+    it('keeps newlines and turns \t and \r into spaces', () =>
+        assertEqual(sanitizeUntrusted('a\tb\r\nc'), 'a b \nc'));
+
+    it('removes C0/C1 controls and DEL', () =>
+        assertEqual(sanitizeUntrusted('a\u0000b\u001bc\u007fd\u0085e\u009ff'), 'abcdef'));
+
+    it('removes bidi marks, overrides and isolates', () =>
+        assertEqual(sanitizeUntrusted('Pro‮gnp.exe‎‏‪⁦⁩'), 'Prognp.exe'));
+
+    it('truncates by characters, not UTF-16 units', () => {
+        assertEqual(sanitizeUntrusted('abcdef', 3), 'abc');
+        assertEqual(sanitizeUntrusted('😀😀😀', 2), '😀😀');
+    });
+
+    it('turns null and non-strings into text', () => {
+        assertEqual(sanitizeUntrusted(null), '');
+        assertEqual(sanitizeUntrusted(42), '42');
+    });
 });
 
 describe('vformat', () => {
