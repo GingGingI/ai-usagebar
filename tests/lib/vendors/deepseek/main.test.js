@@ -94,6 +94,18 @@ describe('fetchSnapshot (deepseek)', () => {
         assertEqual(r.snapshot.currency, 'USD');
     }));
 
+    it('an unsupported currency is an error, keeps the good cache and is not cached', withTemp(({cache}) => {
+        cache.writePayload(SEED);
+        backdate(cache, 120);
+        const eur = JSON.stringify({is_available: true, balance_infos: [
+            {currency: 'EUR', total_balance: '9.00', granted_balance: '9.00', topped_up_balance: '0.00'}]});
+        const r = runSync(fetchSnapshot({cache, http: httpStub(res(200, eur)), apiKey: 'k'}));
+        assertEqual(r.ok, true);
+        assertEqual(r.stale, true);
+        assertEqual(r.snapshot.balance, 3);
+        assertEqual(new TextDecoder().decode(runSync(cache.maybePayload())), SEED);
+    }));
+
     it('HTTP 401 falls back to seeded cache with lastError.code 401', withTemp(({cache}) => {
         cache.writePayload(SEED);
         backdate(cache, 120);

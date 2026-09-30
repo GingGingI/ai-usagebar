@@ -4,6 +4,7 @@ import {
     substitute,
     vformat,
     localTimeHm,
+    formatMoney,
 } from '../lib/format.js';
 import {describe, it, assertEqual, summary} from './_assert.js';
 
@@ -60,6 +61,36 @@ describe('time formatting', () => {
     it('localTimeHm at anchor', () => {
         assertEqual(localTimeHm(anchor), '14:07');
     });
+});
+
+describe('formatMoney', () => {
+    it('defaults to USD with two decimals', () => {
+        assertEqual(formatMoney(5), '$5.00');
+        assertEqual(formatMoney(12.345), '$12.35');
+    });
+
+    it('puts the sign ahead of the symbol', () => {
+        assertEqual(formatMoney(-5.71), '-$5.71');
+        assertEqual(formatMoney(-1.5, 'EUR'), '-€1.50');
+        assertEqual(formatMoney(-12.3, 'XYZ'), '-12.30 XYZ');
+    });
+
+    it('never renders -$0.00', () => {
+        assertEqual(formatMoney(-0), '$0.00');
+        assertEqual(formatMoney(-0.001), '$0.00');
+        assertEqual(formatMoney(-0.004, 'BRL'), 'R$0.00');
+    });
+
+    it('maps the known currencies to symbols, JPY keeping two decimals', () => {
+        assertEqual(formatMoney(3.5, 'USD'), '$3.50');
+        assertEqual(formatMoney(3.5, 'EUR'), '€3.50');
+        assertEqual(formatMoney(3.5, 'GBP'), '£3.50');
+        assertEqual(formatMoney(141.57, 'BRL'), 'R$141.57');
+        assertEqual(formatMoney(1200, 'JPY'), '¥1200.00');
+        assertEqual(formatMoney(20, 'CNY'), '¥20.00');
+    });
+
+    it('trails an unknown code', () => assertEqual(formatMoney(12.3, 'XYZ'), '12.30 XYZ'));
 });
 
 describe('vformat', () => {

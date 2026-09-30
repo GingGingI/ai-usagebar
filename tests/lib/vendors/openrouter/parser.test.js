@@ -72,6 +72,24 @@ describe('openrouterSeverity', () => {
     });
 });
 
+describe('openrouterSeverity — negative balance', () => {
+    const overrun = (credits, usage) => combine({totalCredits: credits, totalUsage: usage},
+        {label: '', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: false});
+
+    it('a usage overrun shows a negative balance and is critical', () => {
+        const snap = overrun(10, 15.71);
+        assertEqual(balance(snap), 10 - 15.71);
+        assertEqual(placeholders(snap, new Date()).get('or_balance'), '-$5.71');
+        assertEqual(openrouterSeverity(snap), Severity.CRITICAL);
+    });
+
+    it('is critical even with no credits (consumedPct 0)', () => {
+        const snap = overrun(0, 5);
+        assertEqual(consumedPct(snap), 0);
+        assertEqual(openrouterSeverity(snap), Severity.CRITICAL);
+    });
+});
+
 describe('openrouterPeakUsage', () => {
     it('returns consumed percentage with no reset window', () => {
         const snap = combine({totalCredits: 100, totalUsage: 92}, {label: '', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: false});
