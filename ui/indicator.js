@@ -11,6 +11,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {Cache} from '../lib/cache.js';
 import {readConfig} from '../lib/config.js';
+import {FetchGuard} from '../lib/fetch-guard.js';
 import {normalizeActive, cycleVendor, enabledVendors} from '../lib/config-resolve.js';
 import {writeActiveVendorMirror} from '../lib/active-vendor.js';
 import {request, disposeSession} from '../lib/http.js';
@@ -50,6 +51,7 @@ class Indicator extends PanelMenu.Button {
         this._barFormat = this._config.barFormat;
 
         this._cancellable = new Gio.Cancellable();
+        this._fetchGuard = new FetchGuard();
         this._activeId = normalizeActive(this._config);
         this._adapter = getAdapter(this._activeId);
         this._cache = Cache.forVendor(this._adapter.cacheId);
@@ -300,17 +302,38 @@ class Indicator extends PanelMenu.Button {
         if (activeChanged)
             this._setActiveExpansion(activeId);
 
-        const res = await this._runFetch(this._adapter, {
-            config: this._config,
-            cache: this._cache,
-            http: request,
-            signal: this._cancellable,
-        });
+        // A vendor switch must not wait behind the old vendor's (possibly slow) fetch.
+        if (activeChanged && this._fetchGuard.busy)
+            this._fetchGuard.supersede();
+        const token = this._fetchGuard.begin();
+        if (token === null)
+            return;
+
+        // Captured now: a scroll during the await swaps this._adapter / this._cache.
+        const adapter = this._adapter;
+        const cache = this._cache;
+        const config = this._config;
+        let res;
+        try {
+            res = await this._runFetch(adapter, {config, cache, http: request, signal: this._cancellable});
+        } catch (e) {
+            res = {ok: false, kind: 'error', message: e?.message ?? String(e)};
+        }
         if (this._destroyed)
             return;
+
+        const current = this._fetchGuard.isCurrent(token) &&
+            activeId === normalizeActive(readConfig(this._settings));
+        const again = this._fetchGuard.end(token);
         this._storeResult(activeId, res);
-        this._maybeNotify(this._adapter, this._cache, res, this._config);
-        this._render(res);
+        if (current) {
+            this._maybeNotify(adapter, cache, res, config);
+            this._render(res);
+        } else {
+            this._renderVendorSection(activeId);
+        }
+        if (again)
+            this._refresh().catch(e => console.warn(`ai-usagebar: refresh failed: ${e}`));
     }
 
     async _refreshAll() {
