@@ -9,6 +9,7 @@ import {rgbToHex} from './lib/color.js';
 import {vformat} from './lib/format.js';
 import {defaultTheme} from './lib/theme.js';
 import {VENDOR_LABELS} from './lib/vendors.js';
+import {parseExtraHeaders, validateMapping} from './lib/vendors/custom/parser.js';
 
 const INTERVAL_MIN = 300;
 const INTERVAL_MAX = 86400;
@@ -40,6 +41,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         window.add(this._buildDeepSeekPage(settings));
         window.add(this._buildKimiPage(settings));
         window.add(this._buildOllamaPage(settings));
+        window.add(this._buildCustomPage(settings, cleanups));
 
         window.connect('close-request', () => {
             for (const disconnect of cleanups)
@@ -358,6 +360,111 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         group.add(this._entryRow(settings, 'ollama-plan', _('Plan name (optional)')));
         page.add(group);
         return page;
+    }
+
+    _buildCustomPage(settings, cleanups) {
+        const page = new Adw.PreferencesPage({
+            title: _('Custom'),
+            icon_name: 'ai-symbolic',
+        });
+
+        const group = new Adw.PreferencesGroup({
+            title: _('Custom provider'),
+            description: _('Any HTTPS endpoint that answers a GET with JSON, mapped to usage rows by JSON Pointer. See the README for an example.'),
+        });
+        group.add(this._switchRow(settings, 'custom-enabled', _('Enabled')));
+        group.add(this._entryRow(settings, 'custom-name', _('Name')));
+        group.add(this._entryRow(settings, 'custom-url', _('URL')));
+        group.add(this._switchRow(settings, 'custom-allow-http', _('Allow plain HTTP')));
+        page.add(group);
+
+        const auth = new Adw.PreferencesGroup({
+            title: _('Authentication'),
+            description: _('Without a key no auth header is sent. An empty scheme sends the key bare.'),
+        });
+        auth.add(this._entryRow(settings, 'custom-api-key-env', _('API key env var (optional)')));
+        auth.add(this._passwordRow(settings, 'custom-api-key', _('API key (inline)')));
+        auth.add(this._entryRow(settings, 'custom-auth-header', _('Auth header')));
+        auth.add(this._entryRow(settings, 'custom-auth-scheme', _('Auth scheme')));
+        page.add(auth);
+
+        const headers = new Adw.PreferencesGroup({
+            title: _('Extra headers'),
+            description: _('A JSON object of header names to string values; it must not repeat the auth header.'),
+        });
+        headers.add(this._jsonEditor(settings, 'custom-extra-headers', text => {
+            const authHeader = settings.get_string('custom-auth-header').trim() || 'Authorization';
+            return parseExtraHeaders(text, authHeader) === null
+                ? [_('Not a JSON object of string header values, or it repeats the auth header.')]
+                : [];
+        }, cleanups));
+        page.add(headers);
+
+        const mapping = new Adw.PreferencesGroup({
+            title: _('Mapping'),
+            description: _('Metrics (used + limit, or percent) and texts, each read from the response by JSON Pointer. Saved when the editor loses focus and the mapping is valid.'),
+        });
+        mapping.add(this._jsonEditor(settings, 'custom-mapping', text => {
+            let obj;
+            try {
+                obj = JSON.parse(text);
+            } catch (e) {
+                return [vformat(_('Not valid JSON: %s'), e.message)];
+            }
+            return validateMapping(obj);
+        }, cleanups));
+        page.add(mapping);
+        return page;
+    }
+
+    // A monospace JSON editor bound to a string key: its text is saved when
+    // focus leaves and `validate` finds no problem; otherwise the problems
+    // show below it and the saved value stays. Empty is always valid.
+    _jsonEditor(settings, key, validate, cleanups) {
+        const box = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, spacing: 6});
+        const view = new Gtk.TextView({
+            monospace: true,
+            wrap_mode: Gtk.WrapMode.WORD_CHAR,
+            top_margin: 8,
+            bottom_margin: 8,
+            left_margin: 8,
+            right_margin: 8,
+        });
+        view.buffer.text = settings.get_string(key);
+        const scroller = new Gtk.ScrolledWindow({
+            child: view,
+            min_content_height: 140,
+            hscrollbar_policy: Gtk.PolicyType.NEVER,
+            css_classes: ['card'],
+        });
+        // Problems may quote user text, so they are never parsed as markup.
+        const problems = new Gtk.Label({
+            use_markup: false,
+            wrap: true,
+            xalign: 0,
+            visible: false,
+            css_classes: ['error', 'caption'],
+        });
+        box.append(scroller);
+        box.append(problems);
+
+        const focus = new Gtk.EventControllerFocus();
+        focus.connect('leave', () => {
+            const text = view.buffer.text.trim();
+            const found = text === '' ? [] : validate(text);
+            problems.label = found.join('\n');
+            problems.visible = found.length > 0;
+            if (found.length === 0 && settings.get_string(key) !== text)
+                settings.set_string(key, text);
+        });
+        view.add_controller(focus);
+
+        const syncId = settings.connect(`changed::${key}`, () => {
+            if (!view.has_focus && view.buffer.text.trim() !== settings.get_string(key))
+                view.buffer.text = settings.get_string(key);
+        });
+        cleanups.push(() => settings.disconnect(syncId));
+        return box;
     }
 
     _switchRow(settings, key, title) {

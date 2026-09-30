@@ -2,6 +2,8 @@ import system from 'system';
 
 import {
     parseUsage, validateMapping, placeholders, customPeakUsage, customSeverity, formatNumber, SchemaError,
+    shortCode, providerName, urlProblem, parseExtraHeaders, parseMapping, requestHeaders, notifyRows, resetCredits,
+    snapshotToCacheJson, parseCacheJson,
 } from '../../../../lib/vendors/custom/parser.js';
 import {Severity} from '../../../../lib/severity.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../../_assert.js';
@@ -207,6 +209,98 @@ describe('formatNumber', () => {
         assertEqual(formatNumber(2.5), '2.5');
         assertEqual(formatNumber(1 / 3), '0.33');
         assertEqual(formatNumber(2.0), '2');
+    });
+});
+
+describe('shortCode', () => {
+    it('first three ASCII letters, upper-cased', () => assertEqual(shortCode('My Tool'), 'MYT'));
+    it('folds accents and skips punctuation and digits', () => {
+        assertEqual(shortCode('Café-Pro'), 'CAF');
+        assertEqual(shortCode('9 Ö.k!y'), 'OKY');
+    });
+    it('keeps what there is when shorter', () => assertEqual(shortCode('AI'), 'AI'));
+    it('falls back to CST', () => {
+        assertEqual(shortCode('42 !!'), 'CST');
+        assertEqual(shortCode(''), 'CST');
+        assertEqual(shortCode(undefined), 'CST');
+    });
+});
+
+describe('providerName', () => {
+    it('trims, defaults to Custom, caps at 48', () => {
+        assertEqual(providerName('  Team API  '), 'Team API');
+        assertEqual(providerName(''), 'Custom');
+        assertEqual(providerName('é'.repeat(50)).length, 48);
+    });
+});
+
+describe('urlProblem', () => {
+    it('accepts https', () => assertEqual(urlProblem('https://api.example.com/usage', false), null));
+    it('refuses http unless allowed', () => {
+        assertEqual(urlProblem('http://localhost:8765/usage', false).includes('http://'), true);
+        assertEqual(urlProblem('http://localhost:8765/usage', true), null);
+    });
+    it('refuses other schemes, user:pass@ and a missing host', () => {
+        assertEqual(urlProblem('ftp://example.com', true) !== null, true);
+        assertEqual(urlProblem('https://user:pass@example.com/x', false).includes('user name'), true);
+        assertEqual(urlProblem('https://token@example.com/x', false) !== null, true);
+        assertEqual(urlProblem('https:///usage', false).includes('host'), true);
+        assertEqual(urlProblem('https://:443/usage', false).includes('host'), true);
+    });
+    it('refuses a relative or empty URL', () => {
+        assertEqual(urlProblem('', false) !== null, true);
+        assertEqual(urlProblem('example.com/usage', false) !== null, true);
+    });
+    it('never echoes the URL', () => {
+        assertEqual(urlProblem('https://secret:pw@example.com', false).includes('secret'), false);
+    });
+});
+
+describe('parseExtraHeaders', () => {
+    it('empty is none', () => assertDeepEqual(parseExtraHeaders('  ', 'Authorization'), {}));
+    it('an object of strings', () => assertDeepEqual(parseExtraHeaders('{"X-Team":"core"}', 'Authorization'), {'X-Team': 'core'}));
+    it('invalid JSON, a non-object, non-string values or bad names → null', () => {
+        for (const bad of ['{', '[]', '"x"', '{"X":1}', '{"Bad Name":"x"}', '{"X":"a\\nb"}'])
+            assertEqual(parseExtraHeaders(bad, 'Authorization'), null, bad);
+    });
+    it('repeating the auth header (any case) → null', () => {
+        assertEqual(parseExtraHeaders('{"authorization":"x"}', 'Authorization'), null);
+        assertEqual(parseExtraHeaders('{"X-Api-Key":"x"}', 'x-api-key'), null);
+    });
+});
+
+describe('parseMapping', () => {
+    it('a valid mapping', () => assertEqual(parseMapping('{"texts":[{"label":"R","value":"/r"}]}').texts.length, 1));
+    it('empty, invalid JSON or an invalid mapping → null', () => {
+        for (const bad of ['', '{', '[]', '{"metrics":[]}', '{"metrics":[{"label":"A","percent":"x"}]}'])
+            assertEqual(parseMapping(bad), null, bad);
+    });
+});
+
+describe('requestHeaders', () => {
+    const cfg = {authHeader: 'Authorization', authScheme: 'Bearer', extraHeaders: {'X-Team': 'core'}};
+    it('Accept, the extras and the scheme-prefixed key', () =>
+        assertDeepEqual(requestHeaders(cfg, 'k'), {Accept: 'application/json', 'X-Team': 'core', Authorization: 'Bearer k'}));
+    it('an empty scheme sends the key bare, in the chosen header', () =>
+        assertEqual(requestHeaders({...cfg, authHeader: 'X-Api-Key', authScheme: ''}, 'k')['X-Api-Key'], 'k'));
+    it('no key → no auth header', () => assertEqual('Authorization' in requestHeaders(cfg, null), false));
+});
+
+describe('notifyRows / resetCredits / cache / vendor_short', () => {
+    const s = {...parse({metrics: [{label: 'A', percent: '/usage/pct'}]}), name: 'My Tool'};
+
+    it('one notify row per metric', () => {
+        assertDeepEqual(notifyRows(s), [{key: 'metric:A', label: 'A', percent: 43, resetsAt: null}]);
+        assertEqual(resetCredits(s).length, 0);
+    });
+
+    it('round-trips through the cache', () => {
+        assertDeepEqual(parseCacheJson(snapshotToCacheJson(s)), s);
+    });
+
+    it('{vendor_short} comes from the name', () => {
+        assertEqual(placeholders(s, NOW).get('vendor_short'), 'myt');
+        assertEqual(placeholders({...s, name: undefined}, NOW).get('vendor_short'), 'cst');
     });
 });
 

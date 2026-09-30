@@ -21,6 +21,8 @@ const SHAPE = {
 // Optional, dev-only hooks an adapter may expose (e.g. AI_USAGEBAR_FAKE_PCT).
 const OPTIONAL_SHAPE = {
     fakeSnapshot: 'function',
+    // A badge derived from the config, for a provider the user names.
+    shortCode: 'function',
 };
 
 describe('ADAPTERS structure', () => {

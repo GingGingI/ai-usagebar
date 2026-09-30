@@ -314,4 +314,11 @@ describe('paceFields', () => {
     });
 });
 
+describe('errorText — invalid mapping', () => {
+    it('translates the invalid-mapping code', () => {
+        const text = errorText({ok: false, kind: 'error', code: 'invalid-mapping', message: 'x'}, bracket);
+        assertEqual(text.startsWith('[The custom provider mapping'), true);
+    });
+});
+
 system.exit(summary());

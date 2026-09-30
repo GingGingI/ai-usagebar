@@ -7,7 +7,7 @@ describe('VENDOR_IDS — canonical order', () => {
     it('lists vendors in fixed order', () =>
         assertDeepEqual(
             [...VENDOR_IDS],
-            ['anthropic', 'openai', 'zai', 'openrouter', 'deepseek', 'kimi', 'ollama']
+            ['anthropic', 'openai', 'zai', 'openrouter', 'deepseek', 'kimi', 'ollama', 'custom']
         ));
     it('is frozen', () => assertEqual(Object.isFrozen(VENDOR_IDS), true));
 });
@@ -19,7 +19,7 @@ describe('VENDOR_LABELS', () => {
     it('is ordered to match VENDOR_IDS', () =>
         assertDeepEqual(
             [...VENDOR_LABELS],
-            ['Anthropic', 'OpenAI', 'Z.AI', 'OpenRouter', 'DeepSeek', 'Kimi', 'Ollama']
+            ['Anthropic', 'OpenAI', 'Z.AI', 'OpenRouter', 'DeepSeek', 'Kimi', 'Ollama', 'Custom']
         ));
 });
 
@@ -36,6 +36,13 @@ describe('vendorLabel', () => {
         assertDeepEqual(VENDOR_IDS.map(vendorLabel), [...VENDOR_LABELS]));
     it('falls back to the id for an unknown vendor', () =>
         assertEqual(vendorLabel('gemini'), 'gemini'));
+});
+
+describe('vendorLabel — custom provider', () => {
+    const config = {vendors: {custom: {name: 'My Tool'}}};
+    it('uses the configured name', () => assertEqual(vendorLabel('custom', config), 'My Tool'));
+    it('falls back to Custom without a config', () => assertEqual(vendorLabel('custom'), 'Custom'));
+    it('leaves other vendors alone', () => assertEqual(vendorLabel('openai', config), 'OpenAI'));
 });
 
 system.exit(summary());

@@ -8,6 +8,7 @@
     <value nick="deepseek" value="4"/>
     <value nick="kimi" value="5"/>
     <value nick="ollama" value="6"/>
+    <value nick="custom" value="7"/>
   </enum>
 
   <schema id="org.gnome.shell.extensions.ai-usagebar"
@@ -217,6 +218,66 @@
       <default>''</default>
       <summary>Ollama plan name</summary>
       <description>Plan name shown in the popup title and the {plan} placeholder; the usage route does not report one. Empty shows just "Ollama".</description>
+    </key>
+
+    <key name="custom-enabled" type="b">
+      <default>false</default>
+      <summary>Enable the custom provider</summary>
+      <description>Whether the user-defined provider is polled and shown.</description>
+    </key>
+
+    <key name="custom-name" type="s">
+      <default>'Custom'</default>
+      <summary>Custom provider name</summary>
+      <description>Label of the custom provider (1–48 characters); its first three letters become the panel badge.</description>
+    </key>
+
+    <key name="custom-url" type="s">
+      <default>''</default>
+      <summary>Custom provider URL</summary>
+      <description>The https:// URL that answers a GET with JSON. No user name or password in the URL.</description>
+    </key>
+
+    <key name="custom-allow-http" type="b">
+      <default>false</default>
+      <summary>Allow plain HTTP</summary>
+      <description>Accept an http:// URL for the custom provider (e.g. a local service). Off by default.</description>
+    </key>
+
+    <key name="custom-api-key-env" type="s">
+      <default>''</default>
+      <summary>Custom provider API key environment variable</summary>
+      <description>Name of the environment variable holding the key; empty uses only the inline key.</description>
+    </key>
+
+    <key name="custom-api-key" type="s">
+      <default>''</default>
+      <summary>Custom provider inline API key</summary>
+      <description>Inline key used when the environment variable is unset. Empty sends no auth header.</description>
+    </key>
+
+    <key name="custom-auth-header" type="s">
+      <default>'Authorization'</default>
+      <summary>Custom provider auth header</summary>
+      <description>Header that carries the key.</description>
+    </key>
+
+    <key name="custom-auth-scheme" type="s">
+      <default>'Bearer'</default>
+      <summary>Custom provider auth scheme</summary>
+      <description>Prefix sent before the key (e.g. Bearer). Empty sends the key bare.</description>
+    </key>
+
+    <key name="custom-extra-headers" type="s">
+      <default>''</default>
+      <summary>Custom provider extra headers</summary>
+      <description>A JSON object of extra request headers, e.g. {"X-Team": "core"}. It must not repeat the auth header.</description>
+    </key>
+
+    <key name="custom-mapping" type="s">
+      <default>''</default>
+      <summary>Custom provider mapping</summary>
+      <description>A JSON object mapping response fields by JSON Pointer to metrics and texts. See the README.</description>
     </key>
 
   </schema>

@@ -30,9 +30,11 @@ const RERENDER_INTERVAL_S = 60;
 const STALE_MARK = ' ⏸';
 const TOOLTIP_DELAY_MS = 400;
 
-// Panel badge for a vendor: its short code, upper-cased (e.g. "CLD", "GPT").
-function vendorTag(id) {
-    return getAdapter(id).vendorShort.toUpperCase();
+// Panel badge for a vendor: its short code, upper-cased (e.g. "CLD", "GPT");
+// a provider named by the user derives it from the configured name.
+function vendorTag(id, config) {
+    const adapter = getAdapter(id);
+    return (adapter.shortCode ? adapter.shortCode(config) : adapter.vendorShort).toUpperCase();
 }
 
 export const Indicator = GObject.registerClass(
@@ -83,7 +85,7 @@ class Indicator extends PanelMenu.Button {
         this._box = new St.BoxLayout({style_class: 'panel-status-menu-box'});
         this._tag = new St.Label({
             style_class: 'aiusagebar-panel-tag',
-            text: vendorTag(this._activeId),
+            text: vendorTag(this._activeId, this._config),
             y_align: Clutter.ActorAlign.CENTER,
             y_expand: true,
         });
@@ -193,6 +195,7 @@ class Indicator extends PanelMenu.Button {
         // Same active vendor: reflect config in-process only (no fetch).
         this._config = config;
         this._barFormat = config.barFormat;
+        this._setVendorTag(this._activeId);
         this._maybeRebuildVendorSections(config);
 
         // Appearance-only keys (severity colors, popup format, pace marker) affect
@@ -207,8 +210,9 @@ class Indicator extends PanelMenu.Button {
             this._reRenderFromCache();
     }
 
+    // The custom provider's name is its sub-menu label, so a rename rebuilds too.
     _enabledSignature(config) {
-        return enabledVendors(config).join(',');
+        return `${enabledVendors(config).join(',')}|${config.vendors.custom.name}`;
     }
 
     _maybeRebuildVendorSections(config) {
@@ -224,7 +228,7 @@ class Indicator extends PanelMenu.Button {
         enabledVendors(config).forEach((id, idx) => {
             const sub = new PopupMenu.PopupSubMenuMenuItem('', true);
             sub.icon.gicon = this._vendorGicon();
-            sub.label.text = vendorLabel(id);
+            sub.label.text = vendorLabel(id, config);
             this.menu.addMenuItem(sub, idx);
             this._vendorItems.set(id, sub);
             this._renderVendorSection(id);
@@ -399,7 +403,7 @@ class Indicator extends PanelMenu.Button {
             return;
         try {
             const {fired, state} = decide({
-                vendor: vendorLabel(adapter.id),
+                vendor: vendorLabel(adapter.id, config),
                 rows: adapter.notifyRows(res.snapshot, _),
                 credits: adapter.resetCredits(res.snapshot),
                 threshold: config.notifications.threshold,
@@ -421,7 +425,7 @@ class Indicator extends PanelMenu.Button {
             }
             if (fired.length > 0) {
                 global.display.get_sound_player().play_from_theme(
-                    'message-new-instant', vendorLabel(adapter.id), null);
+                    'message-new-instant', vendorLabel(adapter.id, config), null);
             }
         } catch (e) {
             console.warn(`ai-usagebar: notification check failed: ${e}`);
@@ -582,7 +586,7 @@ class Indicator extends PanelMenu.Button {
     }
 
     _setVendorTag(id) {
-        this._tag.text = vendorTag(id);
+        this._tag.text = vendorTag(id, this._config);
     }
 
     _makeActionButton(iconName, label, onClick) {

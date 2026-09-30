@@ -2,7 +2,8 @@
 
 A GNOME Shell extension that shows your AI plan usage in the top panel for seven
 vendors — **Anthropic (Claude)**, **OpenAI (Codex)**, **Z.AI / GLM**,
-**OpenRouter**, **DeepSeek**, **Kimi**, and **Ollama Cloud**.
+**OpenRouter**, **DeepSeek**, **Kimi**, and **Ollama Cloud** — plus one
+**custom provider** you map yourself.
 
 ## Overview
 
@@ -24,6 +25,7 @@ button to cycle between them.
 | **DeepSeek**           | Balance / credits                                | API key (env var or prefs entry)                                     |
 | **Kimi**               | Weekly quota + 5h window usage %, reset countdowns, plan | API key (env var or prefs entry)                             |
 | **Ollama Cloud**       | Session + weekly (or monthly) usage %, top 5 models per window, cost | API key (env var or prefs entry)                   |
+| **Custom provider**    | Any metrics and texts you map from a JSON endpoint | Optional key in a header you choose (see [Custom provider](#custom-provider)) |
 
 Only the **active** vendor is polled on the refresh timer; other enabled vendors
 render from the last fetched result and are refreshed lazily on scroll-cycle or
@@ -83,6 +85,69 @@ sent anywhere except the vendor's own usage endpoint.
   Ollama Cloud's key comes from <https://ollama.com/settings/keys>; the local
   `~/.ollama/id_ed25519` signing key is never read. Its usage route reports no
   plan name, so set one in preferences if you want it in the popup title.
+
+## Custom provider
+
+One extra slot turns any endpoint that answers a `GET` with JSON into a vendor.
+Enable it on the **Custom** preferences page and fill in:
+
+- **Name** — shown in the popup and notifications; its first three letters
+  become the panel badge (`Team API` → `TEA`).
+- **URL** — must be `https://`, unless **Allow plain HTTP** is on (for a local
+  service). A URL with a user name or password is refused. Redirects are
+  followed only within the same scheme, host and port; a redirect to another
+  origin stops and shows as an HTTP error, so the key never leaves that origin.
+- **API key** (env var or inline), **auth header** (default `Authorization`) and
+  **auth scheme** (default `Bearer`; empty sends the key bare). With no key, no
+  auth header is sent.
+- **Extra headers** — a JSON object of string values, e.g. `{"X-Team": "core"}`;
+  it must not repeat the auth header.
+- **Mapping** — which fields of the response to show, each addressed by a
+  [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901).
+
+Given a response like
+
+```json
+{
+  "account": {"tier": "Team"},
+  "requests": {"used": 420, "limit": 1000, "resets_at": "2026-10-01T00:00:00Z"},
+  "tokens": {"percent": 91.5, "seconds_left": 5400},
+  "status": {"region": "sa-east-1", "healthy": true}
+}
+```
+
+this mapping shows two usage rows and two text rows:
+
+```json
+{
+  "planPath": "/account/tier",
+  "metrics": [
+    {"label": "Requests", "used": "/requests/used", "limit": "/requests/limit",
+     "resetsAt": "/requests/resets_at", "windowSecs": 86400},
+    {"label": "Tokens", "percent": "/tokens/percent", "resetsAfterSeconds": "/tokens/seconds_left"}
+  ],
+  "texts": [
+    {"label": "Region", "value": "/status/region"},
+    {"label": "Healthy", "value": "/status/healthy"}
+  ]
+}
+```
+
+- A **metric** has either `used` + `limit` (shown as `420 of 1000`) or a single
+  `percent`, never both. Numbers may be JSON numbers or plain numeric strings.
+- `resetsAt` takes an RFC 3339 timestamp or a Unix epoch in seconds or
+  milliseconds; `resetsAfterSeconds` takes the seconds left instead. With
+  `windowSecs` (at least 60) and a reset, the row gets the pace marker.
+- A **text** shows a string, number or boolean as `label: value`.
+- `plan` sets a fixed title; `planPath` reads it from the response instead.
+- Labels are 1–64 characters and unique. The preferences check the mapping when
+  the editor loses focus and keep the last valid one.
+- A pointer that does not resolve, or resolves to the wrong type, fails the
+  refresh; the last good figures stay on screen, marked stale.
+
+In `bar-format`, the first two metrics are `{session_pct}`/`{session_reset}` and
+`{weekly_pct}`/`{weekly_reset}`; every metric is also `{custom_<i>_pct}` and
+`{custom_<i>_reset}` (from 0), and the plan is `{custom_plan}`.
 
 ## Configuration
 

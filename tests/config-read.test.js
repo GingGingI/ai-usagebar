@@ -108,4 +108,44 @@ describe('readConfig — overrides', () => {
     it('honors the notify-threshold override', () => assertEqual(cfg.notifications.threshold, 75));
 });
 
+describe('readConfig — custom provider', () => {
+    it('defaults', () => {
+        const c = readConfig(makeSettings()).vendors.custom;
+        assertEqual(c.enabled, false);
+        assertEqual(c.name, 'Custom');
+        assertEqual(c.url, '');
+        assertEqual(c.allowHttp, false);
+        assertEqual(c.apiKeyEnv, null);
+        assertEqual(c.apiKey, null);
+        assertEqual(c.authHeader, 'Authorization');
+        assertEqual(c.authScheme, 'Bearer');
+        assertEqual(JSON.stringify(c.extraHeaders), '{}');
+        // No mapping yet: the adapter refuses to fetch.
+        assertEqual(c.mapping, null);
+    });
+
+    it('parses the JSON prefs; invalid JSON becomes null', () => {
+        const settings = makeSettings();
+        settings.set_string('custom-mapping', '{"metrics":[{"label":"Requests","percent":"/pct"}]}');
+        settings.set_string('custom-extra-headers', '{"X-Team":"core"}');
+        let c = readConfig(settings).vendors.custom;
+        assertEqual(c.mapping.metrics[0].label, 'Requests');
+        assertEqual(c.extraHeaders['X-Team'], 'core');
+
+        settings.set_string('custom-mapping', '{not json');
+        settings.set_string('custom-extra-headers', '{"Authorization":"x"}');
+        c = readConfig(settings).vendors.custom;
+        assertEqual(c.mapping, null);
+        assertEqual(c.extraHeaders, null);
+    });
+
+    it('a blank name reads Custom; a long one is capped at 48', () => {
+        const settings = makeSettings();
+        settings.set_string('custom-name', '   ');
+        assertEqual(readConfig(settings).vendors.custom.name, 'Custom');
+        settings.set_string('custom-name', 'x'.repeat(60));
+        assertEqual(readConfig(settings).vendors.custom.name.length, 48);
+    });
+});
+
 system.exit(summary());
