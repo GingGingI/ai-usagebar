@@ -71,6 +71,10 @@
     border-radius: 4px;
 }
 
+.aiusagebar-spacer {
+    height: 4px;
+}
+
 .aiusagebar-group-heading {
     font-weight: bold;
     font-size: 0.85em;

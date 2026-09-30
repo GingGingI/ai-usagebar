@@ -176,6 +176,10 @@ export function renderSection(menuSection, model, showPace = false) {
             card = null;
             container.add_child(buildTextLine(row));
             break;
+        case 'spacer':
+            card = null;
+            container.add_child(new St.Widget({style_class: 'aiusagebar-spacer', x_expand: true}));
+            break;
         case 'group-heading':
             card = null;
             container.add_child(label(row.label, {styleClass: 'aiusagebar-group-heading'}));

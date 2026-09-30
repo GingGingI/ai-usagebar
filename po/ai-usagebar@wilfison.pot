@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-30 00:26-0300\n"
+"POT-Creation-Date: 2026-09-30 00:33-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr ""
 msgid "Resets in %s · %s"
 msgstr ""
 
-#: lib/format.js:103
+#: lib/format.js:107
 #, javascript-format
 msgid "%d reset available"
 msgid_plural "%d resets available"
@@ -102,42 +102,104 @@ msgstr ""
 msgid "Reset credit"
 msgstr ""
 
-#: lib/vendors/anthropic/parser.js:309 lib/vendors/anthropic/section.js:34
+#: lib/vendors/anthropic/parser.js:309 lib/vendors/anthropic/section.js:98
 #: lib/vendors/ollama/parser.js:145 lib/vendors/ollama/section.js:51
 msgid "Session"
 msgstr ""
 
-#: lib/vendors/anthropic/parser.js:310 lib/vendors/anthropic/section.js:35
+#: lib/vendors/anthropic/parser.js:310 lib/vendors/anthropic/section.js:99
 #: lib/vendors/kimi/parser.js:233 lib/vendors/kimi/section.js:35
 #: lib/vendors/ollama/parser.js:145 lib/vendors/ollama/section.js:52
 #: lib/vendors/zai/parser.js:222 lib/vendors/zai/section.js:29
 msgid "Weekly"
 msgstr ""
 
-#: lib/vendors/anthropic/parser.js:313 lib/vendors/anthropic/section.js:37
+#: lib/vendors/anthropic/parser.js:313 lib/vendors/anthropic/section.js:101
 msgid "Sonnet only"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:51 lib/vendors/anthropic/section.js:61
+#: lib/vendors/anthropic/section.js:42
+#, javascript-format
+msgid "session %s"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:43
+msgid "unknown project"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:44
+msgid "unknown model"
+msgstr ""
+
+#. Translators: "84,000 / 200,000 tokens · claude-opus-5 · last active 14:03:12".
+#: lib/vendors/anthropic/section.js:52
+#, javascript-format
+msgid "%s / %s tokens · %s · last active %s"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:55
+#, javascript-format
+msgid "%s tokens"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:56
+#, javascript-format
+msgid "window size is not configured · %s · last active %s"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:58
+msgid "compacted"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:59
+#, javascript-format
+msgid "compacted · waiting for the next response · %s · last active %s"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:61
+msgid "unknown"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:62
+#, javascript-format
+msgid "context usage unavailable · %s · last active %s"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:78
+msgid "Sessions"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:84
+msgid "no recent Claude Code sessions"
+msgstr ""
+
+#: lib/vendors/anthropic/section.js:91
+#, javascript-format
+msgid "… and %d more session"
+msgid_plural "… and %d more sessions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/vendors/anthropic/section.js:115 lib/vendors/anthropic/section.js:125
 msgid "Extra usage"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:53
+#: lib/vendors/anthropic/section.js:117
 msgid "Limit: none reported"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:64
+#: lib/vendors/anthropic/section.js:128
 #, javascript-format
 msgid "Limit: %s"
 msgstr ""
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:79 ui/indicator.js:279
+#: lib/vendors/anthropic/section.js:145 ui/indicator.js:283
 #, javascript-format
 msgid "Claude %s"
 msgstr ""
 
-#: lib/vendors/custom/section.js:34 prefs.js:372
+#: lib/vendors/custom/section.js:34 prefs.js:390
 msgid "Custom provider"
 msgstr ""
 
@@ -213,7 +275,7 @@ msgstr ""
 msgid "Code review (weekly)"
 msgstr ""
 
-#: lib/vendors/openai/section.js:31 lib/vendors/section-common.js:138
+#: lib/vendors/openai/section.js:31 lib/vendors/section-common.js:142
 msgid "Resets"
 msgstr ""
 
@@ -304,45 +366,45 @@ msgstr ""
 msgid "Updated %s"
 msgstr ""
 
-#: lib/vendors/section-common.js:117
+#: lib/vendors/section-common.js:121
 msgid "no expiry reported"
 msgstr ""
 
-#: lib/vendors/section-common.js:119
+#: lib/vendors/section-common.js:123
 #, javascript-format
 msgid "expired %s"
 msgstr ""
 
 #. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
-#: lib/vendors/section-common.js:121
+#: lib/vendors/section-common.js:125
 #, javascript-format
 msgid "expires %s (%s)"
 msgstr ""
 
-#: lib/vendors/section-common.js:152
+#: lib/vendors/section-common.js:156
 msgid "Estimating…"
 msgstr ""
 
-#: lib/vendors/section-common.js:154
+#: lib/vendors/section-common.js:158
 msgid "Limit reached"
 msgstr ""
 
-#: lib/vendors/section-common.js:158
+#: lib/vendors/section-common.js:162
 msgid "on track"
 msgstr ""
 
-#: lib/vendors/section-common.js:160
+#: lib/vendors/section-common.js:164
 #, javascript-format
 msgid "%dpts ahead"
 msgstr ""
 
-#: lib/vendors/section-common.js:162
+#: lib/vendors/section-common.js:166
 #, javascript-format
 msgid "%dpts under"
 msgstr ""
 
 #. Translators: "42% elapsed · 3pts ahead" — how much of the window has passed, then the pace.
-#: lib/vendors/section-common.js:164
+#: lib/vendors/section-common.js:168
 #, javascript-format
 msgid "%d%% elapsed · %s"
 msgstr ""
@@ -502,8 +564,8 @@ msgstr ""
 msgid "Credentials path — empty uses ~/.claude/.credentials.json."
 msgstr ""
 
-#: prefs.js:256 prefs.js:272 prefs.js:288 prefs.js:306 prefs.js:323
-#: prefs.js:340 prefs.js:357 prefs.js:375
+#: prefs.js:256 prefs.js:290 prefs.js:306 prefs.js:324 prefs.js:341
+#: prefs.js:358 prefs.js:375 prefs.js:393
 msgid "Enabled"
 msgstr ""
 
@@ -511,160 +573,190 @@ msgstr ""
 msgid "Credentials path"
 msgstr ""
 
-#: prefs.js:265 prefs.js:269
+#: prefs.js:261
+msgid "Context monitor"
+msgstr ""
+
+#: prefs.js:262
+msgid ""
+"Lists recent Claude Code sessions in the Claude section, with how much of "
+"the context window each one used. Transcripts are read only while this is on."
+msgstr ""
+
+#: prefs.js:264
+msgid "Show session context"
+msgstr ""
+
+#: prefs.js:265
+msgid "Projects directory (empty: ~/.claude/projects)"
+msgstr ""
+
+#: prefs.js:268
+msgid "Default context window (tokens)"
+msgstr ""
+
+#: prefs.js:269
+msgid "0 shows raw token counts instead of a percentage"
+msgstr ""
+
+#: prefs.js:275
+msgid "Window per model (JSON, e.g. {\"claude-opus-5\": 1000000})"
+msgstr ""
+
+#: prefs.js:283 prefs.js:287
 msgid "OpenAI"
 msgstr ""
 
-#: prefs.js:270
+#: prefs.js:288
 msgid "Codex auth path — empty uses ~/.codex/auth.json."
 msgstr ""
 
-#: prefs.js:273
+#: prefs.js:291
 msgid "Codex auth path"
 msgstr ""
 
-#: prefs.js:281 prefs.js:285
+#: prefs.js:299 prefs.js:303
 msgid "Z.AI"
 msgstr ""
 
-#: prefs.js:286 prefs.js:304
+#: prefs.js:304 prefs.js:322
 msgid "Set the API key inline or via the environment variable (env wins)."
 msgstr ""
 
-#: prefs.js:289 prefs.js:307 prefs.js:324 prefs.js:341 prefs.js:358
+#: prefs.js:307 prefs.js:325 prefs.js:342 prefs.js:359 prefs.js:376
 msgid "API key env var"
 msgstr ""
 
-#: prefs.js:290 prefs.js:308 prefs.js:325 prefs.js:342 prefs.js:359
-#: prefs.js:386
+#: prefs.js:308 prefs.js:326 prefs.js:343 prefs.js:360 prefs.js:377
+#: prefs.js:404
 msgid "API key (inline)"
 msgstr ""
 
-#: prefs.js:291
+#: prefs.js:309
 msgid "Plan tier (lite/pro/max)"
 msgstr ""
 
-#: prefs.js:299 prefs.js:303
+#: prefs.js:317 prefs.js:321
 msgid "OpenRouter"
 msgstr ""
 
-#: prefs.js:316 prefs.js:320
+#: prefs.js:334 prefs.js:338
 msgid "DeepSeek"
 msgstr ""
 
-#: prefs.js:321 prefs.js:338 prefs.js:355
+#: prefs.js:339 prefs.js:356 prefs.js:373
 msgid "Disabled by default; requires an API key (env var or inline)."
 msgstr ""
 
-#: prefs.js:333 prefs.js:337
+#: prefs.js:351 prefs.js:355
 msgid "Kimi"
 msgstr ""
 
-#: prefs.js:350
+#: prefs.js:368
 msgid "Ollama"
 msgstr ""
 
-#: prefs.js:354
+#: prefs.js:372
 msgid "Ollama Cloud"
 msgstr ""
 
-#: prefs.js:360
+#: prefs.js:378
 msgid "Plan name (optional)"
 msgstr ""
 
-#: prefs.js:367
+#: prefs.js:385
 msgid "Custom"
 msgstr ""
 
-#: prefs.js:373
+#: prefs.js:391
 msgid ""
 "Any HTTPS endpoint that answers a GET with JSON, mapped to usage rows by "
 "JSON Pointer. See the README for an example."
 msgstr ""
 
-#: prefs.js:376
+#: prefs.js:394
 msgid "Name"
 msgstr ""
 
-#: prefs.js:377
+#: prefs.js:395
 msgid "URL"
 msgstr ""
 
-#: prefs.js:378
+#: prefs.js:396
 msgid "Allow plain HTTP"
 msgstr ""
 
-#: prefs.js:382
+#: prefs.js:400
 msgid "Authentication"
 msgstr ""
 
-#: prefs.js:383
+#: prefs.js:401
 msgid ""
 "Without a key no auth header is sent. An empty scheme sends the key bare."
 msgstr ""
 
-#: prefs.js:385
+#: prefs.js:403
 msgid "API key env var (optional)"
 msgstr ""
 
-#: prefs.js:387
+#: prefs.js:405
 msgid "Auth header"
 msgstr ""
 
-#: prefs.js:388
+#: prefs.js:406
 msgid "Auth scheme"
 msgstr ""
 
-#: prefs.js:392
+#: prefs.js:410
 msgid "Extra headers"
 msgstr ""
 
-#: prefs.js:393
+#: prefs.js:411
 msgid ""
 "A JSON object of header names to string values; it must not repeat the auth "
 "header."
 msgstr ""
 
-#: prefs.js:398
+#: prefs.js:416
 msgid ""
 "Not a JSON object of string header values, or it repeats the auth header."
 msgstr ""
 
-#: prefs.js:404
+#: prefs.js:422
 msgid "Mapping"
 msgstr ""
 
-#: prefs.js:405
+#: prefs.js:423
 msgid ""
 "Metrics (used + limit, or percent) and texts, each read from the response by "
 "JSON Pointer. Saved when the editor loses focus and the mapping is valid."
 msgstr ""
 
-#: prefs.js:412
+#: prefs.js:430
 #, javascript-format
 msgid "Not valid JSON: %s"
 msgstr ""
 
-#: prefs.js:491
+#: prefs.js:509
 msgid "Reset to default"
 msgstr ""
 
-#: ui/indicator.js:115
+#: ui/indicator.js:119
 msgid "Refresh now"
 msgstr ""
 
-#: ui/indicator.js:117
+#: ui/indicator.js:121
 msgid "Refresh all"
 msgstr ""
 
-#: ui/indicator.js:119
+#: ui/indicator.js:123
 msgid "Preferences"
 msgstr ""
 
-#: ui/indicator.js:248
+#: ui/indicator.js:252
 msgid "No data — use \"Refresh all\""
 msgstr ""
 
-#: ui/indicator.js:272 ui/indicator.js:453
+#: ui/indicator.js:276 ui/indicator.js:490
 msgid "Loading…"
 msgstr ""

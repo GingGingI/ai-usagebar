@@ -256,6 +256,24 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         group.add(this._switchRow(settings, 'anthropic-enabled', _('Enabled')));
         group.add(this._entryRow(settings, 'anthropic-credentials-path', _('Credentials path')));
         page.add(group);
+
+        const context = new Adw.PreferencesGroup({
+            title: _('Context monitor'),
+            description: _('Lists recent Claude Code sessions in the Claude section, with how much of the context window each one used. Transcripts are read only while this is on.'),
+        });
+        context.add(this._switchRow(settings, 'context-enabled', _('Show session context')));
+        context.add(this._entryRow(settings, 'context-projects-path', _('Projects directory (empty: ~/.claude/projects)')));
+        const windowAdj = new Gtk.Adjustment({lower: 0, upper: 100000000, step_increment: 1000, page_increment: 100000});
+        const windowRow = new Adw.SpinRow({
+            title: _('Default context window (tokens)'),
+            subtitle: _('0 shows raw token counts instead of a percentage'),
+            adjustment: windowAdj,
+            digits: 0,
+        });
+        settings.bind('context-window-tokens', windowRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        context.add(windowRow);
+        context.add(this._entryRow(settings, 'context-model-windows', _('Window per model (JSON, e.g. {"claude-opus-5": 1000000})')));
+        page.add(context);
         return page;
     }
 

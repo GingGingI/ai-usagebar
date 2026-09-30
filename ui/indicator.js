@@ -20,6 +20,7 @@ import {getAdapter} from '../lib/vendors/registry.js';
 import {vendorLabel} from '../lib/vendors.js';
 import {renderSection} from './vendorSection.js';
 import {errorText} from '../lib/vendors/section-common.js';
+import {scanSessions} from '../lib/context/scan.js';
 import {substitute, tooltipRows, vformat} from '../lib/format.js';
 import {decide, Urgency} from '../lib/notify.js';
 import {severityColor, Severity} from '../lib/severity.js';
@@ -27,6 +28,8 @@ import {defaultTheme, withOverrides} from '../lib/theme.js';
 import {parseFakePct, FAKE_PCT_ENV} from '../lib/debug.js';
 
 const RERENDER_INTERVAL_S = 60;
+// Claude Code transcripts belong to the Claude section only.
+const CONTEXT_VENDOR = 'anthropic';
 const STALE_MARK = ' ⏸';
 const TOOLTIP_DELAY_MS = 400;
 
@@ -78,6 +81,7 @@ class Indicator extends PanelMenu.Button {
         // footer timestamp to its real fetch instant across live re-renders.
         this._results = new Map();      // vendorId -> FetchResult
         this._notifySource = null;
+        this._sessions = null;          // last context scan for CONTEXT_VENDOR
         this._fetchedAt = new Map();    // vendorId -> Date
         this._vendorItems = new Map();  // vendorId -> PopupMenu.PopupSubMenuMenuItem
         this._enabledSig = '';
@@ -254,7 +258,7 @@ class Indicator extends PanelMenu.Button {
             const adapter = getAdapter(id);
             const model = adapter.buildSection(
                 res.snapshot,
-                {stale: res.stale, lastError: res.lastError, fetchedAt},
+                {stale: res.stale, lastError: res.lastError, fetchedAt, sessions: this._sessionsFor(id)},
                 now,
                 this._theme,
                 _,
@@ -333,6 +337,7 @@ class Indicator extends PanelMenu.Button {
             activeId === normalizeActive(readConfig(this._settings));
         const again = this._fetchGuard.end(token);
         this._storeResult(activeId, res);
+        this._maybeScanContext(activeId, res, config);
         if (current) {
             this._maybeNotify(adapter, cache, res, config);
             this._render(res);
@@ -364,6 +369,7 @@ class Indicator extends PanelMenu.Button {
             if (this._destroyed)
                 return;
             this._storeResult(id, res);
+            this._maybeScanContext(id, res, config);
             this._maybeNotify(adapter, cache, res, config);
             this._renderVendorSection(id);
         }
@@ -392,6 +398,37 @@ class Indicator extends PanelMenu.Button {
         this._results.set(id, res);
         if (res.ok)
             this._fetchedAt.set(id, new Date(Date.now() - res.cacheAgeMs));
+    }
+
+    // Turning the option off hides the sessions at once, before any refresh.
+    _sessionsFor(id) {
+        return id === CONTEXT_VENDOR && this._config.context.enabled ? this._sessions : null;
+    }
+
+    // Once per refresh, and only while the option is on: an errored Claude
+    // entry gets no sessions, and nothing is read from disk when it is off.
+    async _maybeScanContext(id, res, config) {
+        if (id !== CONTEXT_VENDOR)
+            return;
+        if (!config.context.enabled || !res.ok) {
+            this._sessions = null;
+            return;
+        }
+        try {
+            const scan = await scanSessions({
+                root: config.context.projectsPath,
+                modelWindows: config.context.modelWindows,
+                defaultWindow: config.context.windowTokens,
+                cancellable: this._cancellable,
+            });
+            if (this._destroyed)
+                return;
+            this._sessions = scan;
+            this._renderVendorSection(id);
+        } catch (e) {
+            if (!e?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                console.warn(`ai-usagebar: context scan failed: ${e}`);
+        }
     }
 
     // Only a fresh fetch notifies: a stale fallback or the TTL fast path

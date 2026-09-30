@@ -88,6 +88,31 @@
       <description>Usage percentage of any single window at which a notification fires; 100 and above is sent as critical. Vendors without a percentage (DeepSeek) never notify.</description>
     </key>
 
+    <key name="context-enabled" type="b">
+      <default>false</default>
+      <summary>Show Claude Code session context</summary>
+      <description>When enabled, the Claude section lists recent Claude Code sessions and how much of their context window the latest response used. Nothing is read from disk while this is off.</description>
+    </key>
+
+    <key name="context-projects-path" type="s">
+      <default>''</default>
+      <summary>Claude Code projects directory</summary>
+      <description>Where the session transcripts (*.jsonl) live. Empty means ~/.claude/projects.</description>
+    </key>
+
+    <key name="context-window-tokens" type="i">
+      <default>0</default>
+      <range min="0" max="100000000"/>
+      <summary>Default context window (tokens)</summary>
+      <description>Context window size used when a session's model has no entry in the model windows. 0 means not configured: raw token counts are shown instead of a percentage.</description>
+    </key>
+
+    <key name="context-model-windows" type="s">
+      <default>''</default>
+      <summary>Context window per model</summary>
+      <description>A JSON object of model name to context window size in tokens, e.g. {"claude-opus-5": 1000000}. Entries with an empty name or a non-positive size are ignored.</description>
+    </key>
+
     <key name="anthropic-enabled" type="b">
       <default>true</default>
       <summary>Enable Anthropic</summary>

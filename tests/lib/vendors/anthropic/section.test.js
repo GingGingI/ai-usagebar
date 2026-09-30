@@ -5,7 +5,7 @@ import {SESSION_MS, WEEKLY_MS} from '../../../../lib/vendors/anthropic/parser.js
 import {calc} from '../../../../lib/pacing.js';
 import {resetClock, localDateHm, format as formatCountdown} from '../../../../lib/countdown.js';
 import {defaultTheme} from '../../../../lib/theme.js';
-import {localTimeHm} from '../../../../lib/format.js';
+import {localTimeHm, localTimeHms} from '../../../../lib/format.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../../_assert.js';
 
 const theme = defaultTheme();
@@ -389,6 +389,93 @@ describe('buildSection — pace footnote', () => {
         const weekly = buildSection(snap, meta, NOW, theme).rows[1];
         assertEqual(weekly.paceFootnote, 'Estimating…');
         assertEqual(weekly.paceGlyph, '');
+    });
+});
+
+describe('buildSection — Claude Code sessions', () => {
+    const at = new Date('2026-06-05T11:59:30Z');
+    const session = (usage, extra = {}) => ({
+        sessionId: 'abcdef1234567890', title: null, project: 'ai-usagebar', model: 'claude-opus-5',
+        lastActive: at, usage, ...extra,
+    });
+    const tokens = (inputTokens, windowTokens) => ({
+        state: 'tokens', inputTokens, windowTokens, percent: windowTokens ? Math.floor(inputTokens * 100 / windowTokens) : null,
+    });
+    const build = scan => buildSection(fullSnapshot(), {stale: false, lastError: null, fetchedAt: NOW, sessions: scan}, NOW, theme);
+    const sessionRows = model => model.rows.filter(r => r.kind === 'grouped');
+    const fmt = n => new Intl.NumberFormat().format(n);
+
+    it('no scan (option off) → no Sessions heading', () => {
+        const model = buildSection(fullSnapshot(), {stale: false, lastError: null, fetchedAt: NOW}, NOW, theme);
+        assertEqual(model.rows.some(r => r.kind === 'group-heading'), false);
+        assertEqual(model.rows.some(r => r.kind === 'spacer'), false);
+    });
+
+    it('a spacer, the heading, then one grouped row per session', () => {
+        const model = build({sessions: [session(tokens(50000, 200000))], discovered: 1, error: null});
+        const i = model.rows.findIndex(r => r.kind === 'spacer');
+        assertEqual(i >= 0, true);
+        assertDeepEqual(model.rows[i + 1], {kind: 'group-heading', label: 'Sessions'});
+        const [row] = sessionRows(model);
+        assertEqual(row.label, 'ai-usagebar · session abcdef12');
+        assertEqual(row.valueText, '25%');
+        assertEqual(row.pct, 25);
+        assertEqual(row.detail, `${fmt(50000)} / ${fmt(200000)} tokens · claude-opus-5 · last active ${localTimeHms(at)}`);
+        assertEqual(row.color, theme.green);
+    });
+
+    it('a title replaces the session id; 90% is critical; over 100% shows 100%', () => {
+        const model = build({sessions: [
+            session(tokens(180000, 200000), {title: 'release prep'}),
+            session(tokens(300000, 200000)),
+        ], discovered: 2, error: null});
+        const [a, b] = sessionRows(model);
+        assertEqual(a.label, 'ai-usagebar · release prep');
+        assertEqual(a.severity, 'critical');
+        assertEqual(a.color, theme.red);
+        assertEqual(b.valueText, '100%');
+        assertEqual(b.pct, 100);
+    });
+
+    it('no window configured → raw tokens, no %', () => {
+        const [row] = sessionRows(build({sessions: [session(tokens(5000, null))], discovered: 1, error: null}));
+        assertEqual(row.valueText, `${fmt(5000)} tokens`);
+        assertEqual(row.pct, 0);
+        assertEqual(row.detail.startsWith('window size is not configured · claude-opus-5'), true);
+    });
+
+    it('compacted and unknown states; a missing model and project', () => {
+        const rows = sessionRows(build({sessions: [
+            session({state: 'compacted'}),
+            session({state: 'unknown'}, {model: null, project: null}),
+        ], discovered: 2, error: null}));
+        assertEqual(rows[0].valueText, 'compacted');
+        assertEqual(rows[0].detail.startsWith('compacted · waiting for the next response'), true);
+        assertEqual(rows[1].valueText, 'unknown');
+        assertEqual(rows[1].detail.startsWith('context usage unavailable · unknown model'), true);
+        assertEqual(rows[1].label.startsWith('unknown project · '), true);
+    });
+
+    it('at most 8 rows, then "… and N more sessions"', () => {
+        const many = Array.from({length: 8}, (_, i) => session(tokens(i, 100), {sessionId: `id-${i}`}));
+        const model = build({sessions: many, discovered: 30, error: null});
+        assertEqual(sessionRows(model).length, 8);
+        assertEqual(model.rows.some(r => r.text === '… and 22 more sessions'), true);
+        const one = build({sessions: many, discovered: 9, error: null});
+        assertEqual(one.rows.some(r => r.text === '… and 1 more session'), true);
+    });
+
+    it('rows are keyed by session id', () => {
+        const rows = sessionRows(build({sessions: [
+            session(tokens(1, 100), {sessionId: 'one', title: 'same'}),
+            session(tokens(1, 100), {sessionId: 'two', title: 'same'}),
+        ], discovered: 2, error: null}));
+        assertEqual(rows[0].key === rows[1].key, false);
+    });
+
+    it('no sessions or a scan error → a dim line under the heading', () => {
+        assertEqual(build({sessions: [], discovered: 0, error: null}).rows.some(r => r.text === 'no recent Claude Code sessions'), true);
+        assertEqual(build({sessions: [], discovered: 0, error: 'cannot read /x: nope'}).rows.some(r => r.text === 'cannot read /x: nope'), true);
     });
 });
 

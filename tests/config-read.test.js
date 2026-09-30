@@ -148,4 +148,23 @@ describe('readConfig — custom provider', () => {
     });
 });
 
+describe('readConfig — context monitor', () => {
+    it('off by default, nothing configured', () => {
+        const c = readConfig(makeSettings()).context;
+        assertEqual(c.enabled, false);
+        assertEqual(c.projectsPath, null);
+        assertEqual(c.windowTokens, null);
+        assertEqual(JSON.stringify(c.modelWindows), '{}');
+    });
+
+    it('reads the window settings', () => {
+        const settings = makeSettings();
+        settings.set_int('context-window-tokens', 200000);
+        settings.set_string('context-model-windows', '{"claude-opus-5": 1000000, "bad": 0}');
+        const c = readConfig(settings).context;
+        assertEqual(c.windowTokens, 200000);
+        assertEqual(JSON.stringify(c.modelWindows), '{"claude-opus-5":1000000}');
+    });
+});
+
 system.exit(summary());

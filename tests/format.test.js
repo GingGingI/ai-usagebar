@@ -4,6 +4,7 @@ import {
     substitute,
     vformat,
     localTimeHm,
+    localTimeHms,
     formatMoney,
     sanitizeUntrusted,
     checkedResetTitle,
@@ -56,6 +57,10 @@ describe('substitute', () => {
 describe('time formatting', () => {
     // Local-time anchor; relative offsets are computed off this.
     const anchor = new Date(2026, 5, 5, 14, 7, 3);
+
+    it('localTimeHms zero-pads seconds', () => {
+        assertEqual(localTimeHms(new Date(2026, 0, 1, 9, 5, 7)), '09:05:07');
+    });
 
     it('localTimeHm zero-pads minutes', () => {
         assertEqual(localTimeHm(new Date(2026, 0, 1, 9, 5)), '09:05');
