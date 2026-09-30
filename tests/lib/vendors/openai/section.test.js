@@ -65,6 +65,32 @@ describe('buildSection (openai)', () => {
         assertEqual(m.rows[3].text, 'balance: unlimited');
     });
 
+    it('omits an absent session window (weekly-only response)', () => {
+        const s = base();
+        s.session = null;
+        const m = buildSection(s, META, NOW, theme);
+        assertDeepEqual(m.rows.map(r => r.kind), ['window', 'footer']);
+        assertEqual(m.rows[0].title, 'Codex weekly');
+    });
+
+    it('omits an absent weekly window', () => {
+        const s = base();
+        s.weekly = null;
+        const m = buildSection(s, META, NOW, theme);
+        assertDeepEqual(m.rows.map(r => r.kind), ['window', 'footer']);
+        assertEqual(m.rows[0].title, 'Codex 5h');
+    });
+
+    it('says no usage windows were reported when both are absent', () => {
+        const s = base();
+        s.session = null;
+        s.weekly = null;
+        const m = buildSection(s, META, NOW, theme);
+        assertDeepEqual(m.rows.map(r => r.kind), ['text', 'footer']);
+        assertEqual(m.rows[0].text, 'no usage windows reported');
+        assertEqual(buildSection(s, META, NOW, theme, (t) => `«${t}»`).rows[0].text, '«no usage windows reported»');
+    });
+
     it('appends an http-error row before the footer', () => {
         const meta = {stale: true, lastError: {code: 503, body: 'upstream down'}, fetchedAt: NOW};
         const m = buildSection(base(), meta, NOW, theme);

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-07-17 18:03-0300\n"
+"POT-Creation-Date: 2026-09-29 23:17-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: Spanish\n"
@@ -102,39 +102,43 @@ msgstr "Ventana (5h)"
 msgid "Kimi %s"
 msgstr "Kimi %s"
 
-#: lib/vendors/openai/section.js:34
+#: lib/vendors/openai/section.js:35
 msgid "Codex 5h"
 msgstr "Codex 5h"
 
-#: lib/vendors/openai/section.js:35
+#: lib/vendors/openai/section.js:37
 msgid "Codex weekly"
 msgstr "Codex semanal"
 
-#: lib/vendors/openai/section.js:37
+#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:41
+msgid "no usage windows reported"
+msgstr "no se informaron ventanas de uso"
+
+#: lib/vendors/openai/section.js:41
 msgid "Code review (weekly)"
 msgstr "Revisión de código (semanal)"
 
-#: lib/vendors/openai/section.js:41
+#: lib/vendors/openai/section.js:45
 msgid "Credits"
 msgstr "Créditos"
 
-#: lib/vendors/openai/section.js:42
+#: lib/vendors/openai/section.js:46
 #, javascript-format
 msgid "balance: %s"
 msgstr "saldo: %s"
 
-#: lib/vendors/openai/section.js:42
+#: lib/vendors/openai/section.js:46
 msgid "unlimited"
 msgstr "ilimitado"
 
 #. Translators: %s-%s is an approximate count range (e.g. "100-200").
-#: lib/vendors/openai/section.js:45
+#: lib/vendors/openai/section.js:49
 #, javascript-format
 msgid "~ %s-%s local messages"
 msgstr "~ %s-%s mensajes locales"
 
 #. Translators: %s-%s is an approximate count range (e.g. "30-50").
-#: lib/vendors/openai/section.js:48
+#: lib/vendors/openai/section.js:52
 #, javascript-format
 msgid "~ %s-%s cloud messages"
 msgstr "~ %s-%s mensajes en la nube"
@@ -190,10 +194,6 @@ msgstr "Sesión (5h)"
 #: lib/vendors/zai/section.js:38
 msgid "MCP tools (monthly)"
 msgstr "Herramientas MCP (mensual)"
-
-#: lib/vendors/zai/section.js:41
-msgid "no usage windows reported"
-msgstr "no se informaron ventanas de uso"
 
 #: prefs.js:52
 msgid "General"

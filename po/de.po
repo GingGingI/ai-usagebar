@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-07-17 18:03-0300\n"
+"POT-Creation-Date: 2026-09-29 23:17-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: German\n"
@@ -102,39 +102,43 @@ msgstr "Fenster (5h)"
 msgid "Kimi %s"
 msgstr "Kimi %s"
 
-#: lib/vendors/openai/section.js:34
+#: lib/vendors/openai/section.js:35
 msgid "Codex 5h"
 msgstr "Codex 5h"
 
-#: lib/vendors/openai/section.js:35
+#: lib/vendors/openai/section.js:37
 msgid "Codex weekly"
 msgstr "Codex wöchentlich"
 
-#: lib/vendors/openai/section.js:37
+#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:41
+msgid "no usage windows reported"
+msgstr "keine Nutzungsfenster gemeldet"
+
+#: lib/vendors/openai/section.js:41
 msgid "Code review (weekly)"
 msgstr "Code-Review (wöchentlich)"
 
-#: lib/vendors/openai/section.js:41
+#: lib/vendors/openai/section.js:45
 msgid "Credits"
 msgstr "Credits"
 
-#: lib/vendors/openai/section.js:42
+#: lib/vendors/openai/section.js:46
 #, javascript-format
 msgid "balance: %s"
 msgstr "Guthaben: %s"
 
-#: lib/vendors/openai/section.js:42
+#: lib/vendors/openai/section.js:46
 msgid "unlimited"
 msgstr "unbegrenzt"
 
 #. Translators: %s-%s is an approximate count range (e.g. "100-200").
-#: lib/vendors/openai/section.js:45
+#: lib/vendors/openai/section.js:49
 #, javascript-format
 msgid "~ %s-%s local messages"
 msgstr "~ %s-%s lokale Nachrichten"
 
 #. Translators: %s-%s is an approximate count range (e.g. "30-50").
-#: lib/vendors/openai/section.js:48
+#: lib/vendors/openai/section.js:52
 #, javascript-format
 msgid "~ %s-%s cloud messages"
 msgstr "~ %s-%s Cloud-Nachrichten"
@@ -190,10 +194,6 @@ msgstr "Sitzung (5h)"
 #: lib/vendors/zai/section.js:38
 msgid "MCP tools (monthly)"
 msgstr "MCP-Tools (monatlich)"
-
-#: lib/vendors/zai/section.js:41
-msgid "no usage windows reported"
-msgstr "keine Nutzungsfenster gemeldet"
 
 #: prefs.js:52
 msgid "General"

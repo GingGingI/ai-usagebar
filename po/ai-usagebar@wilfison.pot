@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-07-17 18:03-0300\n"
+"POT-Creation-Date: 2026-09-29 23:17-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,39 +104,43 @@ msgstr ""
 msgid "Kimi %s"
 msgstr ""
 
-#: lib/vendors/openai/section.js:34
+#: lib/vendors/openai/section.js:35
 msgid "Codex 5h"
 msgstr ""
 
-#: lib/vendors/openai/section.js:35
+#: lib/vendors/openai/section.js:37
 msgid "Codex weekly"
 msgstr ""
 
-#: lib/vendors/openai/section.js:37
-msgid "Code review (weekly)"
+#: lib/vendors/openai/section.js:39 lib/vendors/zai/section.js:41
+msgid "no usage windows reported"
 msgstr ""
 
 #: lib/vendors/openai/section.js:41
+msgid "Code review (weekly)"
+msgstr ""
+
+#: lib/vendors/openai/section.js:45
 msgid "Credits"
 msgstr ""
 
-#: lib/vendors/openai/section.js:42
+#: lib/vendors/openai/section.js:46
 #, javascript-format
 msgid "balance: %s"
 msgstr ""
 
-#: lib/vendors/openai/section.js:42
+#: lib/vendors/openai/section.js:46
 msgid "unlimited"
 msgstr ""
 
 #. Translators: %s-%s is an approximate count range (e.g. "100-200").
-#: lib/vendors/openai/section.js:45
+#: lib/vendors/openai/section.js:49
 #, javascript-format
 msgid "~ %s-%s local messages"
 msgstr ""
 
 #. Translators: %s-%s is an approximate count range (e.g. "30-50").
-#: lib/vendors/openai/section.js:48
+#: lib/vendors/openai/section.js:52
 #, javascript-format
 msgid "~ %s-%s cloud messages"
 msgstr ""
@@ -191,10 +195,6 @@ msgstr ""
 
 #: lib/vendors/zai/section.js:38
 msgid "MCP tools (monthly)"
-msgstr ""
-
-#: lib/vendors/zai/section.js:41
-msgid "no usage windows reported"
 msgstr ""
 
 #: prefs.js:52
