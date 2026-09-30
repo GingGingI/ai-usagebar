@@ -217,6 +217,29 @@ describe('fetchSnapshot', () => {
         assertEqual(r.lastError.code, 429);
     }));
 
+    it('after a 429 the next poll makes no request, token refresh included', withTemp(({cache, credsPath}) => {
+        cache.writePayload(USAGE);
+        backdate(cache, 120);
+        runSync(fetchSnapshot({cache, http: httpStub(res(429, 'slow down')), credsPath}));
+
+        const http = httpStub(res(200, USAGE));
+        const r = runSync(fetchSnapshot({cache, http, credsPath}));
+        assertEqual(http.calls.length, 0);
+        assertEqual(r.ok, true);
+        assertEqual(r.stale, true);
+        assertEqual(r.lastError.code, 'rate-limited');
+        assertEqual(r.lastError.retryInMs > 4 * 60 * 1000, true);
+    }));
+
+    it('under backoff with no cache → rate-limited error, no request', withTemp(({cache, credsPath}) => {
+        cache.writeRetryAfter(Date.now() + 60_000);
+        const http = httpStub(res(200, USAGE));
+        const r = runSync(fetchSnapshot({cache, http, credsPath}));
+        assertEqual(http.calls.length, 0);
+        assertEqual(r.ok, false);
+        assertEqual(r.code, 'rate-limited');
+    }, {expiresAt: 0}));
+
     it('transient failure with cache → silent stale (no last_error)', withTemp(({cache, credsPath}) => {
         cache.writePayload(USAGE);
         backdate(cache, 120);

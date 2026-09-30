@@ -1,7 +1,7 @@
 import GLib from 'gi://GLib';
 import system from 'system';
 
-import {withMutex, staleResult, MAX_STALE_MS} from '../../../lib/vendors/fetch-common.js';
+import {withMutex, staleResult, MAX_STALE_MS, RETRY_AFTER_MS, underBackoff, backoffResult} from '../../../lib/vendors/fetch-common.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../../_assert.js';
 
 // The `it` harness is synchronous, so resolve promises against a main loop.
@@ -19,11 +19,12 @@ function runSync(promise) {
     return value;
 }
 
-function fakeCache({payload = null, lastError = null, ageMs = null} = {}) {
+function fakeCache({payload = null, lastError = null, ageMs = null, retryAfter = null} = {}) {
     return {
         maybePayload: () => payload,
         readLastError: () => lastError,
         payloadAgeMs: () => ageMs,
+        readRetryAfter: () => retryAfter,
     };
 }
 
@@ -89,6 +90,47 @@ describe('staleResult — ceiling and original error', () => {
 
     it('no payload propagates the original error verbatim', () =>
         assertEqual(runSync(staleResult(fakeCache({payload: null}), () => ({}), ORIGINAL)), ORIGINAL));
+});
+
+describe('429 backoff', () => {
+    const NOW = new Date(1_800_000_000_000);
+
+    it('RETRY_AFTER_MS is five minutes', () => assertEqual(RETRY_AFTER_MS, 5 * 60 * 1000));
+
+    it('underBackoff reports a future marker and ignores a past or absent one', () => {
+        assertEqual(runSync(underBackoff(fakeCache({retryAfter: NOW.getTime() + 1000}), NOW)), NOW.getTime() + 1000);
+        assertEqual(runSync(underBackoff(fakeCache({retryAfter: NOW.getTime() - 1}), NOW)), null);
+        assertEqual(runSync(underBackoff(fakeCache({retryAfter: NOW.getTime()}), NOW)), null);
+        assertEqual(runSync(underBackoff(fakeCache(), NOW)), null);
+    });
+
+    it('serves a usable payload stale, flagged rate-limited', () => {
+        const until = NOW.getTime() + 240_000;
+        const out = runSync(backoffResult(fakeCache({payload: 'x', ageMs: 1000}), () => ({v: 1}), until, NOW));
+        assertEqual(out.ok, true);
+        assertEqual(out.stale, true);
+        assertEqual(out.lastError.code, 'rate-limited');
+        assertEqual(out.lastError.retryInMs, 240_000);
+    });
+
+    it('with no usable payload returns a rate-limited error', () => {
+        const until = NOW.getTime() + 60_000;
+        for (const cache of [
+            fakeCache(),
+            fakeCache({payload: 'x', ageMs: MAX_STALE_MS + 1}),
+            fakeCache({payload: '{', ageMs: 1000}),
+        ]) {
+            const out = runSync(backoffResult(cache, (b) => {
+                if (b === '{')
+                    throw new Error('bad');
+                return {};
+            }, until, NOW));
+            assertEqual(out.ok, false);
+            assertEqual(out.kind, 'error');
+            assertEqual(out.code, 'rate-limited');
+            assertEqual(out.retryInMs, 60_000);
+        }
+    });
 });
 
 describe('withMutex', () => {

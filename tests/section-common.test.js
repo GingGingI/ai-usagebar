@@ -3,6 +3,7 @@ import system from 'system';
 import {
     wrapWords,
     httpErrorRow,
+    errorText,
     footerRow,
     ICON_ERR_SERVER,
     ICON_ERR_CLIENT,
@@ -84,6 +85,25 @@ describe('httpErrorRow', () => {
     it('injected translator localizes the status label', () => {
         const row = httpErrorRow({lastError: {code: 500, body: 'x'}}, theme, bracket);
         assertEqual(row.status, '[HTTP 500]');
+    });
+});
+
+describe('rate-limited backoff', () => {
+    it('renders a rate-limited lastError as a client-side row with the countdown', () => {
+        const row = httpErrorRow({lastError: {code: 'rate-limited', retryInMs: 4 * 60 * 1000 + 1}}, theme);
+        assertEqual(row.kind, 'http-error');
+        assertEqual(row.icon, ICON_ERR_CLIENT);
+        assertEqual(row.color, '#orange');
+        assertEqual(row.status, 'rate limited; next attempt in 5m');
+        assertDeepEqual(row.lines, []);
+    });
+
+    it('errorText translates the rate-limited code and passes other messages through', () => {
+        assertEqual(errorText({ok: false, kind: 'error', code: 'rate-limited', retryInMs: 30 * 1000}),
+            'rate limited; next attempt in 30s');
+        assertEqual(errorText({ok: false, kind: 'error', code: 'rate-limited', retryInMs: 30 * 1000}, bracket),
+            '[rate limited; next attempt in [30s]]');
+        assertEqual(errorText({ok: false, kind: 'error', message: 'boom'}), 'boom');
     });
 });
 

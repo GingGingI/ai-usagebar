@@ -206,4 +206,44 @@ describe('Cache', () => {
     }));
 });
 
+describe('Cache retry_after sidecar', () => {
+    it('round-trips an epoch-seconds marker as ms', withTempCache(() => {
+        const c = Cache.forVendor('rt');
+        assertEqual(runSync(c.readRetryAfter()), null);
+        c.writeRetryAfter(1_800_000_000_500);
+        assertEqual(runSync(c.readRetryAfter()), 1_800_000_001_000);
+        c.clearRetryAfter();
+        assertEqual(runSync(c.readRetryAfter()), null);
+    }));
+
+    it('a corrupt marker reads as no backoff', withTempCache((dir) => {
+        const c = Cache.forVendor('rt');
+        c.ensureDir();
+        Gio.File.new_for_path(GLib.build_filenamev([dir, 'ai-usagebar', 'rt', '.retry_after'])).replace_contents(
+            new TextEncoder().encode('soon'), null, false, Gio.FileCreateFlags.NONE, null);
+        assertEqual(runSync(c.readRetryAfter()), null);
+    }));
+
+    it('writeLastError(429) arms it; other codes do not', withTempCache(() => {
+        const c = Cache.forVendor('rt');
+        c.writeLastError(500, 'down');
+        assertEqual(runSync(c.readRetryAfter()), null);
+        const before = Date.now();
+        c.writeLastError(429, 'slow down');
+        const until = runSync(c.readRetryAfter());
+        assertEqual(until >= before + 5 * 60 * 1000 && until <= Date.now() + 5 * 60 * 1000 + 1000, true);
+    }));
+
+    it('writePayload and clearLastError clear it', withTempCache(() => {
+        const c = Cache.forVendor('rt');
+        c.writeLastError(429, 'x');
+        c.writePayload('{}');
+        assertEqual(runSync(c.readRetryAfter()), null);
+        c.writeLastError(429, 'x');
+        c.clearLastError();
+        assertEqual(runSync(c.readRetryAfter()), null);
+        assertEqual(runSync(c.readLastError()), null);
+    }));
+});
+
 system.exit(summary());

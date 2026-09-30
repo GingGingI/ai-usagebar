@@ -17,6 +17,7 @@ import {request, disposeSession} from '../lib/http.js';
 import {getAdapter} from '../lib/vendors/registry.js';
 import {vendorLabel} from '../lib/vendors.js';
 import {renderSection} from './vendorSection.js';
+import {errorText} from '../lib/vendors/section-common.js';
 import {substitute, tooltipRows, vformat} from '../lib/format.js';
 import {evaluateNotification, notificationText} from '../lib/notify.js';
 import {severityColor, Severity} from '../lib/severity.js';
@@ -261,7 +262,7 @@ class Indicator extends PanelMenu.Button {
         } else if (res.kind === 'loading') {
             this._setSubmenuMessage(section, _('Loading…'), {dim: true});
         } else {
-            this._setSubmenuMessage(section, res.message, {
+            this._setSubmenuMessage(section, errorText(res, _), {
                 color: severityColor(Severity.CRITICAL, this._theme),
                 iconName: 'dialog-warning-symbolic',
                 // Only Anthropic errors carry a plan (read from its credentials).
@@ -399,7 +400,7 @@ class Indicator extends PanelMenu.Button {
         } else {
             // kind: 'error' — message is retained on disk (.last_error) and in
             // the result; surface it in the popup and log it.
-            console.warn(`ai-usagebar: ${res.message}`);
+            console.warn(`ai-usagebar: ${errorText(res)}`);
             this._setLabel('⚠', severityColor(Severity.CRITICAL, this._theme));
         }
         this._renderVendorSection(this._activeId);

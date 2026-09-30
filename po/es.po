@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-29 23:29-0300\n"
+"POT-Creation-Date: 2026-09-29 23:40-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: Spanish\n"
@@ -15,18 +15,36 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#. Translators: compact duration — s = seconds.
 #: lib/countdown.js:9
+#, javascript-format
+msgid "%ds"
+msgstr "%ds"
+
+#. Translators: compact duration — m = minutes.
+#: lib/countdown.js:13
+#, javascript-format
+msgid "%dm"
+msgstr "%dm"
+
+#. Translators: compact duration — h = hours, m = minutes.
+#: lib/countdown.js:15
+#, javascript-format
+msgid "%dh %dm"
+msgstr "%dh %dm"
+
+#: lib/countdown.js:24
 msgid "now"
 msgstr "ahora"
 
 #. Translators: compact countdown — d = days, h = hours.
-#: lib/countdown.js:17
+#: lib/countdown.js:32
 #, javascript-format
 msgid "%dd %dh"
 msgstr "%dd %dh"
 
 #. Translators: compact countdown — h = hours, m = minutes (zero-padded).
-#: lib/countdown.js:19
+#: lib/countdown.js:34
 #, javascript-format
 msgid "%dh %02dm"
 msgstr "%dh %02dm"
@@ -73,7 +91,7 @@ msgid "Limit: %s"
 msgstr "Límite: %s"
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:81 ui/indicator.js:269
+#: lib/vendors/anthropic/section.js:81 ui/indicator.js:270
 #, javascript-format
 msgid "Claude %s"
 msgstr "Claude %s"
@@ -185,12 +203,17 @@ msgstr "plan gratuito"
 msgid "paid tier"
 msgstr "plan de pago"
 
-#: lib/vendors/section-common.js:40
+#: lib/vendors/section-common.js:33
+#, javascript-format
+msgid "rate limited; next attempt in %s"
+msgstr "límite de solicitudes; próximo intento en %s"
+
+#: lib/vendors/section-common.js:64
 #, javascript-format
 msgid "HTTP %s"
 msgstr "HTTP %s"
 
-#: lib/vendors/section-common.js:51
+#: lib/vendors/section-common.js:75
 #, javascript-format
 msgid "Updated %s"
 msgstr "Actualizado %s"
@@ -429,22 +452,22 @@ msgstr "Kimi"
 msgid "Reset to default"
 msgstr "Restablecer al valor predeterminado"
 
-#: ui/indicator.js:108
+#: ui/indicator.js:109
 msgid "Refresh now"
 msgstr "Actualizar ahora"
 
-#: ui/indicator.js:110
+#: ui/indicator.js:111
 msgid "Refresh all"
 msgstr "Actualizar todo"
 
-#: ui/indicator.js:112
+#: ui/indicator.js:113
 msgid "Preferences"
 msgstr "Preferencias"
 
-#: ui/indicator.js:239
+#: ui/indicator.js:240
 msgid "No data — use \"Refresh all\""
 msgstr "Sin datos — use \"Actualizar todo\""
 
-#: ui/indicator.js:262 ui/indicator.js:398
+#: ui/indicator.js:263 ui/indicator.js:399
 msgid "Loading…"
 msgstr "Cargando…"

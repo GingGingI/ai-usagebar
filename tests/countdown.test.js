@@ -1,6 +1,6 @@
 import system from 'system';
 
-import {format} from '../lib/countdown.js';
+import {format, formatBackoff} from '../lib/countdown.js';
 import {describe, it, assertEqual, summary} from './_assert.js';
 
 const SECOND = 1000;
@@ -55,6 +55,30 @@ describe('countdown.format', () => {
     it('1 second remaining → "0h 00m"', () => {
         assertEqual(format(at(SECOND), now), '0h 00m');
     });
+});
+
+describe('formatBackoff', () => {
+    it('seconds under a minute', () => {
+        assertEqual(formatBackoff(0), '0s');
+        assertEqual(formatBackoff(1), '1s');
+        assertEqual(formatBackoff(59 * SECOND), '59s');
+    });
+
+    it('minutes rounded up under an hour', () => {
+        assertEqual(formatBackoff(60 * SECOND), '1m');
+        assertEqual(formatBackoff(61 * SECOND), '2m');
+        assertEqual(formatBackoff(4 * MINUTE + 1), '5m');
+        assertEqual(formatBackoff(59 * MINUTE), '59m');
+    });
+
+    it('hours and minutes from an hour on', () => {
+        assertEqual(formatBackoff(HOUR), '1h 0m');
+        assertEqual(formatBackoff(HOUR + 2 * MINUTE), '1h 2m');
+        assertEqual(formatBackoff(HOUR + 90 * SECOND), '1h 2m');
+    });
+
+    it('routes the units through the translator', () =>
+        assertEqual(formatBackoff(30 * SECOND, s => `«${s}»`), '«30s»'));
 });
 
 describe('countdown.format — injected translator', () => {
