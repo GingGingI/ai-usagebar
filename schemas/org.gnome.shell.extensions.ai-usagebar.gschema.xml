@@ -69,6 +69,24 @@
       <description>Hex color (#rrggbb) for the critical-severity tier. Empty derives the color from the active theme.</description>
     </key>
 
+    <key name="panel-box" type="s">
+      <choices>
+        <choice value="left"/>
+        <choice value="center"/>
+        <choice value="right"/>
+      </choices>
+      <default>'center'</default>
+      <summary>Panel area</summary>
+      <description>Which area of the top panel holds the indicator: left, center (beside the clock) or right (beside the system menu).</description>
+    </key>
+
+    <key name="panel-index" type="i">
+      <default>1</default>
+      <range min="0" max="20"/>
+      <summary>Position within the panel area</summary>
+      <description>Where the indicator sits inside its area; 0 is the leftmost. In the center area 0 is left of the clock and 1 right of it.</description>
+    </key>
+
     <key name="show-vendor-icons" type="b">
       <default>true</default>
       <summary>Show vendor logos</summary>

@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Vendor logos** in the panel badge, the popup headers and the preferences
   pages, recoloured for light and dark themes; **Show vendor logos** turns them
   off.
+- **Panel position** in preferences: the area (left, center, right) and the
+  position within it, applied immediately.
 - A **pace footnote** under each paced window ("42% elapsed · 3pts ahead"),
   "Estimating…" at the start of a window and "Limit reached" at the cap.
 - Reset countdowns also show the wall-clock time the window reopens.
@@ -36,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The indicator now sits **right of the clock** by default instead of beside
+  the system menu; the previous place is **Right** in the new Panel position
+  preference.
 - **Notifications** fire once per usage window when it reaches the threshold
   (now 97% by default, 1–100), as critical at 100%, and re-arm only after usage
   drops 7 points below it or the window resets. A banked reset credit is

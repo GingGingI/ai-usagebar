@@ -157,6 +157,9 @@ gear button in the popup footer). The prefs window exposes:
 - **Primary vendor** — the default active vendor on startup.
 - **Show vendor logos** — each vendor's logo as the panel badge and in the popup
   headers; off shows the short code and a generic icon.
+- **Panel position** — the panel area (left, center beside the clock, or right
+  beside the system menu) and the position within it. The default is right of
+  the clock; changes apply immediately.
 - **Refresh interval** — seconds between polls (minimum 300; the vendor
   endpoints rate-limit below that).
 - **Per-vendor enable** — toggle each of the seven vendors on or off; only enabled

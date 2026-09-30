@@ -87,6 +87,41 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         displayGroup.add(this._switchRow(settings, 'show-vendor-icons', _('Show vendor logos')));
         page.add(displayGroup);
 
+        const positionGroup = new Adw.PreferencesGroup({
+            title: _('Panel position'),
+            description: _('Changes apply immediately.'),
+        });
+        const boxes = ['left', 'center', 'right'];
+        const boxModel = new Gtk.StringList();
+        for (const label of [_('Left'), _('Center (beside the clock)'), _('Right (beside the system menu)')])
+            boxModel.append(label);
+        const boxRow = new Adw.ComboRow({title: _('Area'), model: boxModel});
+        boxRow.selected = Math.max(0, boxes.indexOf(settings.get_string('panel-box')));
+        const boxNotifyId = boxRow.connect('notify::selected', () => {
+            const v = boxes[boxRow.selected];
+            if (v && settings.get_string('panel-box') !== v)
+                settings.set_string('panel-box', v);
+        });
+        const boxResyncId = settings.connect('changed::panel-box', () => {
+            const i = boxes.indexOf(settings.get_string('panel-box'));
+            if (i >= 0 && boxRow.selected !== i)
+                boxRow.selected = i;
+        });
+        cleanups.push(() => {
+            boxRow.disconnect(boxNotifyId);
+            settings.disconnect(boxResyncId);
+        });
+        positionGroup.add(boxRow);
+        const indexRow = new Adw.SpinRow({
+            title: _('Position within the area'),
+            subtitle: _('0 is leftmost; in the center, 0 is left of the clock and 1 right of it'),
+            adjustment: new Gtk.Adjustment({lower: 0, upper: 20, step_increment: 1, page_increment: 1}),
+            digits: 0,
+        });
+        settings.bind('panel-index', indexRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        positionGroup.add(indexRow);
+        page.add(positionGroup);
+
         const cadenceGroup = new Adw.PreferencesGroup({
             title: _('Refresh'),
             // Translators: %d is the minimum refresh interval in seconds.
