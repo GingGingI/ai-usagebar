@@ -6,6 +6,7 @@ import St from 'gi://St';
 
 import {gettext as _, ngettext} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
@@ -20,7 +21,7 @@ import {vendorLabel} from '../lib/vendors.js';
 import {renderSection} from './vendorSection.js';
 import {errorText} from '../lib/vendors/section-common.js';
 import {substitute, tooltipRows, vformat} from '../lib/format.js';
-import {evaluateNotification, notificationText} from '../lib/notify.js';
+import {decide, Urgency} from '../lib/notify.js';
 import {severityColor, Severity} from '../lib/severity.js';
 import {defaultTheme, withOverrides} from '../lib/theme.js';
 import {parseFakePct, FAKE_PCT_ENV} from '../lib/debug.js';
@@ -74,6 +75,7 @@ class Indicator extends PanelMenu.Button {
         // render from whatever is already here. `_fetchedAt` pins each vendor's
         // footer timestamp to its real fetch instant across live re-renders.
         this._results = new Map();      // vendorId -> FetchResult
+        this._notifySource = null;
         this._fetchedAt = new Map();    // vendorId -> Date
         this._vendorItems = new Map();  // vendorId -> PopupMenu.PopupSubMenuMenuItem
         this._enabledSig = '';
@@ -388,31 +390,55 @@ class Indicator extends PanelMenu.Button {
             this._fetchedAt.set(id, new Date(Date.now() - res.cacheAgeMs));
     }
 
-    // Once-per-crossing notification; the per-vendor cache flag debounces re-fires.
+    // Only a fresh fetch notifies: a stale fallback or the TTL fast path
+    // re-reports numbers that were already judged. The dedupe state is saved
+    // before delivery, so a failed save skips the notification instead of
+    // repeating it on every poll.
     async _maybeNotify(adapter, cache, res, config) {
-        if (!res.ok || !config.notifications.enabled)
+        if (!res.ok || res.stale || res.cacheAgeMs !== 0 || !config.notifications.enabled)
             return;
         try {
-            const peak = adapter.peakUsage(res.snapshot);
-            const state = evaluateNotification({
-                enabled: true,
-                peak,
-                severity: adapter.severity(res.snapshot),
+            const {fired, state} = decide({
+                vendor: vendorLabel(adapter.id),
+                rows: adapter.notifyRows(res.snapshot, _),
+                credits: adapter.resetCredits(res.snapshot),
                 threshold: config.notifications.threshold,
-                last: await cache.readNotified(),
-                now: Date.now(),
+                previous: await cache.readNotified(),
+                now: new Date(),
+                _,
             });
             if (this._destroyed)
                 return;
             cache.writeNotified(state);
-            if (state.notify) {
-                Main.notify(vendorLabel(adapter.id), notificationText(peak, _));
+            for (const n of fired) {
+                const source = this._notificationSource();
+                source.addNotification(new MessageTray.Notification({
+                    source,
+                    title: n.title,
+                    body: n.body,
+                    urgency: n.urgency === Urgency.CRITICAL ? MessageTray.Urgency.CRITICAL : MessageTray.Urgency.NORMAL,
+                }));
+            }
+            if (fired.length > 0) {
                 global.display.get_sound_player().play_from_theme(
                     'message-new-instant', vendorLabel(adapter.id), null);
             }
         } catch (e) {
             console.warn(`ai-usagebar: notification check failed: ${e}`);
         }
+    }
+
+    // One tray source for the extension; the shell destroys it once its last
+    // notification is gone, so it is rebuilt on demand.
+    _notificationSource() {
+        if (!this._notifySource) {
+            this._notifySource = new MessageTray.Source({title: 'AI Usage Bar', icon: this._vendorGicon()});
+            this._notifySource.connect('destroy', () => {
+                this._notifySource = null;
+            });
+            Main.messageTray.add(this._notifySource);
+        }
+        return this._notifySource;
     }
 
     _render(res) {
@@ -652,6 +678,8 @@ class Indicator extends PanelMenu.Button {
             this._cancellable = null;
         }
         disposeSession();
+        this._notifySource?.destroy();
+        this._notifySource = null;
         this._settings = null;
 
         this._vendorItems.clear();

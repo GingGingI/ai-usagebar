@@ -3,7 +3,7 @@ import system from 'system';
 import {
     parseCredits, parseKey, combine, balance, consumedPct,
     snapshotToCacheJson, parseCacheJson, openrouterSeverity, openrouterPeakUsage, placeholders,
-    fakeSnapshot,
+    fakeSnapshot, notifyRows, resetCredits,
 } from '../../../../lib/vendors/openrouter/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -145,6 +145,19 @@ describe('placeholders — elapsed aliases', () => {
         const m = placeholders(snap, new Date());
         assertEqual(m.get('session_elapsed'), '0');
         assertEqual(m.get('weekly_elapsed'), '0');
+    });
+});
+
+describe('notifyRows / resetCredits', () => {
+    it('one Balance row with the consumed percentage', () => {
+        const snap = combine({totalCredits: 100, totalUsage: 98},
+            {label: 'prod', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: false});
+        const rows = notifyRows(snap);
+        assertEqual(rows.length, 1);
+        assertEqual(rows[0].key, 'balance');
+        assertEqual(rows[0].percent, 98);
+        assertEqual(rows[0].resetsAt, null);
+        assertEqual(resetCredits(snap).length, 0);
     });
 });
 

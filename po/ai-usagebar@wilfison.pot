@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-30 00:07-0300\n"
+"POT-Creation-Date: 2026-09-30 00:11-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,25 +69,50 @@ msgid_plural "%d resets available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: lib/notify.js:47
-msgid "Usage is critical"
-msgstr ""
-
+#. Translators: "Claude — Session at 97%": the vendor, the usage window, then the percentage.
 #: lib/notify.js:48
 #, javascript-format
-msgid "Usage at %d%%"
+msgid "%s — %s at %d%%"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:34
+#: lib/notify.js:49
+#, javascript-format
+msgid "%d%% of the %s used"
+msgstr ""
+
+#. Translators: appended to the body — " · resets 2h 05m (16:00)".
+#: lib/notify.js:52
+#, javascript-format
+msgid " · resets %s (%s)"
+msgstr ""
+
+#. Translators: "Claude — reset credit expires Oct 22 16:00".
+#: lib/notify.js:59
+#, javascript-format
+msgid "%s — reset credit expires %s"
+msgstr ""
+
+#. Translators: "Full reset — redeem within 1d 4h (16:00)".
+#: lib/notify.js:61
+#, javascript-format
+msgid "%s — redeem within %s (%s)"
+msgstr ""
+
+#: lib/notify.js:61 lib/vendors/openai/section.js:32
+msgid "Reset credit"
+msgstr ""
+
+#: lib/vendors/anthropic/parser.js:309 lib/vendors/anthropic/section.js:34
 msgid "Session"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:35 lib/vendors/kimi/section.js:35
-#: lib/vendors/zai/section.js:29
+#: lib/vendors/anthropic/parser.js:310 lib/vendors/anthropic/section.js:35
+#: lib/vendors/kimi/parser.js:233 lib/vendors/kimi/section.js:35
+#: lib/vendors/zai/parser.js:222 lib/vendors/zai/section.js:29
 msgid "Weekly"
 msgstr ""
 
-#: lib/vendors/anthropic/section.js:37
+#: lib/vendors/anthropic/parser.js:313 lib/vendors/anthropic/section.js:37
 msgid "Sonnet only"
 msgstr ""
 
@@ -105,7 +130,7 @@ msgid "Limit: %s"
 msgstr ""
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:79 ui/indicator.js:273
+#: lib/vendors/anthropic/section.js:79 ui/indicator.js:275
 #, javascript-format
 msgid "Claude %s"
 msgstr ""
@@ -114,7 +139,8 @@ msgstr ""
 msgid "Custom provider"
 msgstr ""
 
-#: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/section.js:18
+#: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/parser.js:185
+#: lib/vendors/openrouter/section.js:18
 msgid "Balance"
 msgstr ""
 
@@ -132,11 +158,11 @@ msgstr ""
 msgid "API unavailable"
 msgstr ""
 
-#: lib/vendors/kimi/section.js:33
+#: lib/vendors/kimi/parser.js:231 lib/vendors/kimi/section.js:33
 msgid "Window (5h)"
 msgstr ""
 
-#: lib/vendors/kimi/section.js:37
+#: lib/vendors/kimi/parser.js:235 lib/vendors/kimi/section.js:37
 msgid "Monthly"
 msgstr ""
 
@@ -146,28 +172,24 @@ msgstr ""
 msgid "Kimi %s"
 msgstr ""
 
+#: lib/vendors/openai/parser.js:294 lib/vendors/openai/section.js:39
+msgid "Codex 5h"
+msgstr ""
+
+#: lib/vendors/openai/parser.js:295 lib/vendors/openai/section.js:41
+msgid "Codex weekly"
+msgstr ""
+
+#: lib/vendors/openai/parser.js:296 lib/vendors/openai/section.js:45
+msgid "Code review (weekly)"
+msgstr ""
+
 #: lib/vendors/openai/section.js:31 lib/vendors/section-common.js:136
 msgid "Resets"
 msgstr ""
 
-#: lib/vendors/openai/section.js:32
-msgid "Reset credit"
-msgstr ""
-
-#: lib/vendors/openai/section.js:39
-msgid "Codex 5h"
-msgstr ""
-
-#: lib/vendors/openai/section.js:41
-msgid "Codex weekly"
-msgstr ""
-
 #: lib/vendors/openai/section.js:43 lib/vendors/zai/section.js:34
 msgid "no usage windows reported"
-msgstr ""
-
-#: lib/vendors/openai/section.js:45
-msgid "Code review (weekly)"
 msgstr ""
 
 #: lib/vendors/openai/section.js:49
@@ -294,11 +316,11 @@ msgstr ""
 msgid "%d%% elapsed · %s"
 msgstr ""
 
-#: lib/vendors/zai/section.js:27
+#: lib/vendors/zai/parser.js:221 lib/vendors/zai/section.js:27
 msgid "Session (5h)"
 msgstr ""
 
-#: lib/vendors/zai/section.js:31
+#: lib/vendors/zai/parser.js:223 lib/vendors/zai/section.js:31
 msgid "MCP tools (monthly)"
 msgstr ""
 
@@ -401,8 +423,9 @@ msgstr ""
 
 #: prefs.js:155
 msgid ""
-"Show a desktop notification the first time a vendor reaches the threshold. "
-"It re-arms when usage drops back or the window resets."
+"Show a desktop notification the first time a usage window reaches the "
+"threshold. It re-arms when usage drops 7 points below it or the window "
+"resets, and warns 48 hours before a reset credit expires."
 msgstr ""
 
 #: prefs.js:157
@@ -509,22 +532,22 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
-#: ui/indicator.js:111
+#: ui/indicator.js:113
 msgid "Refresh now"
 msgstr ""
 
-#: ui/indicator.js:113
+#: ui/indicator.js:115
 msgid "Refresh all"
 msgstr ""
 
-#: ui/indicator.js:115
+#: ui/indicator.js:117
 msgid "Preferences"
 msgstr ""
 
-#: ui/indicator.js:242
+#: ui/indicator.js:244
 msgid "No data — use \"Refresh all\""
 msgstr ""
 
-#: ui/indicator.js:266 ui/indicator.js:423
+#: ui/indicator.js:268 ui/indicator.js:449
 msgid "Loading…"
 msgstr ""

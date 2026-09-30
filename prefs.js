@@ -152,11 +152,11 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
 
         const notifyGroup = new Adw.PreferencesGroup({
             title: _('Notifications'),
-            description: _('Show a desktop notification the first time a vendor reaches the threshold. It re-arms when usage drops back or the window resets.'),
+            description: _('Show a desktop notification the first time a usage window reaches the threshold. It re-arms when usage drops 7 points below it or the window resets, and warns 48 hours before a reset credit expires.'),
         });
         notifyGroup.add(this._switchRow(settings, 'notify-enabled', _('Notify on high usage')));
         const notifyAdj = new Gtk.Adjustment({
-            lower: 0,
+            lower: 1,
             upper: 100,
             step_increment: 5,
             page_increment: 10,

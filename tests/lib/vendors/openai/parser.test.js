@@ -2,7 +2,7 @@ import system from 'system';
 
 import {
     parseUsage, snapshotToCacheJson, parseCacheJson, openaiSeverity, openaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS,
-    parseResetCredits, mergeResetCredits,
+    parseResetCredits, mergeResetCredits, notifyRows, resetCredits,
 } from '../../../../lib/vendors/openai/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -416,6 +416,23 @@ describe('placeholders — session_/weekly_ pace aliases', () => {
         const capped = placeholders({...snap, session: {...snap.session, utilizationPct: 100}}, PACE_NOW);
         assertEqual(capped.get('session_pace'), '');
         assertEqual(capped.get('oai_session_pace'), '');
+    });
+});
+
+describe('notifyRows / resetCredits', () => {
+    const w = pct => ({utilizationPct: pct, resetsAt: null, windowMs: WEEKLY_MS});
+
+    it('rows only for the windows present', () => {
+        const rows = notifyRows({plan: 'x', session: null, weekly: w(98), codeReview: w(10), credits: null});
+        assertEqual(rows.map(r => r.key).join(','), 'weekly,code-review');
+        assertEqual(rows[0].label, 'Codex weekly');
+        assertEqual(rows[0].percent, 98);
+    });
+
+    it('credits come from resetCredits, [] when absent', () => {
+        const credits = [{title: 'T', expiresAt: null}];
+        assertEqual(resetCredits({resetCredits: {available: 1, credits}}), credits);
+        assertEqual(resetCredits({}).length, 0);
     });
 });
 

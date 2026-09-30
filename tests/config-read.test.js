@@ -56,7 +56,7 @@ describe('readConfig — schema defaults', () => {
     it('active vendor defaults to anthropic', () => assertEqual(cfg.activeVendor, 'anthropic'));
     it('pace marker off by default', () => assertEqual(cfg.showPaceMarker, false));
     it('notifications on by default', () => assertEqual(cfg.notifications.enabled, true));
-    it('notify threshold defaults to 90', () => assertEqual(cfg.notifications.threshold, 90));
+    it('notify threshold defaults to 97', () => assertEqual(cfg.notifications.threshold, 97));
     it('openrouter env var name default', () =>
         assertEqual(cfg.vendors.openrouter.apiKeyEnv, 'OPENROUTER_API_KEY'));
     it('deepseek env var name default', () =>

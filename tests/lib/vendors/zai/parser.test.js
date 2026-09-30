@@ -1,7 +1,7 @@
 import system from 'system';
 
 import {
-    parseEnvelope, validateEnvelope, snapshotToCacheJson, parseCacheJson, SchemaError, zaiSeverity, zaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS, MCP_MS,
+    parseEnvelope, validateEnvelope, snapshotToCacheJson, parseCacheJson, SchemaError, zaiSeverity, zaiPeakUsage, placeholders, fakeSnapshot, SESSION_MS, WEEKLY_MS, MCP_MS, notifyRows, resetCredits,
 } from '../../../../lib/vendors/zai/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -266,6 +266,16 @@ describe('placeholders — pace', () => {
         const empty = placeholders({plan: 'Pro', session: null, weekly: null, mcp: null}, PACE_NOW);
         assertEqual(empty.get('zai_session_elapsed'), '0');
         assertEqual(empty.get('zai_session_pace'), '');
+    });
+});
+
+describe('notifyRows / resetCredits', () => {
+    it('rows for session, weekly and mcp when present', () => {
+        const w = pct => ({utilizationPct: pct, resetsAt: null, windowMs: SESSION_MS});
+        const rows = notifyRows({plan: 'Pro', session: w(1), weekly: null, mcp: w(99)});
+        assertEqual(rows.map(r => r.key).join(','), 'session,mcp');
+        assertEqual(rows[1].label, 'MCP tools (monthly)');
+        assertEqual(resetCredits({}).length, 0);
     });
 });
 

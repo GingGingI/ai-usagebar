@@ -13,6 +13,8 @@ const SHAPE = {
     severity: 'function',
     peakUsage: 'function',
     placeholders: 'function',
+    notifyRows: 'function',
+    resetCredits: 'function',
     buildSection: 'function',
 };
 

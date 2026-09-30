@@ -2,7 +2,7 @@ import system from 'system';
 
 import {
     parseBalance, deepseekSeverity, deepseekPeakUsage, placeholders, SchemaError,
-    snapshotToCacheJson, parseCacheJson, fakeSnapshot,
+    snapshotToCacheJson, parseCacheJson, fakeSnapshot, notifyRows, resetCredits,
 } from '../../../../lib/vendors/deepseek/parser.js';
 import {Severity} from '../../../../lib/severity.js';
 import {describe, it, assertEqual, assertThrows, summary} from '../../../_assert.js';
@@ -134,6 +134,14 @@ describe('placeholders — elapsed aliases', () => {
         const m = placeholders({isAvailable: true, balance: 5, granted: 5, toppedUp: 0, currency: 'USD'}, new Date());
         assertEqual(m.get('session_elapsed'), '0');
         assertEqual(m.get('weekly_elapsed'), '0');
+    });
+});
+
+describe('notifyRows / resetCredits', () => {
+    it('a balance has nothing to notify', () => {
+        const snap = {isAvailable: true, balance: 0.5, granted: 0, toppedUp: 0.5, currency: 'USD'};
+        assertEqual(notifyRows(snap).length, 0);
+        assertEqual(resetCredits(snap).length, 0);
     });
 });
 

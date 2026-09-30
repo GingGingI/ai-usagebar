@@ -3,7 +3,7 @@ import system from 'system';
 import {
     parseUsage, kimiSeverity, kimiPeakUsage, placeholders, fakeSnapshot, pct,
     humanizeLevel, planLabelFromMe, snapshotToCacheJson, parseCacheJson,
-    WEEKLY_MS, WINDOW_MS, SchemaError,
+    WEEKLY_MS, WINDOW_MS, SchemaError, notifyRows, resetCredits,
 } from '../../../../lib/vendors/kimi/parser.js';
 import {substitute} from '../../../../lib/format.js';
 import {Severity} from '../../../../lib/severity.js';
@@ -316,6 +316,21 @@ describe('placeholders — elapsed aliases', () => {
     it('no weekly block → empty weekly_elapsed', () => {
         const m = placeholders({plan: 'Moderato', window: block(WINDOW_MS), weekly: null, monthly: null}, PACE_NOW);
         assertEqual(m.get('weekly_elapsed'), '');
+    });
+});
+
+describe('notifyRows / resetCredits', () => {
+    it('window, weekly and monthly rows', () => {
+        const block = {limit: 100, used: 98, remaining: 2, resetAt: null};
+        const rows = notifyRows({plan: 'x', window: block, weekly: block, monthly: {utilizationPct: 5, resetsAt: null}});
+        assertEqual(rows.map(r => r.key).join(','), 'window,weekly,monthly');
+        assertEqual(rows[0].percent, 98);
+        assertEqual(resetCredits({}).length, 0);
+    });
+
+    it('a zero-limit window is skipped', () => {
+        const rows = notifyRows({plan: 'x', window: {limit: 0, used: 0, remaining: 0, resetAt: null}, weekly: null, monthly: null});
+        assertEqual(rows.length, 0);
     });
 });
 

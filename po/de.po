@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-30 00:07-0300\n"
+"POT-Creation-Date: 2026-09-30 00:11-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: German\n"
@@ -66,25 +66,50 @@ msgid_plural "%d resets available"
 msgstr[0] "%d Reset verfügbar"
 msgstr[1] "%d Resets verfügbar"
 
-#: lib/notify.js:47
-msgid "Usage is critical"
-msgstr "Nutzung kritisch"
-
+#. Translators: "Claude — Session at 97%": the vendor, the usage window, then the percentage.
 #: lib/notify.js:48
 #, javascript-format
-msgid "Usage at %d%%"
-msgstr "Nutzung bei %d%%"
+msgid "%s — %s at %d%%"
+msgstr "%s — %s bei %d%%"
 
-#: lib/vendors/anthropic/section.js:34
+#: lib/notify.js:49
+#, javascript-format
+msgid "%d%% of the %s used"
+msgstr "%d%% von %s verbraucht"
+
+#. Translators: appended to the body — " · resets 2h 05m (16:00)".
+#: lib/notify.js:52
+#, javascript-format
+msgid " · resets %s (%s)"
+msgstr " · setzt zurück in %s (%s)"
+
+#. Translators: "Claude — reset credit expires Oct 22 16:00".
+#: lib/notify.js:59
+#, javascript-format
+msgid "%s — reset credit expires %s"
+msgstr "%s — Reset-Guthaben läuft ab am %s"
+
+#. Translators: "Full reset — redeem within 1d 4h (16:00)".
+#: lib/notify.js:61
+#, javascript-format
+msgid "%s — redeem within %s (%s)"
+msgstr "%s — einlösen innerhalb von %s (%s)"
+
+#: lib/notify.js:61 lib/vendors/openai/section.js:32
+msgid "Reset credit"
+msgstr "Reset-Guthaben"
+
+#: lib/vendors/anthropic/parser.js:309 lib/vendors/anthropic/section.js:34
 msgid "Session"
 msgstr "Sitzung"
 
-#: lib/vendors/anthropic/section.js:35 lib/vendors/kimi/section.js:35
-#: lib/vendors/zai/section.js:29
+#: lib/vendors/anthropic/parser.js:310 lib/vendors/anthropic/section.js:35
+#: lib/vendors/kimi/parser.js:233 lib/vendors/kimi/section.js:35
+#: lib/vendors/zai/parser.js:222 lib/vendors/zai/section.js:29
 msgid "Weekly"
 msgstr "Wöchentlich"
 
-#: lib/vendors/anthropic/section.js:37
+#: lib/vendors/anthropic/parser.js:313 lib/vendors/anthropic/section.js:37
 msgid "Sonnet only"
 msgstr "Nur Sonnet"
 
@@ -102,7 +127,7 @@ msgid "Limit: %s"
 msgstr "Limit: %s"
 
 #. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
-#: lib/vendors/anthropic/section.js:79 ui/indicator.js:273
+#: lib/vendors/anthropic/section.js:79 ui/indicator.js:275
 #, javascript-format
 msgid "Claude %s"
 msgstr "Claude %s"
@@ -111,7 +136,8 @@ msgstr "Claude %s"
 msgid "Custom provider"
 msgstr "Eigener Anbieter"
 
-#: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/section.js:18
+#: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/parser.js:185
+#: lib/vendors/openrouter/section.js:18
 msgid "Balance"
 msgstr "Guthaben"
 
@@ -129,11 +155,11 @@ msgstr "API verfügbar"
 msgid "API unavailable"
 msgstr "API nicht verfügbar"
 
-#: lib/vendors/kimi/section.js:33
+#: lib/vendors/kimi/parser.js:231 lib/vendors/kimi/section.js:33
 msgid "Window (5h)"
 msgstr "Fenster (5h)"
 
-#: lib/vendors/kimi/section.js:37
+#: lib/vendors/kimi/parser.js:235 lib/vendors/kimi/section.js:37
 msgid "Monthly"
 msgstr "Monatlich"
 
@@ -143,29 +169,25 @@ msgstr "Monatlich"
 msgid "Kimi %s"
 msgstr "Kimi %s"
 
+#: lib/vendors/openai/parser.js:294 lib/vendors/openai/section.js:39
+msgid "Codex 5h"
+msgstr "Codex 5h"
+
+#: lib/vendors/openai/parser.js:295 lib/vendors/openai/section.js:41
+msgid "Codex weekly"
+msgstr "Codex wöchentlich"
+
+#: lib/vendors/openai/parser.js:296 lib/vendors/openai/section.js:45
+msgid "Code review (weekly)"
+msgstr "Code-Review (wöchentlich)"
+
 #: lib/vendors/openai/section.js:31 lib/vendors/section-common.js:136
 msgid "Resets"
 msgstr "Resets"
 
-#: lib/vendors/openai/section.js:32
-msgid "Reset credit"
-msgstr "Reset-Guthaben"
-
-#: lib/vendors/openai/section.js:39
-msgid "Codex 5h"
-msgstr "Codex 5h"
-
-#: lib/vendors/openai/section.js:41
-msgid "Codex weekly"
-msgstr "Codex wöchentlich"
-
 #: lib/vendors/openai/section.js:43 lib/vendors/zai/section.js:34
 msgid "no usage windows reported"
 msgstr "keine Nutzungsfenster gemeldet"
-
-#: lib/vendors/openai/section.js:45
-msgid "Code review (weekly)"
-msgstr "Code-Review (wöchentlich)"
 
 #: lib/vendors/openai/section.js:49
 msgid "Credits"
@@ -293,11 +315,11 @@ msgstr "%d Pkt. darunter"
 msgid "%d%% elapsed · %s"
 msgstr "%d%% vergangen · %s"
 
-#: lib/vendors/zai/section.js:27
+#: lib/vendors/zai/parser.js:221 lib/vendors/zai/section.js:27
 msgid "Session (5h)"
 msgstr "Sitzung (5h)"
 
-#: lib/vendors/zai/section.js:31
+#: lib/vendors/zai/parser.js:223 lib/vendors/zai/section.js:31
 msgid "MCP tools (monthly)"
 msgstr "MCP-Tools (monatlich)"
 
@@ -407,12 +429,10 @@ msgstr "Benachrichtigungen"
 
 #: prefs.js:155
 msgid ""
-"Show a desktop notification the first time a vendor reaches the threshold. "
-"It re-arms when usage drops back or the window resets."
-msgstr ""
-"Zeigt eine Benachrichtigung an, sobald ein Anbieter den Schwellenwert "
-"erreicht. Sie wird erneut ausgelöst, wenn die Nutzung fällt oder das Fenster "
-"zurückgesetzt wird."
+"Show a desktop notification the first time a usage window reaches the "
+"threshold. It re-arms when usage drops 7 points below it or the window "
+"resets, and warns 48 hours before a reset credit expires."
+msgstr "Zeigt eine Benachrichtigung, sobald ein Nutzungsfenster zum ersten Mal den Schwellenwert erreicht. Sie wird wieder scharf geschaltet, wenn die Nutzung 7 Punkte darunter fällt oder das Fenster zurückgesetzt wird, und warnt 48 Stunden vor dem Ablauf eines Reset-Guthabens."
 
 #: prefs.js:157
 msgid "Notify on high usage"
@@ -526,22 +546,25 @@ msgstr "Kimi"
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: ui/indicator.js:111
+#: ui/indicator.js:113
 msgid "Refresh now"
 msgstr "Jetzt aktualisieren"
 
-#: ui/indicator.js:113
+#: ui/indicator.js:115
 msgid "Refresh all"
 msgstr "Alle aktualisieren"
 
-#: ui/indicator.js:115
+#: ui/indicator.js:117
 msgid "Preferences"
 msgstr "Einstellungen"
 
-#: ui/indicator.js:242
+#: ui/indicator.js:244
 msgid "No data — use \"Refresh all\""
 msgstr "Keine Daten — \"Alle aktualisieren\" verwenden"
 
-#: ui/indicator.js:266 ui/indicator.js:423
+#: ui/indicator.js:268 ui/indicator.js:449
 msgid "Loading…"
 msgstr "Wird geladen…"
+
+#~ msgid "Usage is critical"
+#~ msgstr "Nutzung kritisch"

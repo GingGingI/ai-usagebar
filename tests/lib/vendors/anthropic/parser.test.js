@@ -11,7 +11,7 @@ import {
     placeholders,
     fakeSnapshot,
     resetsAvailable,
-    SchemaError,
+    SchemaError, notifyRows, resetCredits,
 } from '../../../../lib/vendors/anthropic/parser.js';
 import {Severity} from '../../../../lib/severity.js';
 import {substitute} from '../../../../lib/format.js';
@@ -496,6 +496,39 @@ describe('placeholders — resets', () => {
         const s = parseUsage(withGrants(undefined), 'Team');
         delete s.resets;
         assertEqual(placeholders(s, NOW).get('resets_available'), '0');
+    });
+});
+
+describe('notifyRows / resetCredits', () => {
+    const R = new Date('2026-06-08T17:00:00Z');
+    const s = {
+        plan: 'Max 5x',
+        session: {utilizationPct: 97, resetsAt: R},
+        weekly: {utilizationPct: 40, resetsAt: null},
+        sonnet: {utilizationPct: 10, resetsAt: null},
+        scoped: [{label: 'Fable', utilizationPct: 50, resetsAt: R}],
+        extra: null,
+        resets: [{label: 'Launch', resetsLeft: 1, endsAt: R}],
+    };
+
+    it('one row per window with a stable key and a translated label', () => {
+        const rows = notifyRows(s, t => `<${t}>`);
+        assertEqual(rows.map(r => r.key).join(','), 'session,weekly,sonnet,scoped:Fable');
+        assertEqual(rows[0].label, '<Session>');
+        assertEqual(rows[0].percent, 97);
+        assertEqual(rows[0].resetsAt, R);
+        assertEqual(rows[3].label, 'Fable');
+    });
+
+    it('no Sonnet row when the window is absent', () => {
+        assertEqual(notifyRows({...s, sonnet: null, scoped: []}).length, 2);
+    });
+
+    it('grants become {title, expiresAt}', () => {
+        const [c] = resetCredits(s);
+        assertEqual(c.title, 'Launch');
+        assertEqual(c.expiresAt, R);
+        assertEqual(resetCredits({...s, resets: undefined}).length, 0);
     });
 });
 
