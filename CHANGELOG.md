@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `shell-version` now declares **GNOME Shell 45–51**. The extension is
+  developed and tested on 50 only; on the other versions it is untested, so
+  please report anything that breaks.
 - The indicator now sits **right of the clock** by default instead of beside
   the system menu; the previous place is **Right** in the new Panel position
   preference.
