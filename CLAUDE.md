@@ -134,13 +134,19 @@ without hitting the network.
 **Pace** (`lib/pacing.js` `calc()`) reports a `state`: `estimating` in the first
 1% of a window (clamped to 60 s–1 h) while usage is above zero, `limit` at
 100%, `neutral` with no reset, `ok` otherwise. Only `ok` shows a pace glyph; the
-marker is drawn for `ok`/`estimating`; the footnote reads "42% elapsed · 3pts
-ahead", "Estimating…" or "Limit reached".
+marker is drawn for `ok`/`estimating`. An `ok` window also gets a `verdict` from
+its unrounded projection at the reset: `critical` over 100% with under 10% left,
+or over 130% and 5 pts past the marker; `over` over 110% and 3 pts past; else
+`calm`. The bar past the marker is orange for `over`, red for `critical`, plain
+for `calm` (`lib/pace-fill.js`), and the footnote reads "42% elapsed · 3pts
+ahead" (calm), "~20% over pace", "Limit in 1h 04m" (critical, from
+`runsOutAt`), "Estimating…" or "Limit reached".
 
 **Notifications** (`lib/notify.js` `decide()`, pure) run only after a fresh
 fetch: each `notifyRows` window fires once at the threshold and re-arms below
-threshold − 7 or when its reset moves later; a reset credit fires once 48 h
-before it expires. The dedupe state is JSON (`version: 2`) in the vendor's
+threshold − 7 or when its reset moves more than 90 min later than the latest one
+recorded (so jitter and a window sliding between fetches don't re-fire); a reset
+credit fires once 48 h before it expires. The dedupe state is JSON (`version: 2`) in the vendor's
 `.notified` sidecar, saved before delivery.
 
 **Context monitor** (`lib/context/`): `parser.js` is the pure Claude Code
