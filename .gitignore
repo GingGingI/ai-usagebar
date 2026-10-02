@@ -10,7 +10,7 @@ locale/**/*.mo
 # Node dev tooling (eslint only); the lockfile IS committed.
 node_modules/
 
-# Local secrets — never commit
+# Local secrets: never commit
 *.credentials.json
 
 # Sandbox marker, not part of the project.

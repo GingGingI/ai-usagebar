@@ -43,7 +43,7 @@ const LIVE = JSON.stringify({
 const MONTHLY = JSON.stringify({limits: {monthly: {usage: 0.4, models: [{name: 'kimi-k3', request_count: 3}]}}});
 const NOW = new Date('2026-09-09T18:30:00Z');
 
-describe('parseUsage — session + weekly', () => {
+describe('parseUsage: session + weekly', () => {
     const s = parseUsage(LIVE, 'Pro');
 
     it('fractions become rounded percentages', () => {
@@ -82,7 +82,7 @@ describe('parseUsage — session + weekly', () => {
     });
 });
 
-describe('parseUsage — edges', () => {
+describe('parseUsage: edges', () => {
     it('monthly-only accounts', () => {
         const s = parseUsage(MONTHLY);
         assertEqual(s.session, null);
@@ -136,21 +136,21 @@ describe('placeholders', () => {
         assertEqual(m.get('oll_monthly_pct'), '');
         assertEqual(m.get('oll_plan'), 'Pro');
         assertEqual(m.get('oll_cost'), '0.00000');
-        assertEqual(m.get('oll_session_reset'), '—');
+        assertEqual(m.get('oll_session_reset'), '-');
         assertEqual(m.get('oll_session_elapsed'), '0');
         assertEqual(m.get('session_pct'), '82');
         assertEqual(m.get('weekly_pct'), '23');
-        assertEqual(m.get('session_reset'), '—');
+        assertEqual(m.get('session_reset'), '-');
         assertEqual(m.get('weekly_elapsed'), '0');
         assertEqual(m.get('plan'), 'Pro');
     });
 
-    it('an absent window is empty; no plan reads Ollama; no cost is —', () => {
+    it('an absent window is empty; no plan reads Ollama; no cost is -', () => {
         const m = placeholders(parseUsage(MONTHLY), NOW);
         assertEqual(m.get('session_pct'), '');
         assertEqual(m.get('oll_monthly_pct'), '40');
         assertEqual(m.get('plan'), 'Ollama');
-        assertEqual(m.get('oll_cost'), '—');
+        assertEqual(m.get('oll_cost'), '-');
     });
 
     it('the default bar format renders', () => {

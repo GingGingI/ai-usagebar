@@ -19,7 +19,7 @@ function parse(lines, opts = {}) {
     return parseSessionTail(lines.join('\n'), {mtime: MTIME, fileStem: 'file-stem', modelWindows: {'claude-opus-5': 200000}, ...opts});
 }
 
-describe('parseSessionTail — a normal session', () => {
+describe('parseSessionTail: a normal session', () => {
     const s = parse([user, assistant(1000, {create: 500, read: 48500}), j({type: 'custom-title', customTitle: 'release prep'})]);
 
     it('reads the id, project, title and model', () => {
@@ -54,7 +54,7 @@ describe('parseSessionTail — a normal session', () => {
     });
 });
 
-describe('parseSessionTail — compacted and unknown', () => {
+describe('parseSessionTail: compacted and unknown', () => {
     it('a compact boundary after the last usage → compacted', () => {
         assertDeepEqual(parse([assistant(90000), compact]).usage, {state: 'compacted'});
     });
@@ -75,7 +75,7 @@ describe('parseSessionTail — compacted and unknown', () => {
     });
 });
 
-describe('parseSessionTail — windows', () => {
+describe('parseSessionTail: windows', () => {
     it('an unknown model with no default shows raw tokens, never a %', () => {
         const s = parse([assistant(5000, {model: 'mystery-model'})]);
         assertEqual(s.usage.windowTokens, null);
@@ -95,7 +95,7 @@ describe('parseSessionTail — windows', () => {
     });
 });
 
-describe('parseSessionTail — tolerance', () => {
+describe('parseSessionTail: tolerance', () => {
     it('an invalid line in the middle is skipped, not fatal', () => {
         const s = parse([assistant(42), '{"type":"assistant", broken', user]);
         assertEqual(s.usage.inputTokens, 42);

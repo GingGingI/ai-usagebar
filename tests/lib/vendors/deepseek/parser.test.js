@@ -111,7 +111,7 @@ describe('placeholders', () => {
         assertEqual(m.get('currency'), 'USD');
         assertEqual(m.get('plan'), 'DeepSeek');
         assertEqual(m.get('session_pct'), '0');
-        assertEqual(m.get('session_reset'), '—');
+        assertEqual(m.get('session_reset'), '-');
     });
 });
 
@@ -129,7 +129,7 @@ describe('fakeSnapshot', () => {
     });
 });
 
-describe('placeholders — elapsed aliases', () => {
+describe('placeholders: elapsed aliases', () => {
     it('no window → 0', () => {
         const m = placeholders({isAvailable: true, balance: 5, granted: 5, toppedUp: 0, currency: 'USD'}, new Date());
         assertEqual(m.get('session_elapsed'), '0');

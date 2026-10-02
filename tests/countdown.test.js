@@ -14,11 +14,11 @@ const at = offsetMs => new Date(now.getTime() + offsetMs);
 
 describe('countdown.format', () => {
     it('null reset renders em-dash', () => {
-        assertEqual(format(null, now), '—');
+        assertEqual(format(null, now), '-');
     });
 
     it('undefined reset renders em-dash', () => {
-        assertEqual(format(undefined, now), '—');
+        assertEqual(format(undefined, now), '-');
     });
 
     it('past reset renders "now"', () => {
@@ -116,7 +116,7 @@ describe('formatBackoff', () => {
         assertEqual(formatBackoff(30 * SECOND, s => `«${s}»`), '«30s»'));
 });
 
-describe('countdown.format — injected translator', () => {
+describe('countdown.format: injected translator', () => {
     // A fake translator wraps the format string in guillemets so we can prove the
     // unit labels route through `_()` (and are not hard-coded) and that vformat
     // still interpolates the translated template.
@@ -135,7 +135,7 @@ describe('countdown.format — injected translator', () => {
     });
 
     it('leaves the null em-dash marker untranslated', () => {
-        assertEqual(format(null, now, T), '—');
+        assertEqual(format(null, now, T), '-');
     });
 });
 

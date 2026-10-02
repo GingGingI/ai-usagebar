@@ -307,7 +307,7 @@ describe('placeholders', () => {
     it('sonnet-absent defaults present; *_bar keys omitted', () => {
         const m = placeholders(s, now);
         assertEqual(m.get('sonnet_pct'), '0');
-        assertEqual(m.get('sonnet_reset'), '—');
+        assertEqual(m.get('sonnet_reset'), '-');
         assertEqual(m.get('sonnet_elapsed'), '0');
         assertEqual(m.get('extra_spent'), '');
         assertEqual(m.get('extra_pct'), '0');
@@ -325,10 +325,10 @@ describe('placeholders', () => {
         assertEqual(m.get('extra_pct'), '5'); // 250*100/5000
     });
 
-    it('no cap: extra_limit is — and extra_pct is 0', () => {
+    it('no cap: extra_limit is - and extra_pct is 0', () => {
         const m = placeholders({...s, extra: {limitCents: null, spentCents: 14157, currency: 'BRL', decimalPlaces: 2}}, now);
         assertEqual(m.get('extra_spent'), 'R$141.57');
-        assertEqual(m.get('extra_limit'), '—');
+        assertEqual(m.get('extra_limit'), '-');
         assertEqual(m.get('extra_pct'), '0');
     });
 });
@@ -384,7 +384,7 @@ function grant(overrides = {}) {
     };
 }
 
-describe('parseUsage — cedar_ember resets', () => {
+describe('parseUsage: cedar_ember resets', () => {
     it('counts only usable, unpaused grants with resets left', () => {
         const s = parseUsage(withGrants({
             eligible: true,
@@ -464,7 +464,7 @@ describe('parseUsage — cedar_ember resets', () => {
     });
 });
 
-describe('placeholders — resets', () => {
+describe('placeholders: resets', () => {
     const NOW = new Date('2026-09-24T12:00:00Z');
 
     it('sums resets_left across grants', () => {

@@ -6,7 +6,7 @@ vendor id from `lib/vendors.js`, so the extension finds a mark by name with no
 lookup table. The `-symbolic` suffix makes GNOME Shell and GTK recolor it to the
 surrounding text color, on light and dark themes.
 
-A vendor without a mark — only the user-named custom provider — uses the
+A vendor without a mark (only the user-named custom provider) uses the
 generic `ai-symbolic.svg`. Marks can be turned off in preferences
 (**Show vendor logos**), which brings back the text badge and the generic icon.
 

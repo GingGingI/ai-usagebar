@@ -49,7 +49,7 @@ validate:
 # Re-run the test suite whenever a source/test file changes.
 watch:
 	@command -v inotifywait >/dev/null 2>&1 || { \
-		echo "watch: inotifywait not found — install inotify-tools to use 'make watch'"; \
+		echo "watch: inotifywait not found: install inotify-tools to use 'make watch'"; \
 		exit 1; \
 	}
 	@$(MAKE) --no-print-directory test || true
@@ -62,7 +62,7 @@ watch:
 # (handy for eyeballing the bar): AI_USAGEBAR_FAKE_PCT=23 make run
 run:
 	@if [ -n "$$AI_USAGEBAR_FAKE_PCT" ]; then \
-		echo "run: AI_USAGEBAR_FAKE_PCT=$$AI_USAGEBAR_FAKE_PCT — overriding usage fetch"; \
+		echo "run: AI_USAGEBAR_FAKE_PCT=$$AI_USAGEBAR_FAKE_PCT, overriding usage fetch"; \
 	fi
 	dbus-run-session -- gnome-shell --wayland --devkit
 

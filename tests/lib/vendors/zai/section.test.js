@@ -55,7 +55,7 @@ describe('buildSection (zai)', () => {
     });
 });
 
-describe('buildSection (zai) — injected translator', () => {
+describe('buildSection (zai): injected translator', () => {
     const T = (s) => `«${s}»`;
 
     it('routes the present window titles', () => {
@@ -71,7 +71,7 @@ describe('buildSection (zai) — injected translator', () => {
     });
 });
 
-describe('buildSection (zai) — pace footnote', () => {
+describe('buildSection (zai): pace footnote', () => {
     const now = new Date('2026-06-05T12:00:00Z');
     const half = windowMs => new Date(now.getTime() + windowMs / 2);
     const snap = {

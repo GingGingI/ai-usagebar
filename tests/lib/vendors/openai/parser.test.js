@@ -177,7 +177,7 @@ describe('openaiSeverity', () => {
     });
 });
 
-describe('openaiSeverity — absent windows', () => {
+describe('openaiSeverity: absent windows', () => {
     it('ignores absent windows and still counts code review', () => {
         const s = parseUsage(JSON.stringify({
             rate_limit: {primary_window: {used_percent: 10, limit_window_seconds: 604800}},
@@ -227,7 +227,7 @@ describe('placeholders', () => {
     });
 });
 
-describe('placeholders — absent windows', () => {
+describe('placeholders: absent windows', () => {
     const now = new Date('2026-06-05T00:00:00Z');
 
     it('resolves the weekly family to empty when the weekly window is absent', () => {
@@ -394,7 +394,7 @@ describe('reset credits', () => {
 const PACE_NOW = new Date('2026-06-05T12:00:00Z');
 const halfway = windowMs => new Date(PACE_NOW.getTime() + windowMs / 2);
 
-describe('placeholders — session_/weekly_ pace aliases', () => {
+describe('placeholders: session_/weekly_ pace aliases', () => {
     const snap = {
         plan: 'ChatGPT Plus',
         session: {utilizationPct: 60, resetsAt: halfway(SESSION_MS), windowMs: SESSION_MS},

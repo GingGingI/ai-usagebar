@@ -7,7 +7,7 @@ import {describe, it, assertEqual, assertDeepEqual, summary} from '../_assert.js
 // Minimal palette: distinct hex per severity so we can assert which class won.
 const theme = {green: '#0f0', yellow: '#ff0', orange: '#f80', red: '#f00', fg: '#fff'};
 
-describe('fillColors — base (pct → colour)', () => {
+describe('fillColors: base (pct → colour)', () => {
     // Mirrors severityFor thresholds: >=90 crit, >=75 high, >=50 mid, else low.
     it('low pct → green', () => assertEqual(fillColors(10, null, theme).base, theme.green));
     it('mid pct (>=50) → yellow', () => assertEqual(fillColors(50, null, theme).base, theme.yellow));
@@ -15,7 +15,7 @@ describe('fillColors — base (pct → colour)', () => {
     it('critical pct (>=90) → red', () => assertEqual(fillColors(95, null, theme).base, theme.red));
 });
 
-describe('fillColors — over (verdict → colour)', () => {
+describe('fillColors: over (verdict → colour)', () => {
     it('no verdict → no tail', () =>
         assertEqual(fillColors(30, null, theme).over, null));
 
@@ -41,7 +41,7 @@ describe('fillColors — over (verdict → colour)', () => {
         assertEqual(fillColors(95, PaceVerdict.CRITICAL, theme).over, null));
 });
 
-describe('fillSegments — geometry', () => {
+describe('fillSegments: geometry', () => {
     it('no marker → single base segment spanning the fill', () =>
         assertDeepEqual(fillSegments(0.8, null, 100), {fillW: 80, markerX: null, baseW: 80, overW: 0}));
 
@@ -71,7 +71,7 @@ describe('fillSegments — geometry', () => {
     });
 });
 
-describe('limit — a full bar has no pace tail', () => {
+describe('limit: a full bar has no pace tail', () => {
     it('fillColors: no over colour at 100%', () => {
         assertEqual(fillColors(100, PaceVerdict.CRITICAL, theme).over, null);
         assertEqual(fillColors(100, PaceVerdict.CRITICAL, theme).base, theme.red);

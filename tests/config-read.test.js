@@ -2,7 +2,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import system from 'system';
 
-// Isolate from the user's real dconf store — select the memory backend before
+// Isolate from the user's real dconf store: select the memory backend before
 // any Gio.Settings is constructed.
 GLib.setenv('GSETTINGS_BACKEND', 'memory', true);
 
@@ -28,7 +28,7 @@ function makeSettings() {
     return Gio.Settings.new_full(schema, null, null);
 }
 
-describe('readConfig — schema defaults', () => {
+describe('readConfig: schema defaults', () => {
     const cfg = readConfig(makeSettings());
     it('refresh interval defaults to 300', () => assertEqual(cfg.refreshIntervalSecs, 300));
     it('vendor logos shown by default', () => assertEqual(cfg.showVendorIcons, true));
@@ -76,7 +76,7 @@ describe('readConfig — schema defaults', () => {
         assertEqual(codexAuthPath(cfg).endsWith('/.codex/auth.json'), true));
 });
 
-describe('readConfig — overrides', () => {
+describe('readConfig: overrides', () => {
     const settings = makeSettings();
     settings.set_string('anthropic-credentials-path', '/tmp/x.json');
     settings.set_string('openai-codex-auth-path', '/tmp/auth.json');
@@ -113,7 +113,7 @@ describe('readConfig — overrides', () => {
     it('honors the notify-threshold override', () => assertEqual(cfg.notifications.threshold, 75));
 });
 
-describe('readConfig — custom provider', () => {
+describe('readConfig: custom provider', () => {
     it('defaults', () => {
         const c = readConfig(makeSettings()).vendors.custom;
         assertEqual(c.enabled, false);
@@ -153,7 +153,7 @@ describe('readConfig — custom provider', () => {
     });
 });
 
-describe('readConfig — context monitor', () => {
+describe('readConfig: context monitor', () => {
     it('off by default, nothing configured', () => {
         const c = readConfig(makeSettings()).context;
         assertEqual(c.enabled, false);

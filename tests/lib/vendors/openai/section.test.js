@@ -106,7 +106,7 @@ describe('buildSection (openai)', () => {
     });
 });
 
-describe('buildSection (openai) — injected translator', () => {
+describe('buildSection (openai): injected translator', () => {
     const T = (s) => `«${s}»`;
 
     it('routes the Codex window titles and the credits block', () => {
@@ -130,7 +130,7 @@ describe('buildSection (openai) — injected translator', () => {
     });
 });
 
-describe('buildSection (openai) — reset credits', () => {
+describe('buildSection (openai): reset credits', () => {
     const later = new Date(NOW.getTime() + 3 * 24 * 60 * MIN);
     const sooner = new Date(NOW.getTime() + 90 * MIN);
     const expires = d => `Expires ${localDateHm(d)} (${formatCountdown(d, NOW)})`;
@@ -184,7 +184,7 @@ describe('buildSection (openai) — reset credits', () => {
     });
 });
 
-describe('buildSection (openai) — pace footnote', () => {
+describe('buildSection (openai): pace footnote', () => {
     it('both Codex windows carry a footnote', () => {
         const rows = buildSection(base(), META, NOW, theme).rows.filter(r => r.kind === 'window');
         assertEqual(rows.length, 2);

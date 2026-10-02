@@ -65,7 +65,7 @@ describe('staleResult', () => {
     });
 });
 
-describe('staleResult — ceiling and original error', () => {
+describe('staleResult: ceiling and original error', () => {
     const ORIGINAL = {ok: false, kind: 'error', status: 401, message: 'usage request failed (HTTP 401)'};
     const DAY = 86400 * 1000;
 

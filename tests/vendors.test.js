@@ -3,7 +3,7 @@ import system from 'system';
 import {VENDOR_IDS, VENDOR_LABELS, isVendorId, vendorLabel, vendorIconName} from '../lib/vendors.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
 
-describe('VENDOR_IDS — canonical order', () => {
+describe('VENDOR_IDS: canonical order', () => {
     it('lists vendors in fixed order', () =>
         assertDeepEqual(
             [...VENDOR_IDS],
@@ -38,7 +38,7 @@ describe('vendorLabel', () => {
         assertEqual(vendorLabel('gemini'), 'gemini'));
 });
 
-describe('vendorLabel — custom provider', () => {
+describe('vendorLabel: custom provider', () => {
     const config = {vendors: {custom: {name: 'My Tool'}}};
     it('uses the configured name', () => assertEqual(vendorLabel('custom', config), 'My Tool'));
     it('falls back to Custom without a config', () => assertEqual(vendorLabel('custom'), 'Custom'));

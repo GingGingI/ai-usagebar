@@ -100,7 +100,7 @@ describe('writeBack', () => {
         assertEqual(round.claudeAiOauth.expiresAt, 999);
     }));
 
-    it('missing file is OK — creates with just claudeAiOauth', withTempDir(({path}) => {
+    it('missing file is OK: creates with just claudeAiOauth', withTempDir(({path}) => {
         // path is in a fresh tmpdir; no file there.
         const result = runSync(writeBack(path, baseOauth));
         assertEqual(result.ok, true);
@@ -109,7 +109,7 @@ describe('writeBack', () => {
         assertDeepEqual(Object.keys(raw), ['claudeAiOauth']);
     }));
 
-    it('garbage existing file is OK — overwritten with fresh object', withTempDir(({path}) => {
+    it('garbage existing file is OK: overwritten with fresh object', withTempDir(({path}) => {
         writeText(path, 'not json');
         const result = runSync(writeBack(path, baseOauth));
         assertEqual(result.ok, true);
@@ -118,7 +118,7 @@ describe('writeBack', () => {
         assertDeepEqual(Object.keys(round), ['claudeAiOauth']);
     }));
 
-    it('array-shaped existing file is OK — overwritten with fresh object', withTempDir(({path}) => {
+    it('array-shaped existing file is OK: overwritten with fresh object', withTempDir(({path}) => {
         writeText(path, '[1,2,3]');
         const result = runSync(writeBack(path, baseOauth));
         assertEqual(result.ok, true);
@@ -159,7 +159,7 @@ describe('writeBack', () => {
         }}));
         const original = readText(path);
 
-        // 0o500 — readable + executable but not writable, so tempfile creation fails.
+        // 0o500: readable + executable but not writable, so tempfile creation fails.
         const dirFile = Gio.File.new_for_path(dir);
         dirFile.set_attribute_uint32('unix::mode', 0o500, Gio.FileQueryInfoFlags.NONE, null);
         try {

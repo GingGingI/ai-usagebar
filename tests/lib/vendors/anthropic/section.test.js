@@ -32,7 +32,7 @@ function scopedWin(label, utilizationPct, mins) {
 
 const PACE_GLYPHS = ['↑', '→', '↓'];
 
-describe('buildSection — full snapshot', () => {
+describe('buildSection: full snapshot', () => {
     const meta = {stale: false, lastError: {code: 503, body: 'upstream down'}, fetchedAt: NOW};
     const model = buildSection(fullSnapshot(), meta, NOW, theme);
 
@@ -81,7 +81,7 @@ describe('buildSection — full snapshot', () => {
     });
 });
 
-describe('buildSection — omissions', () => {
+describe('buildSection: omissions', () => {
     const meta = {stale: false, lastError: null, fetchedAt: NOW};
 
     it('omits sonnet when absent', () => {
@@ -130,7 +130,7 @@ describe('buildSection — omissions', () => {
     });
 });
 
-describe('buildSection — scoped windows', () => {
+describe('buildSection: scoped windows', () => {
     const meta = {stale: false, lastError: null, fetchedAt: NOW};
 
     it('inserts a window row per scoped entry, after sonnet and before the gauge', () => {
@@ -163,7 +163,7 @@ describe('buildSection — scoped windows', () => {
         const s = fullSnapshot();
         s.scoped = [scopedWin('Fable', 84, 90)];
         const r = buildSection(s, meta, NOW, theme, t => `«${t}»`).rows[3];
-        assertEqual(r.title, 'Fable'); // brand/model label — not translated
+        assertEqual(r.title, 'Fable'); // brand/model label: not translated
         // prose + countdown routed; the clock is locale data, not translated
         assertEqual(r.subtitle, `«Resets in «1h 30m» · ${resetClock(s.scoped[0].resetsAt, NOW)}»`);
     });
@@ -174,7 +174,7 @@ describe('buildSection — scoped windows', () => {
     });
 });
 
-describe('buildSection — http-error icon/color split', () => {
+describe('buildSection: http-error icon/color split', () => {
     function errorRow(code, body) {
         const m = {stale: true, lastError: {code, body}, fetchedAt: NOW};
         return buildSection(fullSnapshot(), m, NOW, theme).rows.find(r => r.kind === 'http-error');
@@ -203,7 +203,7 @@ describe('buildSection — http-error icon/color split', () => {
         assertEqual(Array.isArray(errorRow(500, 'a b c').lines), true));
 });
 
-describe('buildSection — footer pinned to fetchedAt', () => {
+describe('buildSection: footer pinned to fetchedAt', () => {
     it('shows HH:MM of fetchedAt (not now)', () => {
         const fetchedAt = new Date(NOW.getTime() - 47 * MIN);
         const m = {stale: false, lastError: null, fetchedAt};
@@ -212,14 +212,14 @@ describe('buildSection — footer pinned to fetchedAt', () => {
         assertEqual(footer.updated, localTimeHm(fetchedAt));
     });
 
-    it('shows — when fetchedAt is null', () => {
+    it('shows - when fetchedAt is null', () => {
         const m = {stale: false, lastError: null, fetchedAt: null};
         const footer = buildSection(fullSnapshot(), m, NOW, theme).rows.at(-1);
-        assertEqual(footer.updated, '—');
+        assertEqual(footer.updated, '-');
     });
 });
 
-describe('buildSection — elapsedPct marker data', () => {
+describe('buildSection: elapsedPct marker data', () => {
     const meta = {stale: false, lastError: null, fetchedAt: NOW};
     const model = buildSection(fullSnapshot(), meta, NOW, theme);
 
@@ -254,7 +254,7 @@ describe('buildSection — elapsedPct marker data', () => {
     });
 });
 
-describe('buildSection — injected translator', () => {
+describe('buildSection: injected translator', () => {
     // A fake translator wraps each string so we can prove the labels route
     // through `_()` (not hard-coded). The countdown is wrapped too, since the
     // builder threads the same translator into formatCountdown.
@@ -281,7 +281,7 @@ describe('buildSection — injected translator', () => {
         assertEqual(model.rows.at(-1).text, `«Updated ${localTimeHm(NOW)}»`));
 });
 
-describe('wrapWords — greedy word wrap', () => {
+describe('wrapWords: greedy word wrap', () => {
     it('packs words and breaks at the width boundary', () =>
         assertDeepEqual(wrapWords('one two three four five', 13),
             ['one two three', 'four five']));
@@ -298,7 +298,7 @@ describe('wrapWords — greedy word wrap', () => {
     it('whitespace-only → []', () => assertDeepEqual(wrapWords('   \t  ', 35), []));
 });
 
-describe('buildSection — resets', () => {
+describe('buildSection: resets', () => {
     const meta = {stale: false, lastError: null, fetchedAt: NOW};
     const later = new Date(NOW.getTime() + 3 * 24 * 60 * MIN);
     const sooner = new Date(NOW.getTime() + 90 * MIN);
@@ -374,7 +374,7 @@ describe('buildSection — resets', () => {
     });
 });
 
-describe('buildSection — pace footnote', () => {
+describe('buildSection: pace footnote', () => {
     const meta = {stale: false, lastError: null, fetchedAt: NOW};
 
     it('paced windows carry a footnote; the unpaced Sonnet row does not', () => {
@@ -392,7 +392,7 @@ describe('buildSection — pace footnote', () => {
     });
 });
 
-describe('buildSection — Claude Code sessions', () => {
+describe('buildSection: Claude Code sessions', () => {
     const at = new Date('2026-06-05T11:59:30Z');
     const session = (usage, extra = {}) => ({
         sessionId: 'abcdef1234567890', title: null, project: 'ai-usagebar', model: 'claude-opus-5',

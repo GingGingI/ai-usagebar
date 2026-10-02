@@ -152,7 +152,7 @@ describe('readAuth / expiresAtSecs / planType', () => {
     }));
 });
 
-describe('expiresAtSecs — precedence', () => {
+describe('expiresAtSecs: precedence', () => {
     const tokens = (o) => Object.assign({accessToken: '', refreshToken: 'RT', idToken: '', accountId: null, expiresAt: null}, o);
 
     it('an RFC 3339 expires_at wins over both JWTs', () =>

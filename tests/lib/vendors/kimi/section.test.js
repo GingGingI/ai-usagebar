@@ -90,7 +90,7 @@ describe('buildSection (kimi)', () => {
     });
 });
 
-describe('buildSection (kimi) — injected translator', () => {
+describe('buildSection (kimi): injected translator', () => {
     const T = (s) => `«${s}»`;
 
     it('routes window titles + reset prose; the brand stays verbatim', () => {
@@ -102,7 +102,7 @@ describe('buildSection (kimi) — injected translator', () => {
     });
 });
 
-describe('buildSection (kimi) — no pace footnote', () => {
+describe('buildSection (kimi): no pace footnote', () => {
     it('windows keep their glyph but carry no footnote', () => {
         const now = new Date('2026-06-05T12:00:00Z');
         const block = windowMs => ({limit: 100, used: 30, remaining: 70, resetAt: new Date(now.getTime() + windowMs / 2)});

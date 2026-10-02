@@ -20,7 +20,7 @@ function snap({label = 'prod', limit = 50, limitRemaining = 24.5, free = false} 
 describe('buildSection (openrouter)', () => {
     it('renders balance gauge + usage + per-key limit + tier', () => {
         const m = buildSection(snap(), META, NOW, theme);
-        assertEqual(m.title, 'OpenRouter — prod');
+        assertEqual(m.title, 'OpenRouter - prod');
         assertDeepEqual(m.rows.map(r => r.kind),
             ['gauge', 'text', 'text', 'text', 'text', 'text', 'footer']);
         assertEqual(m.rows[0].title, 'Balance');
@@ -60,7 +60,7 @@ describe('buildSection (openrouter)', () => {
     });
 });
 
-describe('buildSection (openrouter) — injected translator', () => {
+describe('buildSection (openrouter): injected translator', () => {
     const T = (s) => `«${s}»`;
     const m = buildSection(snap(), META, NOW, theme, T);
 

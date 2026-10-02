@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-10-02 11:49-0300\n"
+"POT-Creation-Date: 2026-10-02 12:02-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: Spanish\n"
@@ -15,19 +15,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#. Translators: compact duration — s = seconds.
+#. Translators: compact duration, s = seconds.
 #: lib/countdown.js:9
 #, javascript-format
 msgid "%ds"
 msgstr "%ds"
 
-#. Translators: compact duration — m = minutes.
+#. Translators: compact duration, m = minutes.
 #: lib/countdown.js:13
 #, javascript-format
 msgid "%dm"
 msgstr "%dm"
 
-#. Translators: compact duration — h = hours, m = minutes.
+#. Translators: compact duration, h = hours, m = minutes.
 #: lib/countdown.js:15
 #, javascript-format
 msgid "%dh %dm"
@@ -37,13 +37,13 @@ msgstr "%dh %dm"
 msgid "now"
 msgstr "ahora"
 
-#. Translators: compact countdown — d = days, h = hours.
+#. Translators: compact countdown, d = days, h = hours.
 #: lib/countdown.js:32
 #, javascript-format
 msgid "%dd %dh"
 msgstr "%dd %dh"
 
-#. Translators: compact countdown — h = hours, m = minutes (zero-padded).
+#. Translators: compact countdown, h = hours, m = minutes (zero-padded).
 #: lib/countdown.js:34
 #, javascript-format
 msgid "%dh %02dm"
@@ -53,7 +53,7 @@ msgstr "%dh %02dm"
 msgid "Reset due"
 msgstr "Reinicio pendiente"
 
-#. Translators: "Resets in 4h 05m · 13:54" — a countdown, then the clock time (or date and time).
+#. Translators: "Resets in 4h 05m · 13:54": a countdown, then the clock time (or date and time).
 #: lib/countdown.js:61
 #, javascript-format
 msgid "Resets in %s · %s"
@@ -66,34 +66,34 @@ msgid_plural "%d resets available"
 msgstr[0] "%d reinicio disponible"
 msgstr[1] "%d reinicios disponibles"
 
-#. Translators: "Claude — Session at 97%": the vendor, the usage window, then the percentage.
+#. Translators: "Claude: Session at 97%": the vendor, the usage window, then the percentage.
 #: lib/notify.js:60
 #, javascript-format
-msgid "%s — %s at %d%%"
-msgstr "%s — %s al %d%%"
+msgid "%s: %s at %d%%"
+msgstr "%s: %s al %d%%"
 
 #: lib/notify.js:61
 #, javascript-format
 msgid "%d%% of the %s used"
 msgstr "%d%% de %s usado"
 
-#. Translators: appended to the body — " · resets 2h 05m (16:00)".
+#. Translators: appended to the body: " · resets 2h 05m (16:00)".
 #: lib/notify.js:64
 #, javascript-format
 msgid " · resets %s (%s)"
 msgstr " · se reinicia en %s (%s)"
 
-#. Translators: "Claude — reset credit expires Oct 22 16:00".
+#. Translators: "Claude: reset credit expires Oct 22 16:00".
 #: lib/notify.js:71
 #, javascript-format
-msgid "%s — reset credit expires %s"
-msgstr "%s — el crédito de reinicio vence el %s"
+msgid "%s: reset credit expires %s"
+msgstr "%s: el crédito de reinicio vence el %s"
 
-#. Translators: "Full reset — redeem within 1d 4h (16:00)".
+#. Translators: "Full reset: redeem within 1d 4h (16:00)".
 #: lib/notify.js:73
 #, javascript-format
-msgid "%s — redeem within %s (%s)"
-msgstr "%s — canjéalo en %s (%s)"
+msgid "%s: redeem within %s (%s)"
+msgstr "%s: canjéalo en %s (%s)"
 
 #: lib/notify.js:73 lib/vendors/openai/section.js:32
 msgid "Reset credit"
@@ -218,7 +218,7 @@ msgstr "Límite: ninguno informado"
 msgid "Limit: %s"
 msgstr "Límite: %s"
 
-#. Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
+#. Translators: %s is the Anthropic plan name (e.g. "Max 5x"), kept verbatim.
 #: lib/vendors/anthropic/section.js:145 ui/indicator.js:293
 #, javascript-format
 msgid "Claude %s"
@@ -256,7 +256,7 @@ msgstr "Ventana (5h)"
 msgid "Monthly"
 msgstr "Mensual"
 
-#. Translators: "Kimi" is a brand name — kept verbatim.
+#. Translators: "Kimi" is a brand name, kept verbatim.
 #: lib/vendors/kimi/section.js:48
 #, javascript-format
 msgid "Kimi %s"
@@ -282,7 +282,7 @@ msgstr "no se informaron ventanas de uso"
 msgid "Cost"
 msgstr "Costo"
 
-#. Translators: %s is the Ollama plan name from the prefs (e.g. "Pro") — kept verbatim.
+#. Translators: %s is the Ollama plan name from the prefs (e.g. "Pro"), kept verbatim.
 #: lib/vendors/ollama/section.js:77
 #, javascript-format
 msgid "Ollama %s"
@@ -371,18 +371,18 @@ msgstr "límite de solicitudes; próximo intento en %s"
 #: lib/vendors/section-common.js:40
 #, javascript-format
 msgid ""
-"HTTP %d: authentication rejected — credentials may be missing, expired, or "
+"HTTP %d: authentication rejected; credentials may be missing, expired, or "
 "invalid"
 msgstr ""
-"HTTP %d: autenticación rechazada — las credenciales pueden faltar, haber "
+"HTTP %d: autenticación rechazada; las credenciales pueden faltar, haber "
 "caducado o ser inválidas"
 
 #: lib/vendors/section-common.js:55
 msgid ""
-"The custom provider mapping or extra headers are not valid — fix them in the "
+"The custom provider mapping or extra headers are not valid; fix them in the "
 "preferences."
 msgstr ""
-"El mapeo o los encabezados extra del proveedor personalizado no son válidos: "
+"El mapeo o los encabezados extra del proveedor personalizado no son válidos; "
 "corrígelos en las preferencias."
 
 #: lib/vendors/section-common.js:81
@@ -404,7 +404,7 @@ msgstr "sin vencimiento informado"
 msgid "expired %s"
 msgstr "venció el %s"
 
-#. Translators: "expires Oct 22 16:00 (3d 4h)" — the date and time, then a countdown.
+#. Translators: "expires Oct 22 16:00 (3d 4h)": the date and time, then a countdown.
 #: lib/vendors/section-common.js:125
 #, javascript-format
 msgid "expires %s (%s)"
@@ -418,13 +418,13 @@ msgstr "Estimando…"
 msgid "Limit reached"
 msgstr "Límite alcanzado"
 
-#. Translators: "Limit in 1h 04m" — when the window runs out at the current pace.
+#. Translators: "Limit in 1h 04m": when the window runs out at the current pace.
 #: lib/vendors/section-common.js:164
 #, javascript-format
 msgid "Limit in %s"
 msgstr "Límite en %s"
 
-#. Translators: "~20% over pace" — projected usage at the reset beyond 100%.
+#. Translators: "~20% over pace": projected usage at the reset beyond 100%.
 #: lib/vendors/section-common.js:167
 #, javascript-format
 msgid "~%d%% over pace"
@@ -444,7 +444,7 @@ msgstr "%d pts por encima"
 msgid "%dpts under"
 msgstr "%d pts por debajo"
 
-#. Translators: "42% elapsed · 3pts ahead" — how much of the window has passed, then the pace.
+#. Translators: "42% elapsed · 3pts ahead": how much of the window has passed, then the pace.
 #: lib/vendors/section-common.js:174
 #, javascript-format
 msgid "%d%% elapsed · %s"
@@ -497,7 +497,7 @@ msgid "Panel label"
 msgstr "Etiqueta del panel"
 
 #. Translators: the {token} names are literal placeholders the user
-#. types — keep them verbatim, only translate the surrounding prose.
+#. types: keep them verbatim, only translate the surrounding prose.
 #: prefs.js:189
 msgid ""
 "Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} "
@@ -511,7 +511,7 @@ msgid "Bar format"
 msgstr "Formato de la barra"
 
 #. Translators: the {token} names are literal placeholders the user
-#. types — keep them verbatim, only translate the surrounding prose.
+#. types: keep them verbatim, only translate the surrounding prose.
 #: prefs.js:206
 msgid ""
 "Optional extra lines shown above the popup. Empty uses the built-in layout. "
@@ -591,9 +591,8 @@ msgstr "Actualización"
 #. Translators: %d is the minimum refresh interval in seconds.
 #: prefs.js:272
 #, javascript-format
-msgid "Minimum %d s — the upstream endpoints rate-limit below that."
-msgstr ""
-"Mínimo %d s — los endpoints upstream limitan la tasa por debajo de eso."
+msgid "Minimum %d s: the upstream endpoints rate-limit below that."
+msgstr "Mínimo %d s: los endpoints upstream limitan la tasa por debajo de eso."
 
 #: prefs.js:281
 msgid "Refresh interval (seconds)"
@@ -627,11 +626,11 @@ msgstr "Restablecer"
 
 #: prefs.js:339
 msgid ""
-"Restore every setting — vendor toggles, paths, keys, formats, and colors — "
-"to its built-in default."
+"Restore every setting (vendor toggles, paths, keys, formats, and colors) to "
+"its built-in default."
 msgstr ""
-"Restablece cada ajuste — interruptores de proveedores, rutas, claves, "
-"formatos y colores — a su valor predeterminado."
+"Restablece cada ajuste (interruptores de proveedores, rutas, claves, "
+"formatos y colores) a su valor predeterminado."
 
 #: prefs.js:341
 msgid "Reset all settings"
@@ -651,14 +650,14 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
-#. Translators: "Anthropic" is a brand name — usually keep untranslated.
+#. Translators: "Anthropic" is a brand name, usually keep untranslated.
 #: prefs.js:387
 msgid "Anthropic"
 msgstr "Anthropic"
 
 #: prefs.js:388
-msgid "Credentials path — empty uses ~/.claude/.credentials.json."
-msgstr "Ruta de credenciales — vacío usa ~/.claude/.credentials.json."
+msgid "Credentials path: empty uses ~/.claude/.credentials.json."
+msgstr "Ruta de credenciales: vacío usa ~/.claude/.credentials.json."
 
 #: prefs.js:390 prefs.js:421 prefs.js:434 prefs.js:449 prefs.js:463
 #: prefs.js:477 prefs.js:491 prefs.js:506
@@ -702,20 +701,20 @@ msgstr "0 muestra el recuento bruto de tokens en lugar de un porcentaje"
 msgid "Window per model (JSON, e.g. {\"claude-opus-5\": 1000000})"
 msgstr "Ventana por modelo (JSON, p. ej. {\"claude-opus-5\": 1000000})"
 
-#. Translators: "OpenAI" is a brand name — usually keep untranslated.
+#. Translators: "OpenAI" is a brand name, usually keep untranslated.
 #: prefs.js:418
 msgid "OpenAI"
 msgstr "OpenAI"
 
 #: prefs.js:419
-msgid "Codex auth path — empty uses ~/.codex/auth.json."
-msgstr "Ruta de autenticación de Codex — vacío usa ~/.codex/auth.json."
+msgid "Codex auth path: empty uses ~/.codex/auth.json."
+msgstr "Ruta de autenticación de Codex: vacío usa ~/.codex/auth.json."
 
 #: prefs.js:422
 msgid "Codex auth path"
 msgstr "Ruta de autenticación de Codex"
 
-#. Translators: "Z.AI" is a brand name — usually keep untranslated.
+#. Translators: "Z.AI" is a brand name, usually keep untranslated.
 #: prefs.js:431
 msgid "Z.AI"
 msgstr "Z.AI"
@@ -739,12 +738,12 @@ msgstr "Clave de API (en línea)"
 msgid "Plan tier (lite/pro/max)"
 msgstr "Nivel del plan (lite/pro/max)"
 
-#. Translators: "OpenRouter" is a brand name — usually keep untranslated.
+#. Translators: "OpenRouter" is a brand name, usually keep untranslated.
 #: prefs.js:446
 msgid "OpenRouter"
 msgstr "OpenRouter"
 
-#. Translators: "DeepSeek" is a brand name — usually keep untranslated.
+#. Translators: "DeepSeek" is a brand name, usually keep untranslated.
 #: prefs.js:460
 msgid "DeepSeek"
 msgstr "DeepSeek"
@@ -755,12 +754,12 @@ msgstr ""
 "Desactivado de forma predeterminada; requiere una clave de API (variable de "
 "entorno o en línea)."
 
-#. Translators: "Kimi" is a brand name — usually keep untranslated.
+#. Translators: "Kimi" is a brand name, usually keep untranslated.
 #: prefs.js:474
 msgid "Kimi"
 msgstr "Kimi"
 
-#. Translators: "Ollama" is a brand name — usually keep untranslated.
+#. Translators: "Ollama" is a brand name, usually keep untranslated.
 #: prefs.js:488
 msgid "Ollama Cloud"
 msgstr "Ollama Cloud"
@@ -883,8 +882,8 @@ msgid "Preferences"
 msgstr "Preferencias"
 
 #: ui/indicator.js:262
-msgid "No data — use \"Refresh all\""
-msgstr "Sin datos — use \"Actualizar todo\""
+msgid "No data: use \"Refresh all\""
+msgstr "Sin datos: use \"Actualizar todo\""
 
 #: ui/indicator.js:286 ui/indicator.js:500
 msgid "Loading…"

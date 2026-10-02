@@ -204,19 +204,19 @@ describe('placeholders', () => {
         assertEqual(substitute('{vendor_short} {session_pct}%', placeholders(s, now)), 'zai 42%');
     });
 
-    it('absent session → session_reset is —', () => {
+    it('absent session → session_reset is -', () => {
         const m = placeholders(parseEnvelope(env([]), null), now);
         assertEqual(m.get('session_pct'), '0');
-        assertEqual(m.get('session_reset'), '—');
+        assertEqual(m.get('session_reset'), '-');
         assertEqual(m.get('zai_mcp_pct'), '0');
     });
 
     it('the schema default bar-format renders the expected label', () => {
-        // Regression guard for the default 'bar-format' template; '—' when the
+        // Regression guard for the default 'bar-format' template; '-' when the
         // session window reports no reset time.
         const DEFAULT = '{session_pct}% · {session_reset}';
         const s = parseEnvelope(env([{type: 'TOKENS_LIMIT', unit: 3, percentage: 42}]), null);
-        assertEqual(substitute(DEFAULT, placeholders(s, now)), '42% · —');
+        assertEqual(substitute(DEFAULT, placeholders(s, now)), '42% · -');
     });
 });
 
@@ -233,7 +233,7 @@ describe('fakeSnapshot', () => {
 const PACE_NOW = new Date('2026-06-05T12:00:00Z');
 const halfway = windowMs => new Date(PACE_NOW.getTime() + windowMs / 2);
 
-describe('placeholders — pace', () => {
+describe('placeholders: pace', () => {
     const snap = {
         plan: 'Pro',
         session: {utilizationPct: 60, resetsAt: halfway(SESSION_MS), windowMs: SESSION_MS},

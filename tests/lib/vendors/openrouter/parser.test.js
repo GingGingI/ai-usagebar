@@ -31,7 +31,7 @@ describe('combine', () => {
             {totalCredits: 100, totalUsage: 30},
             {label: 'key-A', limit: 50, limitRemaining: 20, usageDaily: 1, usageWeekly: 5, usageMonthly: 30, isFreeTier: false}
         );
-        assertEqual(snap.label, 'OpenRouter — key-A');
+        assertEqual(snap.label, 'OpenRouter - key-A');
         assertEqual(balance(snap), 70);
         assertEqual(consumedPct(snap), 30);
         assertEqual(snap.usageMonthly, 30);
@@ -61,7 +61,7 @@ describe('cache JSON round-trip', () => {
         const snap = combine({totalCredits: 100, totalUsage: 25.5},
             {label: 'prod', limit: 50, limitRemaining: 24.5, usageDaily: 1, usageWeekly: 7, usageMonthly: 25.5, isFreeTier: false});
         const round = parseCacheJson(snapshotToCacheJson(snap));
-        assertEqual(round.label, 'OpenRouter — prod');
+        assertEqual(round.label, 'OpenRouter - prod');
         assertEqual(round.totalCredits, 100);
         assertEqual(round.limit, 50);
         assertEqual(round.limitRemaining, 24.5);
@@ -78,7 +78,7 @@ describe('openrouterSeverity', () => {
     });
 });
 
-describe('openrouterSeverity — negative balance', () => {
+describe('openrouterSeverity: negative balance', () => {
     const overrun = (credits, usage) => combine({totalCredits: credits, totalUsage: usage},
         {label: '', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: false});
 
@@ -116,7 +116,7 @@ describe('placeholders', () => {
         assertEqual(m.get('or_limit'), '$50.00');
         assertEqual(m.get('or_free_tier'), 'paid');
         assertEqual(m.get('session_pct'), '26');
-        assertEqual(m.get('session_reset'), '—');
+        assertEqual(m.get('session_reset'), '-');
     });
 
     it('absent limit → unlimited', () => {
@@ -138,7 +138,7 @@ describe('fakeSnapshot', () => {
     });
 });
 
-describe('placeholders — elapsed aliases', () => {
+describe('placeholders: elapsed aliases', () => {
     it('no window → 0', () => {
         const snap = combine({totalCredits: 100, totalUsage: 25.5},
             {label: 'prod', limit: null, limitRemaining: null, usageDaily: 0, usageWeekly: 0, usageMonthly: 0, isFreeTier: false});

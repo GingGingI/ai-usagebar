@@ -240,7 +240,7 @@ describe('kimiSeverity / kimiPeakUsage', () => {
     });
 });
 
-describe('kimiPeakUsage — monthly shape', () => {
+describe('kimiPeakUsage: monthly shape', () => {
     it('the monthly pool alone can drive severity', () => {
         const s = parseUsage('{"usages":{"limit_month_total":{"used_ratio":0.95}}}');
         assertEqual(kimiPeakUsage(s).percent, 95);
@@ -282,10 +282,10 @@ describe('placeholders', () => {
         assertEqual(m.get('kimi_monthly_reset'), '');
     });
 
-    it('absent window → session_reset is —', () => {
+    it('absent window → session_reset is -', () => {
         const m = placeholders(parseUsage('{"usage":{"limit":100,"used":0,"remaining":100}}'), now);
         assertEqual(m.get('session_pct'), '0');
-        assertEqual(m.get('session_reset'), '—');
+        assertEqual(m.get('session_reset'), '-');
         assertEqual(m.get('plan'), '');
     });
 });
@@ -304,7 +304,7 @@ describe('fakeSnapshot', () => {
 const PACE_NOW = new Date('2026-06-05T12:00:00Z');
 const halfway = windowMs => new Date(PACE_NOW.getTime() + windowMs / 2);
 
-describe('placeholders — elapsed aliases', () => {
+describe('placeholders: elapsed aliases', () => {
     const block = windowMs => ({limit: 100, used: 30, remaining: 70, resetAt: halfway(windowMs)});
 
     it('session_elapsed follows the 5h window, weekly_elapsed the weekly one', () => {

@@ -165,7 +165,7 @@ describe('Cache', () => {
     it('atomic write: orphan sibling tempfile leaves usage.json unchanged', withTempCache(() => {
         const c = Cache.forVendor('test');
         c.writePayload('sentinel');
-        // Simulate an aborted writePayload — sibling tempfile written but never renamed.
+        // Simulate an aborted writePayload: sibling tempfile written but never renamed.
         const orphan = Gio.File.new_for_path(GLib.build_filenamev([c.dir, '.usage.json.tmp-orphan']));
         orphan.replace_contents(
             new TextEncoder().encode('garbage'),

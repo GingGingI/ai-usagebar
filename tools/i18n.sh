@@ -64,7 +64,7 @@ check)
     if ! diff -u \
         <(grep -v '^"POT-Creation-Date:' "$POT") \
         <(grep -v '^"POT-Creation-Date:' "$tmp"); then
-        echo "i18n-check: ${POT} is stale — run 'make pot' and commit the result"
+        echo "i18n-check: ${POT} is stale: run 'make pot' and commit the result"
         rm -f "$tmp"
         exit 1
     fi

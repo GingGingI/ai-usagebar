@@ -35,7 +35,7 @@ function sequence(steps) {
     });
 }
 
-describe('decide — threshold', () => {
+describe('decide: threshold', () => {
     it('fires at exactly the threshold, normal urgency', () => {
         const {fired} = run([row(97)]);
         assertEqual(fired.length, 1);
@@ -96,7 +96,7 @@ describe('decide — threshold', () => {
     });
 });
 
-describe('decide — reset tolerance', () => {
+describe('decide: reset tolerance', () => {
     const MINUTE = 60 * 1000;
     const shifted = offsetMs => new Date(R1.getTime() + offsetMs);
 
@@ -144,10 +144,10 @@ describe('decide — reset tolerance', () => {
     });
 });
 
-describe('decide — text', () => {
+describe('decide: text', () => {
     it('title and body name the window, the body adds the reset', () => {
         const [n] = run([row(97)]).fired;
-        assertEqual(n.title, 'Claude — Session at 97%');
+        assertEqual(n.title, 'Claude: Session at 97%');
         assertEqual(n.body, `97% of the Session used · resets ${formatCountdown(R1, NOW)} (${localTimeHm(R1)})`);
     });
 
@@ -157,11 +157,11 @@ describe('decide — text', () => {
 
     it('goes through the injected translator', () => {
         const [n] = run([row(97, null)], null, {_: s => `<${s}>`}).fired;
-        assertEqual(n.title, '<Claude — Session at 97%>');
+        assertEqual(n.title, '<Claude: Session at 97%>');
     });
 });
 
-describe('decide — reset credits', () => {
+describe('decide: reset credits', () => {
     const credit = (offsetMs, title = 'Full reset') => ({title, expiresAt: new Date(NOW.getTime() + offsetMs)});
     const runCredits = (credits, previous = null) =>
         decide({vendor: 'OpenAI', rows: [], credits, threshold: 97, previous, now: NOW});
@@ -199,8 +199,8 @@ describe('decide — reset credits', () => {
     it('title and body name the expiry; an untitled credit reads Reset credit', () => {
         const c = credit(10 * HOUR, null);
         const [n] = runCredits([c]).fired;
-        assertEqual(n.title, `OpenAI — reset credit expires ${localDateHm(c.expiresAt)}`);
-        assertEqual(n.body, `Reset credit — redeem within ${formatCountdown(c.expiresAt, NOW)} (${localTimeHm(c.expiresAt)})`);
+        assertEqual(n.title, `OpenAI: reset credit expires ${localDateHm(c.expiresAt)}`);
+        assertEqual(n.body, `Reset credit: redeem within ${formatCountdown(c.expiresAt, NOW)} (${localTimeHm(c.expiresAt)})`);
     });
 });
 

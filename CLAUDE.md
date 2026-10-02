@@ -5,32 +5,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A **GNOME Shell extension** (GJS / ES modules, `shell-version` 47–51, developed and tested on 50) that
-shows AI plan usage in the top panel for seven vendors — **Anthropic, OpenAI,
-Z.AI/GLM, OpenRouter, DeepSeek, Kimi, Ollama Cloud** — plus a user-mapped
+shows AI plan usage in the top panel for seven vendors (**Anthropic, OpenAI,
+Z.AI/GLM, OpenRouter, DeepSeek, Kimi, Ollama Cloud**) plus a user-mapped
 **custom provider**. It is a port of the Rust Waybar widget
 [ai-usagebar](https://github.com/akitaonrails/ai-usagebar) by akitaonrails.
 
 The extension is fully built: panel indicator, per-vendor fetch + OAuth refresh,
 scroll-to-cycle, a collapsible multi-vendor popup, and a prefs window. This repo
 IS the installed extension (it lives under
-`~/.local/share/gnome-shell/extensions/ai-usagebar@wilfison`) — gnome-shell loads
+`~/.local/share/gnome-shell/extensions/ai-usagebar@wilfison`); gnome-shell loads
 the JS directly; there is no build step.
 
 ## Develop / test
 
-The `Makefile` is the canonical dev loop — prefer these targets over raw
+The `Makefile` is the canonical dev loop: prefer these targets over raw
 `gnome-extensions` / `journalctl` / `gjs`. Run `make` to list them.
 
 ```bash
-make test      # gjs -m tests/run.js — pure-JS unit suite (compiles schema first)
-make lint      # tools/lint.sh — trailing-newline + no imports.* + no SPDX header
-make eslint    # npx eslint . — GNOME Shell flat config (needs `npm ci` first)
-make validate  # tools/validate.sh — metadata.json + schema --strict
+make test      # gjs -m tests/run.js: pure-JS unit suite (compiles schema first)
+make lint      # tools/lint.sh: trailing-newline + no imports.* + no SPDX header
+make eslint    # npx eslint .: GNOME Shell flat config (needs `npm ci` first)
+make validate  # tools/validate.sh: metadata.json + schema --strict
 make watch     # re-run `make test` on changes under lib/ ui/ tests/ (needs inotify-tools)
 make reload    # disable + enable (Wayland still needs a full relog to pick up changes)
 make run       # launch a throwaway nested gnome-shell (Wayland) to test live
 make logs      # journalctl -f -o cat /usr/bin/gnome-shell
-make pot       # tools/i18n.sh pot — re-extract strings into po/<uuid>.pot
+make pot       # tools/i18n.sh pot: re-extract strings into po/<uuid>.pot
 make update-po # msgmerge each po/*.po against the refreshed template
 make compile-locale  # msgfmt po/*.po → locale/<lang>/LC_MESSAGES/*.mo (dev)
 make i18n-check      # fail on a stale .pot or a malformed po/*.po (CI gate)
@@ -46,7 +46,7 @@ subdirectories that mirror the source path) and runs each as an isolated
 
 The runner colorizes output with ANSI codes; `tests/run.js` honors the
 [`NO_COLOR`](https://no-color.org) env var, so run `NO_COLOR=1 make test` to get
-plain (uncolored) output — use this when capturing logs or running non-interactively.
+plain (uncolored) output; use this when capturing logs or running non-interactively.
 
 CI (`.github/workflows/ci.yml`) runs `make schemas`, `make test`, `tools/lint.sh`,
 `npx eslint .`, `make validate`, and `make i18n-check` on every PR (the runner
@@ -59,7 +59,7 @@ installs `gettext` for the i18n tools).
 it to the panel; `disable()` calls `this._indicator.destroy()`. **Everything
 created in `enable()` must be released in `disable()`** (widgets, GLib timeout
 sources via `GLib.Source.remove`, signal handlers, the Soup session, the
-Cancellable) — reviewers reject extensions that leak on disable. `Indicator`
+Cancellable); reviewers reject extensions that leak on disable. `Indicator`
 owns this discipline in its `destroy()`.
 
 ### Vendor-adapter pattern (the core abstraction)
@@ -70,28 +70,28 @@ severity, peakUsage, placeholders, notifyRows, resetCredits, buildSection }`,
 plus optional `fakeSnapshot` and `shortCode(config)`); the indicator calls
 `getAdapter(id)` and drives it generically. `notifyRows(snapshot, _)` lists one
 `{key, label, percent, resetsAt}` per usage window and `resetCredits(snapshot)`
-the banked resets `{title, expiresAt}` — both feed `lib/notify.js`. Each vendor
+the banked resets `{title, expiresAt}`; both feed `lib/notify.js`. Each vendor
 lives in its own directory
 `lib/vendors/<vendor>/` as a **module quad**:
 
-- `lib/vendors/<vendor>/adapter.js` — wires the triple into the uniform `Adapter`
+- `lib/vendors/<vendor>/adapter.js`: wires the triple into the uniform `Adapter`
   object and exports it (e.g. `anthropicAdapter`). Derives the creds path /
   resolved API key from config, catching resolution errors into the standard
   error result, and exposes the pure `buildSection` as-is (the indicator injects
   the real `gettext` at the call site). Imports `main.js` (transitively `Gio`)
-  but **no** `resource://`, so the whole `ADAPTERS` graph loads under `gjs -m` —
+  but **no** `resource://`, so the whole `ADAPTERS` graph loads under `gjs -m`;
   its shape is checked in `tests/lib/vendors/registry.test.js`.
-- `lib/vendors/<vendor>/main.js` — fetch state machine (`fetchSnapshot`). Reads
+- `lib/vendors/<vendor>/main.js`: fetch state machine (`fetchSnapshot`). Reads
   creds/key, maybe-refreshes the OAuth token, GETs the usage endpoint, caches,
   and falls back to stale cache on failure. Transitively imports `Gio` (via
-  cache/http), so it is **not** unit-tested directly. Never throws — always
+  cache/http), so it is **not** unit-tested directly. Never throws: always
   resolves to a `FetchResult`.
-- `lib/vendors/<vendor>/parser.js` — **pure**: `parseUsage(jsonBytes) → snapshot`,
+- `lib/vendors/<vendor>/parser.js` (**pure**): `parseUsage(jsonBytes) → snapshot`,
   plus `severity`, `peakUsage`, `placeholders` (Map for `bar-format`
   substitution; takes an injected `ngettext`), `notifyRows`, `resetCredits`,
   `snapshotToCacheJson`/`parseCacheJson`, `ICON`, `VENDOR_SHORT`. No `gi://`;
   fully unit-tested.
-- `lib/vendors/<vendor>/section.js` — **pure**: `buildSection(snapshot, meta,
+- `lib/vendors/<vendor>/section.js` (**pure**): `buildSection(snapshot, meta,
 now, theme, _, ngettext) → SectionModel` (an ordered list of typed rows:
   `window`, `gauge`, `text`, `group-heading`, `grouped`, `spacer`,
   `http-error`, `footer`). No `gi://`; unit-tested. Window rows take their colour
@@ -102,7 +102,7 @@ Shared helpers (`registry.js`, `section-common.js`, `fetch-common.js`,
 `adapter.js` and maps id → adapter in `ADAPTERS`. To add a vendor: create
 `lib/vendors/<vendor>/` with the quad (the adapter wires the rest), register its
 adapter in `ADAPTERS`, and add its id/label to `lib/vendors.js`
-(`VENDOR_IDS` / `VENDOR_LABELS`, appended last — the gschema enum ordinal and
+(`VENDOR_IDS` / `VENDOR_LABELS`, appended last: the gschema enum ordinal and
 the prefs combo index follow that order) + the gschema keys, a prefs page (a
 `_build<Vendor>Page` registered under its id in `builders`; the sidebar item
 comes from `VENDOR_IDS`), and `icons/<id>-symbolic.svg` (or list the id in `GENERIC_ICON_VENDORS`;
@@ -114,7 +114,7 @@ comes from `VENDOR_IDS`), and `icons/<id>-symbolic.svg` (or list the id in `GENE
 `{ok:true, snapshot, stale, lastError, cacheAgeMs}` |
 `{ok:false, kind:'loading'}` | `{ok:false, kind:'error', message}`, where an
 error may carry a `code` (`rate-limited`, `auth-rejected`, `invalid-mapping`)
-that `errorText()` in `section-common.js` translates — `main.js` has no
+that `errorText()` in `section-common.js` translates; `main.js` has no
 translator. The indicator
 renders it three ways: the **panel label** = `substitute(barFormat,
 adapter.placeholders(snapshot))` colored by `adapter.severity(snapshot)` (with a
@@ -173,14 +173,14 @@ and a failed fetch falls back to the cached payload as a `stale` result
 (`staleResult` in `lib/vendors/fetch-common.js`). The payload is always the
 **projected snapshot** (`snapshotToCacheJson` / `parseCacheJson`, versioned via
 `lib/vendors/snapshot-cache.js` or a vendor's own normalized form), never a raw
-response body — bump a vendor's `CACHE_VERSION` when its snapshot shape
+response body; bump a vendor's `CACHE_VERSION` when its snapshot shape
 changes. A payload older than 7 days, unparseable, or of another version is
 never served: the original error is returned instead. Any `writeLastError(429)`
 arms a 5-minute backoff during which `main.js` makes no request at all.
 
 ### HTTP & prefs (the other gi:// boundaries)
 
-`lib/http.js` is the only `Soup` consumer — async libsoup3, threaded through a
+`lib/http.js` is the only `Soup` consumer: async libsoup3, threaded through a
 shared session disposed on `destroy()`. **Never block the main loop.** Refresh
 defaults to 300s because the undocumented endpoints rate-limit below that.
 Redirects are followed by hand (`NO_REDIRECT`): at most 10 hops and only within
@@ -192,18 +192,18 @@ The custom provider maps any JSON endpoint through `lib/json-pointer.js`
 `vendorLabel(id, config)` takes an optional config.
 
 `prefs.js` runs in a **separate process** and cannot import the gi-bound adapter
-registry — it uses `lib/vendors.js` (`VENDOR_LABELS`) for the primary-vendor
+registry; it uses `lib/vendors.js` (`VENDOR_LABELS`) for the primary-vendor
 combo and imports only pure modules (the custom provider's `validateMapping` for
 its JSON editors).
 
 The window is a sidebar, not the stock tabs: `lib/prefs-nav.js` `prefsNav(_)`
-(pure) lists the sections — General (Panel, Popup, Display, Behavior) and
-Vendors (one item per `VENDOR_IDS`) — and `fillPreferencesWindow` builds one
+(pure) lists the sections: General (Panel, Popup, Display, Behavior) and
+Vendors (one item per `VENDOR_IDS`), and `fillPreferencesWindow` builds one
 `Adw.PreferencesPage` per item id, throwing on an id with no builder.
 `_buildSplitView` puts them in a `Gtk.Stack` beside a `navigation-sidebar`
 list inside an `Adw.NavigationSplitView`, which collapses below 560sp. The
 shell's `Adw.PreferencesWindow` has no sidebar, so the split view replaces its
-content with `window.set_content()` — called last, after `window.add()` of an
+content with `window.set_content()`, called last, after `window.add()` of an
 empty page, because the shell rejects a window whose `visible_page` is null and
 its error page is hidden once the content is replaced.
 
@@ -212,13 +212,13 @@ its error page is hidden once the content is replaced.
 `metadata.json` declares `"gettext-domain": "ai-usagebar@wilfison"`, so GNOME
 Shell auto-initializes translations for both `extension.js` and `prefs.js`. Every
 user-facing string is wrapped in `_()` (gettext) using a **plain string literal**
-as the argument — never a template literal, which `xgettext` cannot extract.
+as the argument, never a template literal, which `xgettext` cannot extract.
 
 - **Where `_` comes from.** gi-bound modules import the real translator:
   `ui/indicator.js` from
   `resource:///org/gnome/shell/extensions/extension.js`; `prefs.js` from
   `resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js`. **Pure modules
-  never import gettext** (it is gi-bound) — see the injected-translator rule below.
+  never import gettext** (it is gi-bound); see the injected-translator rule below.
 - **Injected translator (pure modules).** `lib/countdown.js`,
   `lib/vendors/section-common.js`, and every `lib/vendors/*/section.js` take a
   trailing `_ = (s) => s` parameter defaulting to the identity function. The
@@ -235,13 +235,13 @@ as the argument — never a template literal, which `xgettext` cannot extract.
   Use `ngettext`/`pgettext` (already in the `xgettext` keyword set) if plural or
   context ever applies.
 - **What is NOT translated** (kept verbatim, outside the `_()` literal): vendor
-  brand names (Claude/OpenAI/Z.AI/OpenRouter/DeepSeek — wrapped in prefs only for
-  catalog completeness, with a "brand name — keep untranslated" translator
+  brand names (Claude/OpenAI/Z.AI/OpenRouter/DeepSeek, wrapped in prefs only for
+  catalog completeness, with a "brand name, keep untranslated" translator
   comment), `{token}` placeholder names, `%s`/`%d` specifiers, vendor short codes,
-  hex colors, money/number strings, and punctuation like the `—` em-dash marker.
+  hex colors, money/number strings, and punctuation like the `-` no-value marker.
 - **The renderer stays string-free.** `ui/vendorSection.js` paints pre-composed,
   already-translated fields the builders produce (`row.subtitle`, `row.status`,
-  `row.text`) — it owns no user-facing prose.
+  `row.text`); it owns no user-facing prose.
 - **Catalogs.** `po/` holds the tracked `.pot` template + `pt_BR`/`es`/`fr`/`de`
   `.po` sources; `locale/<lang>/LC_MESSAGES/*.mo` is the gitignored compiled
   output. The dev loop:
@@ -255,7 +255,7 @@ as the argument — never a template literal, which `xgettext` cannot extract.
   ```
 
 - **Adding a language** (3 commands, no source changes): copy the template and
-  translate, then compile and test under that locale —
+  translate, then compile and test under that locale:
   `msginit --input=po/ai-usagebar@wilfison.pot --locale=<ll> --output=po/<ll>.po`,
   fill every `msgstr` (preserve `%`/`{token}`/brand names), then
   `make compile-locale` and verify with the recipe below. Wire the new id only by
@@ -267,7 +267,7 @@ as the argument — never a template literal, which `xgettext` cannot extract.
 #### Verifying a translation (Wayland-gated)
 
 The running session's locale is fixed, so `make reload` will **not** switch
-language — you must launch a nested shell with the target locale, or do a full
+language; you must launch a nested shell with the target locale, or do a full
 relog under it:
 
 ```bash
@@ -284,45 +284,48 @@ spot-check the other catalogs.
 ## Conventions
 
 - `*.credentials.json`, `auth.json`, and `*.compiled` are gitignored; never
-  commit real OAuth creds or API keys. Don't `cat` credential files — use
+  commit real OAuth creds or API keys. Don't `cat` credential files; use
   `jq 'keys'`.
-- Keep API usage on the GNOME 50 ESM surface — `gi://` imports and
+- Keep API usage on the GNOME 50 ESM surface: `gi://` imports and
   `resource:///org/gnome/shell/…`, no legacy `imports.*` syntax (the lint
   enforces this).
 - **Pure modules stay `gi://`-free, including gettext.** They never import the
   translator; they take an injected `_ = (s) => s` parameter (default identity)
   that the gi-bound caller supplies. User-facing text is always a plain string
   literal inside `_()`; interpolate with `vformat()` (see Internationalization),
-  never a template literal. Wrapping the same string in two places is fine —
+  never a template literal. Wrapping the same string in two places is fine:
   `xgettext` dedupes identical `msgid`s.
-- **Comments are a last resort — make the code self-explanatory first.** Don't
+- **No em dash (U+2014) anywhere**: code, comments, user-facing strings,
+  translations, docs and commit messages. Use a comma, colon, parentheses or a
+  new sentence instead.
+- **Comments are a last resort: make the code self-explanatory first.** Don't
   restate what the code already says; add a comment only for the non-obvious
   *why* (a workaround, an invariant, a gotcha). When one is needed, keep it
-  short — one line where possible.
+  short, one line where possible.
 
 ## Testing policy
 
 **Anything that can be tested must be tested.** The boundary between testable and
 not-testable is the `gi://` import line:
 
-- **Pure JS (testable — write automated tests):** response parsers, quota /
+- **Pure JS (testable: write automated tests):** response parsers, quota /
   percentage math, formatters, severity/pacing/countdown, vendor `parser.js` and
   `section.js` adapters, `config.js` / `config-resolve.js`, OAuth/JWT helpers.
   Keep these free of `gi://` imports so they run under `gjs -m` (and node where
-  possible). Put each test in a `*.test.js` mirroring the source path — e.g.
+  possible). Put each test in a `*.test.js` mirroring the source path, e.g.
   `lib/vendors/zai/parser.js` → `tests/lib/vendors/zai/parser.test.js` (a vendor
   `main.js` fetch state machine maps to `main.test.js`). **A new pure-JS module
   without a matching test file is incomplete.** Run `make test` and `make lint`
   before declaring a change done.
-- **GJS / Shell-bound (manual — document the check):** anything touching `St`,
+- **GJS / Shell-bound (manual: document the check):** anything touching `St`,
   `PanelMenu`, `Main.panel`, `Soup`, `GLib.timeout_add_seconds`, or
   `GObject.registerClass` (the indicator, renderers, http, vendor orchestrators).
   Reload the extension, watch `make logs` for errors, and verify the panel
   behaves as expected. In the PR / task notes, write the exact reload +
-  observation steps you ran — not "tested manually". On Wayland you cannot
+  observation steps you ran, not "tested manually". On Wayland you cannot
   hot-reload JS in-session; use `make run` (nested shell) or a full relog.
 - **Packaging:** before a release-ready change, run `make pack` and `make info`
   and confirm both succeed without warnings.
 - **Never fake a test result.** If something genuinely cannot be tested in the
   current environment (e.g. no live Claude/OpenRouter credentials), say so
-  explicitly — do not claim "verified" based on code reading alone.
+  explicitly; do not claim "verified" based on code reading alone.

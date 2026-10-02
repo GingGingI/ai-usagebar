@@ -32,7 +32,7 @@ function schemaError(fn) {
 
 const metric = (extra) => ({metrics: [Object.assign({label: 'Requests'}, extra)]});
 
-describe('parseUsage — metrics', () => {
+describe('parseUsage: metrics', () => {
     it('used + limit → rounded, clamped percent with an "X of Y" footnote', () => {
         const m = parse(metric({used: '/usage/used', limit: '/usage/limit'})).metrics[0];
         assertEqual(m.pct, 12);
@@ -96,7 +96,7 @@ describe('parseUsage — metrics', () => {
     });
 });
 
-describe('parseUsage — plan and texts', () => {
+describe('parseUsage: plan and texts', () => {
     it('planPath wins over plan', () => {
         assertEqual(parse({plan: 'Static', planPath: '/account/tier', texts: [{label: 'x', value: '/status/region'}]}).plan, 'Team');
         assertEqual(parse({plan: 'Static', texts: [{label: 'x', value: '/status/region'}]}).plan, 'Static');

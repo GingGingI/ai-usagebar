@@ -6,7 +6,7 @@ import {describe, it, assertEqual, assertDeepEqual, summary} from '../_assert.js
 
 const fake = s => `<${s}>`;
 
-describe('prefsNav — sections', () => {
+describe('prefsNav: sections', () => {
     it('lists General then Vendors', () =>
         assertDeepEqual(prefsNav().map(s => s.id), ['general', 'vendors']));
     it('titles the sections', () =>
@@ -17,7 +17,7 @@ describe('prefsNav — sections', () => {
         assertDeepEqual(prefsNav()[1].items.map(i => i.id), [...VENDOR_IDS]));
 });
 
-describe('prefsNav — items', () => {
+describe('prefsNav: items', () => {
     const items = prefsNavItems(prefsNav());
     it('flattens every section', () => assertEqual(items.length, 4 + VENDOR_IDS.length));
     it('has unique ids', () => assertEqual(new Set(items.map(i => i.id)).size, items.length));
@@ -27,7 +27,7 @@ describe('prefsNav — items', () => {
         assertDeepEqual(prefsNav()[1].items.map(i => i.icon), VENDOR_IDS.map(vendorIconName)));
 });
 
-describe('prefsNav — translation', () => {
+describe('prefsNav: translation', () => {
     const nav = prefsNav(fake);
     it('translates section titles', () =>
         assertDeepEqual(nav.map(s => s.title), ['<General>', '<Vendors>']));

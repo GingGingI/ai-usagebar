@@ -22,8 +22,8 @@ describe('tooltipRows', () => {
 
     it('single line becomes one text row with placeholders substituted', () => {
         assertDeepEqual(
-            tooltipRows('{plan} — {pct}% used', {plan: 'Pro', pct: '42'}),
-            [{kind: 'text', text: 'Pro — 42% used'}]
+            tooltipRows('{plan} - {pct}% used', {plan: 'Pro', pct: '42'}),
+            [{kind: 'text', text: 'Pro - 42% used'}]
         );
     });
 

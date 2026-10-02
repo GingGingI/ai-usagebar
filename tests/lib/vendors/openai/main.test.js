@@ -265,7 +265,7 @@ describe('fetchSnapshot (openai)', () => {
     }));
 });
 
-describe('fetchSnapshot (openai) — reset credit details', () => {
+describe('fetchSnapshot (openai): reset credit details', () => {
     const withCount = n => JSON.stringify(Object.assign(JSON.parse(USAGE), {rate_limit_reset_credits: {available_count: n}}));
     const DETAIL = JSON.stringify({
         available_count: 5,

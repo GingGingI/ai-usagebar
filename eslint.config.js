@@ -26,7 +26,7 @@ const rules = {
     'eqeqeq': ['error', 'smart'],
     'no-implicit-coercion': 'off',
 
-    // Style — matches the existing tree (GNOME Shell GJS conventions)
+    // Style: matches the existing tree (GNOME Shell GJS conventions)
     'indent': ['error', 4, {
         SwitchCase: 0,
         // GNOME wraps the panel widget in GObject.registerClass(class … {…});

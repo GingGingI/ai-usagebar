@@ -61,7 +61,7 @@ def main() -> None:
         META.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
         print("metadata.json written")
     else:
-        print("(dry run — re-run with --write to persist)")
+        print("(dry run: re-run with --write to persist)")
 
 
 if __name__ == "__main__":

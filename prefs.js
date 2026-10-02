@@ -23,7 +23,7 @@ const COLOR_KEY_PALETTE = {
 };
 
 // NOTE: user-facing strings are wrapped in `_()` at their use sites (inside
-// `fillPreferencesWindow`/the page builders), never at module top level — the
+// `fillPreferencesWindow`/the page builders), never at module top level: the
 // gettext domain is not yet bound when this module is first evaluated.
 
 export default class AiUsagebarPreferences extends ExtensionPreferences {
@@ -185,7 +185,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         const labelGroup = new Adw.PreferencesGroup({
             title: _('Panel label'),
             // Translators: the {token} names are literal placeholders the user
-            // types — keep them verbatim, only translate the surrounding prose.
+            // types: keep them verbatim, only translate the surrounding prose.
             description: _('Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}'),
         });
         const barFormat = new Adw.EntryRow({title: _('Bar format')});
@@ -202,7 +202,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         const popupGroup = new Adw.PreferencesGroup({
             title: _('Popup'),
             // Translators: the {token} names are literal placeholders the user
-            // types — keep them verbatim, only translate the surrounding prose.
+            // types: keep them verbatim, only translate the surrounding prose.
             description: _('Optional extra lines shown above the popup. Empty uses the built-in layout. Placeholders: {plan} {session_pct} {session_reset} {weekly_pct} {weekly_reset}'),
         });
         popupGroup.add(this._entryRow(settings, 'tooltip-format', _('Popup format')));
@@ -219,7 +219,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
 
         const displayGroup = new Adw.PreferencesGroup({title: _('Display')});
         const model = new Gtk.StringList();
-        // Vendor labels are brand names (Anthropic, OpenAI, …) — kept verbatim.
+        // Vendor labels are brand names (Anthropic, OpenAI, …), kept verbatim.
         for (const label of VENDOR_LABELS)
             model.append(label);
         const combo = new Adw.ComboRow({
@@ -269,7 +269,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         const cadenceGroup = new Adw.PreferencesGroup({
             title: _('Refresh'),
             // Translators: %d is the minimum refresh interval in seconds.
-            description: vformat(_('Minimum %d s — the upstream endpoints rate-limit below that.'), INTERVAL_MIN),
+            description: vformat(_('Minimum %d s: the upstream endpoints rate-limit below that.'), INTERVAL_MIN),
         });
         const adjustment = new Gtk.Adjustment({
             lower: INTERVAL_MIN,
@@ -336,7 +336,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
 
         const resetGroup = new Adw.PreferencesGroup({
             title: _('Reset'),
-            description: _('Restore every setting — vendor toggles, paths, keys, formats, and colors — to its built-in default.'),
+            description: _('Restore every setting (vendor toggles, paths, keys, formats, and colors) to its built-in default.'),
         });
         const resetRow = new Adw.ButtonRow({title: _('Reset all settings')});
         resetRow.add_css_class('destructive-action');
@@ -383,9 +383,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildAnthropicPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "Anthropic" is a brand name — usually keep untranslated.
+            // Translators: "Anthropic" is a brand name, usually keep untranslated.
             title: _('Anthropic'),
-            description: _('Credentials path — empty uses ~/.claude/.credentials.json.'),
+            description: _('Credentials path: empty uses ~/.claude/.credentials.json.'),
         });
         group.add(this._switchRow(settings, 'anthropic-enabled', _('Enabled')));
         group.add(this._entryRow(settings, 'anthropic-credentials-path', _('Credentials path')));
@@ -414,9 +414,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildOpenAiPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "OpenAI" is a brand name — usually keep untranslated.
+            // Translators: "OpenAI" is a brand name, usually keep untranslated.
             title: _('OpenAI'),
-            description: _('Codex auth path — empty uses ~/.codex/auth.json.'),
+            description: _('Codex auth path: empty uses ~/.codex/auth.json.'),
         });
         group.add(this._switchRow(settings, 'openai-enabled', _('Enabled')));
         group.add(this._entryRow(settings, 'openai-codex-auth-path', _('Codex auth path')));
@@ -427,7 +427,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildZaiPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "Z.AI" is a brand name — usually keep untranslated.
+            // Translators: "Z.AI" is a brand name, usually keep untranslated.
             title: _('Z.AI'),
             description: _('Set the API key inline or via the environment variable (env wins).'),
         });
@@ -442,7 +442,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildOpenRouterPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "OpenRouter" is a brand name — usually keep untranslated.
+            // Translators: "OpenRouter" is a brand name, usually keep untranslated.
             title: _('OpenRouter'),
             description: _('Set the API key inline or via the environment variable (env wins).'),
         });
@@ -456,7 +456,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildDeepSeekPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "DeepSeek" is a brand name — usually keep untranslated.
+            // Translators: "DeepSeek" is a brand name, usually keep untranslated.
             title: _('DeepSeek'),
             description: _('Disabled by default; requires an API key (env var or inline).'),
         });
@@ -470,7 +470,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildKimiPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "Kimi" is a brand name — usually keep untranslated.
+            // Translators: "Kimi" is a brand name, usually keep untranslated.
             title: _('Kimi'),
             description: _('Disabled by default; requires an API key (env var or inline).'),
         });
@@ -484,7 +484,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     _buildOllamaPage(settings) {
         const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
-            // Translators: "Ollama" is a brand name — usually keep untranslated.
+            // Translators: "Ollama" is a brand name, usually keep untranslated.
             title: _('Ollama Cloud'),
             description: _('Disabled by default; requires an API key (env var or inline).'),
         });

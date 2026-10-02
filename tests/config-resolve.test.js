@@ -42,7 +42,7 @@ describe('emptyToNull', () => {
     it('non-empty passes through', () => assertEqual(emptyToNull('x'), 'x'));
 });
 
-describe('isEnabled / enabledVendors — defaults', () => {
+describe('isEnabled / enabledVendors: defaults', () => {
     it('defaults enable all but DeepSeek', () => {
         const s = snapshot();
         assertEqual(isEnabled(s, 'anthropic'), true);

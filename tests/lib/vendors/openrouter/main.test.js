@@ -10,7 +10,7 @@ import {describe, it, assertEqual, summary} from '../../../_assert.js';
 const CREDITS = '{"data":{"total_credits":100.0,"total_usage":25.5}}';
 const KEY = '{"data":{"label":"prod","limit":50.0,"limit_remaining":24.5,"usage":25.5,"usage_daily":1.0,"usage_weekly":7.0,"usage_monthly":25.5,"is_free_tier":false}}';
 const SEED = JSON.stringify({snapshot: {
-    label: 'OpenRouter — seed', total_credits: 50, total_usage: 10,
+    label: 'OpenRouter - seed', total_credits: 50, total_usage: 10,
     usage_daily: 1, usage_weekly: 3, usage_monthly: 10, is_free_tier: false, limit: null, limit_remaining: null,
 }});
 
@@ -94,7 +94,7 @@ describe('fetchSnapshot (openrouter)', () => {
         assertEqual(http.calls[0].headers.Authorization, 'Bearer sk-or-test');
         assertEqual(r.ok, true);
         assertEqual(r.stale, false);
-        assertEqual(r.snapshot.label, 'OpenRouter — prod');
+        assertEqual(r.snapshot.label, 'OpenRouter - prod');
         assertEqual(r.snapshot.totalCredits, 100);
         assertEqual(balance(r.snapshot), 74.5);
     }));
@@ -106,7 +106,7 @@ describe('fetchSnapshot (openrouter)', () => {
         const r = runSync(fetchSnapshot({cache, http, apiKey: 'k'}));
         assertEqual(r.ok, true);
         assertEqual(r.stale, true);
-        assertEqual(r.snapshot.label, 'OpenRouter — seed');
+        assertEqual(r.snapshot.label, 'OpenRouter - seed');
         assertEqual(r.lastError.code, 401);
     }));
 });

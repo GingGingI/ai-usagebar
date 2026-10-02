@@ -30,7 +30,7 @@ const NEUTRAL = {
     now,
 };
 
-describe('calc — neutral / clamp branches', () => {
+describe('calc: neutral / clamp branches', () => {
     it('missing reset returns neutral', () => {
         assertDeepEqual(
             calc({usagePct: 50, reset: null, now, windowMs: FIVE_H, tolerance: DEFAULT_TOLERANCE}),
@@ -56,7 +56,7 @@ describe('calc — neutral / clamp branches', () => {
     });
 });
 
-describe('calc — pacing math', () => {
+describe('calc: pacing math', () => {
     it('perfectly even pacing is on track (both metrics)', () => {
         const p = calc({usagePct: 50, reset: at(150 * MINUTE), now, windowMs: FIVE_H, tolerance: DEFAULT_TOLERANCE});
         assertEqual(p.elapsedPct, 50);
@@ -133,7 +133,7 @@ describe('paceGlyph', () => {
     it('UNDER → ↓', () => assertEqual(paceGlyph(Pace.UNDER), '↓'));
 });
 
-describe('calc — state', () => {
+describe('calc: state', () => {
     const WEEK = 7 * 24 * HOUR;
     const DAY = 24 * HOUR;
     // Reset `elapsed` into a window of `windowMs`.
@@ -182,7 +182,7 @@ describe('calc — state', () => {
     });
 });
 
-describe('calc — verdict', () => {
+describe('calc: verdict', () => {
     const WEEK = 168 * HOUR;
     // `usagePct` used `elapsed` into a window of `windowMs`.
     const paced = (usagePct, elapsed, windowMs) =>
@@ -257,7 +257,7 @@ describe('calc — verdict', () => {
     });
 });
 
-describe('paceGlyph — state', () => {
+describe('paceGlyph: state', () => {
     it('ok (and the default) keeps the glyph', () => {
         assertEqual(paceGlyph(Pace.AHEAD), '↑');
         assertEqual(paceGlyph(Pace.UNDER, 'ok'), '↓');

@@ -116,10 +116,10 @@ describe('rate-limited backoff', () => {
 describe('auth-rejected', () => {
     it('a 401/403 lastError shows the translated notice and never its body', () => {
         const row = httpErrorRow({lastError: {code: 401, body: '{"access_token":"secret"}'}}, theme);
-        assertEqual(row.status, 'HTTP 401: authentication rejected — credentials may be missing, expired, or invalid');
+        assertEqual(row.status, 'HTTP 401: authentication rejected; credentials may be missing, expired, or invalid');
         assertDeepEqual(row.lines, []);
         assertEqual(httpErrorRow({lastError: {code: 403, body: 'x'}}, theme, bracket).status,
-            '[HTTP 403: authentication rejected — credentials may be missing, expired, or invalid]');
+            '[HTTP 403: authentication rejected; credentials may be missing, expired, or invalid]');
     });
 
     it('other bodies are sanitized at render', () => {
@@ -129,7 +129,7 @@ describe('auth-rejected', () => {
 
     it('errorText translates an auth-rejected result', () =>
         assertEqual(errorText({ok: false, kind: 'error', code: 'auth-rejected', status: 403, message: 'x'}, bracket),
-            '[HTTP 403: authentication rejected — credentials may be missing, expired, or invalid]'));
+            '[HTTP 403: authentication rejected; credentials may be missing, expired, or invalid]'));
 });
 
 describe('footerRow', () => {
@@ -143,10 +143,10 @@ describe('footerRow', () => {
         assertEqual(row.text, `Updated ${localTimeHm(fetchedAt)}`);
     });
 
-    it('falls back to — when fetchedAt is absent', () => {
+    it('falls back to - when fetchedAt is absent', () => {
         const row = footerRow({fetchedAt: null});
-        assertEqual(row.updated, '—');
-        assertEqual(row.text, 'Updated —');
+        assertEqual(row.updated, '-');
+        assertEqual(row.text, 'Updated -');
     });
 });
 
@@ -353,7 +353,7 @@ describe('paceFields', () => {
     });
 });
 
-describe('errorText — invalid mapping', () => {
+describe('errorText: invalid mapping', () => {
     it('translates the invalid-mapping code', () => {
         const text = errorText({ok: false, kind: 'error', code: 'invalid-mapping', message: 'x'}, bracket);
         assertEqual(text.startsWith('[The custom provider mapping'), true);

@@ -76,7 +76,7 @@ class Indicator extends PanelMenu.Button {
         // fetch with a synthetic snapshot at that percentage (see `make run`).
         this._fakePct = parseFakePct(GLib.getenv(FAKE_PCT_ENV));
         if (this._fakePct !== null)
-            log(`ai-usagebar: ${FAKE_PCT_ENV}=${this._fakePct} — overriding usage fetch`);
+            log(`ai-usagebar: ${FAKE_PCT_ENV}=${this._fakePct}, overriding usage fetch`);
 
         // Lazy per-vendor data: only the active vendor is polled; other sub-sections
         // render from whatever is already here. `_fetchedAt` pins each vendor's
@@ -199,7 +199,7 @@ class Indicator extends PanelMenu.Button {
 
         // Active vendor changed (scroll write, primary sync, or a disable that
         // bumped the fallback): _refresh swaps adapter + cache, rebuilds sub-menus,
-        // and fetches — a cache-warm revisit skips the network via the 60s TTL.
+        // and fetches; a cache-warm revisit skips the network via the 60s TTL.
         if (normalizeActive(config) !== this._adapter.id) {
             this._refresh().catch(e => console.warn(`ai-usagebar: refresh failed: ${e}`));
             return;
@@ -212,7 +212,7 @@ class Indicator extends PanelMenu.Button {
         this._maybeRebuildVendorSections(config);
 
         // Appearance-only keys (severity colors, popup format, pace marker) affect
-        // every built section, not just the active one — rebuild the theme on a
+        // every built section, not just the active one: rebuild the theme on a
         // color change and re-render all sub-sections. Everything else repaints
         // just the active section.
         if (key.startsWith('color-'))
@@ -259,7 +259,7 @@ class Indicator extends PanelMenu.Button {
         const section = item.menu;
         const res = this._results.get(id);
         if (!res) {
-            this._setSubmenuMessage(section, _('No data — use "Refresh all"'), {dim: true});
+            this._setSubmenuMessage(section, _('No data: use "Refresh all"'), {dim: true});
             return;
         }
         if (res.ok) {
@@ -289,7 +289,7 @@ class Indicator extends PanelMenu.Button {
                 color: severityColor(Severity.CRITICAL, this._theme),
                 iconName: 'dialog-warning-symbolic',
                 // Only Anthropic errors carry a plan (read from its credentials).
-                // Translators: %s is the Anthropic plan name (e.g. "Max 5x") — kept verbatim.
+                // Translators: %s is the Anthropic plan name (e.g. "Max 5x"), kept verbatim.
                 title: res.plan ? vformat(_('Claude %s'), res.plan) : null,
             });
         }
@@ -309,7 +309,7 @@ class Indicator extends PanelMenu.Button {
 
         // Swap adapter + cache when the effective active vendor changed. Each
         // vendor's result is rendered through its own adapter, so no map entry
-        // needs dropping — only the active fetch target changes.
+        // needs dropping: only the active fetch target changes.
         const activeId = normalizeActive(this._config);
         const activeChanged = activeId !== this._adapter.id;
         if (activeChanged) {
@@ -390,7 +390,7 @@ class Indicator extends PanelMenu.Button {
     }
 
     // Real fetch, unless AI_USAGEBAR_FAKE_PCT is set and the adapter can build a
-    // synthetic snapshot — then return that instead (dev rendering check).
+    // synthetic snapshot, then return that instead (dev rendering check).
     _runFetch(adapter, ctx) {
         if (this._fakePct !== null && typeof adapter.fakeSnapshot === 'function') {
             return Promise.resolve({
@@ -499,7 +499,7 @@ class Indicator extends PanelMenu.Button {
         } else if (res.kind === 'loading') {
             this._setLabel(_('Loading…'), this._theme.fg);
         } else {
-            // kind: 'error' — message is retained on disk (.last_error) and in
+            // kind: 'error', message is retained on disk (.last_error) and in
             // the result; surface it in the popup and log it.
             console.warn(`ai-usagebar: ${errorText(res)}`);
             this._setLabel('⚠', severityColor(Severity.CRITICAL, this._theme));

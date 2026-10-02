@@ -35,7 +35,7 @@ describe('buildSection (deepseek)', () => {
     });
 });
 
-describe('buildSection (deepseek) — injected translator', () => {
+describe('buildSection (deepseek): injected translator', () => {
     const T = (s) => `«${s}»`;
 
     it('routes the balance gauge + availability (brand title kept verbatim)', () => {
