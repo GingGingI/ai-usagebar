@@ -9,7 +9,7 @@ The panel shows a compact label for the active vendor (e.g. `42% · 3h12m`),
 colored by severity. Click it for a popup with a section per enabled vendor;
 scroll over it to cycle between them.
 
-![AI Usage Bar screenshot](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshot.png)
+![The AI Usage Bar popup under the panel label](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/popup.png)
 
 ## Vendors
 
@@ -58,6 +58,8 @@ Open preferences with the gear button in the popup footer, or
   marker, the `Super+U` shortcut), *Display* (primary vendor, vendor logos,
   severity colors) and *Behavior* (refresh interval, notifications, reset all).
 - **Vendors**: one page per vendor: enable it and set its credentials.
+
+![The preferences window with its sidebar](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/preferences.png)
 
 Only the active vendor is polled, every 300 s at the least (the endpoints
 rate-limit below that); the others refresh when you scroll to them or press
