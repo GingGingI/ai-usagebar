@@ -270,6 +270,39 @@ describe('paceFootnote', () => {
         assertEqual(paceFootnote(pace('ok', 3), bracket), '[42% elapsed · [3pts ahead]]');
         assertEqual(paceFootnote(pace('limit'), bracket), '[Limit reached]');
     });
+
+    describe('by verdict', () => {
+        const NOW = new Date('2026-06-05T12:00:00Z');
+        const runsOutAt = new Date(NOW.getTime() + 64 * 60 * 1000);
+        const verdict = (v, extra = {}) =>
+            ({...pace('ok', 18), verdict: v, projectedPct: 119.6, runsOutAt: null, now: NOW, ...extra});
+
+        it('calm keeps the elapsed footnote', () =>
+            assertEqual(paceFootnote(verdict('calm')), '42% elapsed · 18pts ahead'));
+
+        it('no verdict keeps the elapsed footnote', () =>
+            assertEqual(paceFootnote(verdict(null)), '42% elapsed · 18pts ahead'));
+
+        it('over says by how much', () =>
+            assertEqual(paceFootnote(verdict('over')), '~20% over pace'));
+
+        it('critical says when the limit hits', () =>
+            assertEqual(paceFootnote(verdict('critical', {runsOutAt})), `Limit in ${formatCountdown(runsOutAt, NOW)}`));
+
+        it('critical without a run-out instant falls back to over pace', () =>
+            assertEqual(paceFootnote(verdict('critical')), '~20% over pace'));
+
+        it('estimating, limit and neutral ignore the verdict', () => {
+            assertEqual(paceFootnote({...verdict('critical', {runsOutAt}), state: 'estimating'}), 'Estimating…');
+            assertEqual(paceFootnote({...verdict('critical', {runsOutAt}), state: 'limit'}), 'Limit reached');
+            assertEqual(paceFootnote({...verdict('critical', {runsOutAt}), state: 'neutral'}), '');
+        });
+
+        it('translates through the injected translator', () => {
+            assertEqual(paceFootnote(verdict('over'), bracket), '[~20% over pace]');
+            assertEqual(paceFootnote(verdict('critical', {runsOutAt}), bracket).startsWith('[Limit in '), true);
+        });
+    });
 });
 
 describe('paceFields', () => {

@@ -84,7 +84,7 @@ describe('buildSection (zai) — pace footnote', () => {
         .rows.filter(r => r.kind === 'window');
 
     it('every window carries its footnote', () => {
-        assertEqual(windows[0].paceFootnote, '50% elapsed · 10pts ahead');
+        assertEqual(windows[0].paceFootnote, '~20% over pace'); // 60% at half time projects 120%
         assertEqual(windows[2].paceFootnote, '50% elapsed · 40pts under');
     });
 

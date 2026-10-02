@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-30 11:35-0300\n"
+"POT-Creation-Date: 2026-10-02 11:15-0300\n"
 "PO-Revision-Date: 2026-06-06 12:00+0000\n"
 "Last-Translator: ai-usagebar contributors\n"
 "Language-Team: German\n"
@@ -67,35 +67,35 @@ msgstr[0] "%d Reset verfügbar"
 msgstr[1] "%d Resets verfügbar"
 
 #. Translators: "Claude — Session at 97%": the vendor, the usage window, then the percentage.
-#: lib/notify.js:48
+#: lib/notify.js:60
 #, javascript-format
 msgid "%s — %s at %d%%"
 msgstr "%s — %s bei %d%%"
 
-#: lib/notify.js:49
+#: lib/notify.js:61
 #, javascript-format
 msgid "%d%% of the %s used"
 msgstr "%d%% von %s verbraucht"
 
 #. Translators: appended to the body — " · resets 2h 05m (16:00)".
-#: lib/notify.js:52
+#: lib/notify.js:64
 #, javascript-format
 msgid " · resets %s (%s)"
 msgstr " · setzt zurück in %s (%s)"
 
 #. Translators: "Claude — reset credit expires Oct 22 16:00".
-#: lib/notify.js:59
+#: lib/notify.js:71
 #, javascript-format
 msgid "%s — reset credit expires %s"
 msgstr "%s — Reset-Guthaben läuft ab am %s"
 
 #. Translators: "Full reset — redeem within 1d 4h (16:00)".
-#: lib/notify.js:61
+#: lib/notify.js:73
 #, javascript-format
 msgid "%s — redeem within %s (%s)"
 msgstr "%s — einlösen innerhalb von %s (%s)"
 
-#: lib/notify.js:61 lib/vendors/openai/section.js:32
+#: lib/notify.js:73 lib/vendors/openai/section.js:32
 msgid "Reset credit"
 msgstr "Reset-Guthaben"
 
@@ -390,22 +390,34 @@ msgstr "Wird geschätzt…"
 msgid "Limit reached"
 msgstr "Limit erreicht"
 
-#: lib/vendors/section-common.js:162
+#. Translators: "Limit in 1h 04m" — when the window runs out at the current pace.
+#: lib/vendors/section-common.js:164
+#, javascript-format
+msgid "Limit in %s"
+msgstr "Limit in %s"
+
+#. Translators: "~20% over pace" — projected usage at the reset beyond 100%.
+#: lib/vendors/section-common.js:167
+#, javascript-format
+msgid "~%d%% over pace"
+msgstr "~%d%% über dem Tempo"
+
+#: lib/vendors/section-common.js:168
 msgid "on track"
 msgstr "im Plan"
 
-#: lib/vendors/section-common.js:164
+#: lib/vendors/section-common.js:170
 #, javascript-format
 msgid "%dpts ahead"
 msgstr "%d Pkt. voraus"
 
-#: lib/vendors/section-common.js:166
+#: lib/vendors/section-common.js:172
 #, javascript-format
 msgid "%dpts under"
 msgstr "%d Pkt. darunter"
 
 #. Translators: "42% elapsed · 3pts ahead" — how much of the window has passed, then the pace.
-#: lib/vendors/section-common.js:168
+#: lib/vendors/section-common.js:174
 #, javascript-format
 msgid "%d%% elapsed · %s"
 msgstr "%d%% vergangen · %s"
@@ -825,7 +837,9 @@ msgstr "Tastenkürzel festlegen"
 
 #: prefs.js:623
 msgid "Press the new shortcut for opening the popup, or Esc to cancel."
-msgstr "Drücken Sie das neue Tastenkürzel zum Öffnen des Popups oder Esc zum Abbrechen."
+msgstr ""
+"Drücken Sie das neue Tastenkürzel zum Öffnen des Popups oder Esc zum "
+"Abbrechen."
 
 #: prefs.js:626
 msgid "Disable"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-09-30 11:35-0300\n"
+"POT-Creation-Date: 2026-10-02 11:15-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,35 +70,35 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. Translators: "Claude — Session at 97%": the vendor, the usage window, then the percentage.
-#: lib/notify.js:48
+#: lib/notify.js:60
 #, javascript-format
 msgid "%s — %s at %d%%"
 msgstr ""
 
-#: lib/notify.js:49
+#: lib/notify.js:61
 #, javascript-format
 msgid "%d%% of the %s used"
 msgstr ""
 
 #. Translators: appended to the body — " · resets 2h 05m (16:00)".
-#: lib/notify.js:52
+#: lib/notify.js:64
 #, javascript-format
 msgid " · resets %s (%s)"
 msgstr ""
 
 #. Translators: "Claude — reset credit expires Oct 22 16:00".
-#: lib/notify.js:59
+#: lib/notify.js:71
 #, javascript-format
 msgid "%s — reset credit expires %s"
 msgstr ""
 
 #. Translators: "Full reset — redeem within 1d 4h (16:00)".
-#: lib/notify.js:61
+#: lib/notify.js:73
 #, javascript-format
 msgid "%s — redeem within %s (%s)"
 msgstr ""
 
-#: lib/notify.js:61 lib/vendors/openai/section.js:32
+#: lib/notify.js:73 lib/vendors/openai/section.js:32
 msgid "Reset credit"
 msgstr ""
 
@@ -389,22 +389,34 @@ msgstr ""
 msgid "Limit reached"
 msgstr ""
 
-#: lib/vendors/section-common.js:162
+#. Translators: "Limit in 1h 04m" — when the window runs out at the current pace.
+#: lib/vendors/section-common.js:164
+#, javascript-format
+msgid "Limit in %s"
+msgstr ""
+
+#. Translators: "~20% over pace" — projected usage at the reset beyond 100%.
+#: lib/vendors/section-common.js:167
+#, javascript-format
+msgid "~%d%% over pace"
+msgstr ""
+
+#: lib/vendors/section-common.js:168
 msgid "on track"
 msgstr ""
 
-#: lib/vendors/section-common.js:164
+#: lib/vendors/section-common.js:170
 #, javascript-format
 msgid "%dpts ahead"
 msgstr ""
 
-#: lib/vendors/section-common.js:166
+#: lib/vendors/section-common.js:172
 #, javascript-format
 msgid "%dpts under"
 msgstr ""
 
 #. Translators: "42% elapsed · 3pts ahead" — how much of the window has passed, then the pace.
-#: lib/vendors/section-common.js:168
+#: lib/vendors/section-common.js:174
 #, javascript-format
 msgid "%d%% elapsed · %s"
 msgstr ""
