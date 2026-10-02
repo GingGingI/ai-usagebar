@@ -5,6 +5,33 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-10-02
+
+### Changed
+
+- **Preferences** use a sidebar instead of the bottom tabs, which truncated
+  their labels: **General** (Panel, Popup, Display, Behavior) and one entry per
+  vendor. The sidebar collapses on a narrow window.
+- The **pace** colouring is more tolerant: the bar past the marker stays plain
+  while usage is roughly on pace, turns orange when the window is projected
+  over 110% at its reset and red when it would run out before it.
+- A paced window's footnote follows that verdict: "42% elapsed · 3pts ahead"
+  when calm, "~20% over pace" when over, and "Limit in 1h 04m" when critical.
+- **Show pace marker** in preferences now explains what the marker is.
+- With the label in the center area, the popup opens centered on it.
+- The no-value marker in the panel and the popup is now `-`.
+
+### Removed
+
+- GNOME Shell 45 and 46 are no longer listed as supported: the preferences
+  window needs a newer libadwaita than those releases ship.
+
+### Fixed
+
+- A usage notification no longer repeats when a window's reset time only
+  drifts between fetches; the reset has to move more than 90 minutes later to
+  count as a new window.
+
 ## [1.4.0] - 2026-09-30
 
 ### Added
