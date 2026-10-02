@@ -1,6 +1,14 @@
 import system from 'system';
 
-import {decide, parseState, serializeState, Urgency, STATE_VERSION, CREDIT_WARNING_MS} from '../lib/notify.js';
+import {
+    decide,
+    parseState,
+    serializeState,
+    Urgency,
+    STATE_VERSION,
+    CREDIT_WARNING_MS,
+    RESET_MOVE_TOLERANCE_MS,
+} from '../lib/notify.js';
 import {format as formatCountdown, localDateHm} from '../lib/countdown.js';
 import {localTimeHm} from '../lib/format.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
@@ -85,6 +93,54 @@ describe('decide — threshold', () => {
         const before = serializeState(previous);
         run([row(50)], previous);
         assertEqual(serializeState(previous), before);
+    });
+});
+
+describe('decide — reset tolerance', () => {
+    const MINUTE = 60 * 1000;
+    const shifted = offsetMs => new Date(R1.getTime() + offsetMs);
+
+    it('the tolerance is 90 minutes', () => assertEqual(RESET_MOVE_TOLERANCE_MS, 90 * MINUTE));
+
+    it('a jittered reset instant is the same window', () => {
+        assertDeepEqual(sequence([100, 488, 700, 59 * 1000].map(o => row(100, shifted(o)))), [1, 0, 0, 0]);
+    });
+
+    it('exactly 90 min later is the same window; 1 ms more is a new one', () => {
+        assertDeepEqual(sequence([row(100, R1), row(100, shifted(RESET_MOVE_TOLERANCE_MS))]), [1, 0]);
+        assertDeepEqual(sequence([row(100, R1), row(100, shifted(RESET_MOVE_TOLERANCE_MS + 1))]), [1, 1]);
+    });
+
+    it('a sliding window notifies once however far it drifts', () => {
+        const steps = Array.from({length: 30}, (_v, i) => row(100, shifted(i * 5 * MINUTE)));
+        assertDeepEqual(sequence(steps), [1, ...Array(29).fill(0)]);
+    });
+
+    it('the record follows the latest reset and keeps its notifiedAt', () => {
+        const first = run([row(100, R1)]);
+        const later = run([row(100, shifted(5 * MINUTE))], first.state,
+            {now: new Date(NOW.getTime() + 5 * MINUTE)});
+        assertDeepEqual(later.state.entries['Claude::session'],
+            {notifiedAt: NOW.getTime(), resetAt: shifted(5 * MINUTE).getTime()});
+    });
+
+    it('an earlier or missing reset leaves the record alone', () => {
+        const first = run([row(100, R1)]);
+        for (const reset of [shifted(-700), null])
+            assertEqual(run([row(100, reset)], first.state).state.entries['Claude::session'].resetAt, R1.getTime());
+    });
+
+    it('a backwards jitter then 89 min past the latest reset does not fire', () => {
+        assertDeepEqual(sequence([row(100, R1), row(100, shifted(-700)), row(100, shifted(89 * MINUTE))]), [1, 0, 0]);
+    });
+
+    it('a new window fires and records its reset and time', () => {
+        const first = run([row(100, R1)]);
+        const t = new Date(NOW.getTime() + 5 * HOUR);
+        const next = run([row(100, shifted(5 * HOUR))], first.state, {now: t});
+        assertEqual(next.fired.length, 1);
+        assertDeepEqual(next.state.entries['Claude::session'],
+            {notifiedAt: t.getTime(), resetAt: shifted(5 * HOUR).getTime()});
     });
 });
 
