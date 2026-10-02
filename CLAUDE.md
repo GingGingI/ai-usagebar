@@ -103,8 +103,9 @@ Shared helpers (`registry.js`, `section-common.js`, `fetch-common.js`,
 `lib/vendors/<vendor>/` with the quad (the adapter wires the rest), register its
 adapter in `ADAPTERS`, and add its id/label to `lib/vendors.js`
 (`VENDOR_IDS` / `VENDOR_LABELS`, appended last — the gschema enum ordinal and
-the prefs combo index follow that order) + the gschema keys, a prefs page, and
-`icons/<id>-symbolic.svg` (or list the id in `GENERIC_ICON_VENDORS`;
+the prefs combo index follow that order) + the gschema keys, a prefs page (a
+`_build<Vendor>Page` registered under its id in `builders`; the sidebar item
+comes from `VENDOR_IDS`), and `icons/<id>-symbolic.svg` (or list the id in `GENERIC_ICON_VENDORS`;
 `registry.test.js` checks it).
 
 ### Data flow
@@ -191,9 +192,20 @@ The custom provider maps any JSON endpoint through `lib/json-pointer.js`
 `vendorLabel(id, config)` takes an optional config.
 
 `prefs.js` runs in a **separate process** and cannot import the gi-bound adapter
-registry — it uses `lib/vendors.js` (`VENDOR_LABELS`, `vendorIconName`) for page
-titles, icons and the primary-vendor combo, and imports only pure modules (the
-custom provider's `validateMapping` for its JSON editors).
+registry — it uses `lib/vendors.js` (`VENDOR_LABELS`) for the primary-vendor
+combo and imports only pure modules (the custom provider's `validateMapping` for
+its JSON editors).
+
+The window is a sidebar, not the stock tabs: `lib/prefs-nav.js` `prefsNav(_)`
+(pure) lists the sections — General (Panel, Popup, Display, Behavior) and
+Vendors (one item per `VENDOR_IDS`) — and `fillPreferencesWindow` builds one
+`Adw.PreferencesPage` per item id, throwing on an id with no builder.
+`_buildSplitView` puts them in a `Gtk.Stack` beside a `navigation-sidebar`
+list inside an `Adw.NavigationSplitView`, which collapses below 560sp. The
+shell's `Adw.PreferencesWindow` has no sidebar, so the split view replaces its
+content with `window.set_content()` — called last, after `window.add()` of an
+empty page, because the shell rejects a window whose `visible_page` is null and
+its error page is hidden once the content is replaced.
 
 ### Internationalization (i18n / gettext)
 

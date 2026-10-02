@@ -8,7 +8,8 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 import {rgbToHex} from './lib/color.js';
 import {vformat} from './lib/format.js';
 import {defaultTheme} from './lib/theme.js';
-import {VENDOR_LABELS, vendorIconName} from './lib/vendors.js';
+import {prefsNav, prefsNavItems} from './lib/prefs-nav.js';
+import {VENDOR_LABELS} from './lib/vendors.js';
 import {parseExtraHeaders, validateMapping} from './lib/vendors/custom/parser.js';
 
 const INTERVAL_MIN = 300;
@@ -31,17 +32,34 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         const cleanups = [];
 
         this._registerIconPath();
-        this._loadStyles();
 
-        window.add(this._buildGeneralPage(settings, cleanups));
-        window.add(this._buildAnthropicPage(settings));
-        window.add(this._buildOpenAiPage(settings));
-        window.add(this._buildZaiPage(settings));
-        window.add(this._buildOpenRouterPage(settings));
-        window.add(this._buildDeepSeekPage(settings));
-        window.add(this._buildKimiPage(settings));
-        window.add(this._buildOllamaPage(settings));
-        window.add(this._buildCustomPage(settings, cleanups));
+        const builders = {
+            panel: () => this._buildPanelPage(settings, cleanups),
+            popup: () => this._buildPopupPage(settings, cleanups),
+            display: () => this._buildDisplayPage(settings, cleanups),
+            behavior: () => this._buildBehaviorPage(settings, cleanups),
+            anthropic: () => this._buildAnthropicPage(settings),
+            openai: () => this._buildOpenAiPage(settings),
+            zai: () => this._buildZaiPage(settings),
+            openrouter: () => this._buildOpenRouterPage(settings),
+            deepseek: () => this._buildDeepSeekPage(settings),
+            kimi: () => this._buildKimiPage(settings),
+            ollama: () => this._buildOllamaPage(settings),
+            custom: () => this._buildCustomPage(settings, cleanups),
+        };
+        const nav = prefsNav(_);
+        const pages = new Map();
+        for (const {id} of prefsNavItems(nav)) {
+            if (!builders[id])
+                throw new Error(`No preferences page for "${id}"`);
+            pages.set(id, builders[id]());
+        }
+
+        // The shell rejects a window with no visible_page, so one stays behind our content.
+        window.add(new Adw.PreferencesPage());
+        window.set_default_size(860, 640);
+        // Last: past this point the shell's own error page is no longer on screen.
+        window.set_content(this._buildSplitView(window, nav, pages, cleanups));
 
         window.connect('close-request', () => {
             for (const disconnect of cleanups)
@@ -50,42 +68,84 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         });
     }
 
-    _buildGeneralPage(settings, cleanups) {
-        const page = new Adw.PreferencesPage({
-            title: _('General'),
-            icon_name: 'preferences-system-symbolic',
+    _buildSplitView(window, nav, pages, cleanups) {
+        const stack = new Gtk.Stack();
+        for (const [id, page] of pages)
+            stack.add_named(page, id);
+        const content = new Adw.NavigationPage({
+            title: window.title,
+            child: this._toolbarView(stack),
         });
 
-        const displayGroup = new Adw.PreferencesGroup({title: _('Display')});
-        const model = new Gtk.StringList();
-        // Vendor labels are brand names (Anthropic, OpenAI, …) — kept verbatim.
-        for (const label of VENDOR_LABELS)
-            model.append(label);
-        const combo = new Adw.ComboRow({
-            title: _('Primary vendor'),
-            subtitle: _('Shown by default and used as the scroll-cycle reset target'),
-            model,
+        const items = prefsNavItems(nav);
+        const sectionTitles = new Map();
+        const list = new Gtk.ListBox({
+            selection_mode: Gtk.SelectionMode.SINGLE,
+            css_classes: ['navigation-sidebar'],
         });
-        // The schema enum nicks are ordered identically to VENDOR_IDS / VENDOR_LABELS,
-        // so the combo index IS the enum value. GJS lacks bind_with_mapping, so wire
-        // it manually with get_enum/set_enum and a resync handler.
-        combo.selected = settings.get_enum('primary-vendor');
-        const comboNotifyId = combo.connect('notify::selected', () => {
-            if (settings.get_enum('primary-vendor') !== combo.selected)
-                settings.set_enum('primary-vendor', combo.selected);
+        for (const section of nav)
+            sectionTitles.set(items.indexOf(section.items[0]), section.title);
+        for (const item of items)
+            list.append(this._navRow(item));
+        list.set_header_func(row => {
+            const title = sectionTitles.get(row.get_index());
+            row.set_header(title ? new Gtk.Label({
+                label: title,
+                xalign: 0,
+                margin_start: 12,
+                margin_top: 12,
+                margin_bottom: 6,
+                css_classes: ['caption-heading', 'dim-label'],
+            }) : null);
         });
-        const comboResyncId = settings.connect('changed::primary-vendor', () => {
-            const v = settings.get_enum('primary-vendor');
-            if (combo.selected !== v)
-                combo.selected = v;
+        const sidebar = new Adw.NavigationPage({
+            title: window.title,
+            child: this._toolbarView(new Gtk.ScrolledWindow({
+                hscrollbar_policy: Gtk.PolicyType.NEVER,
+                child: list,
+            })),
         });
+
+        const splitView = new Adw.NavigationSplitView({sidebar, content});
+        const selectedId = list.connect('row-selected', (_list, row) => {
+            if (!row)
+                return;
+            const item = items[row.get_index()];
+            stack.set_visible_child_name(item.id);
+            content.set_title(item.title);
+        });
+        const activatedId = list.connect('row-activated', () => splitView.set_show_content(true));
         cleanups.push(() => {
-            combo.disconnect(comboNotifyId);
-            settings.disconnect(comboResyncId);
+            list.disconnect(selectedId);
+            list.disconnect(activatedId);
+            list.set_header_func(null);
         });
-        displayGroup.add(combo);
-        displayGroup.add(this._switchRow(settings, 'show-vendor-icons', _('Show vendor logos')));
-        page.add(displayGroup);
+        list.select_row(list.get_row_at_index(0));
+
+        const narrow = new Adw.Breakpoint({
+            condition: Adw.BreakpointCondition.parse('max-width: 560sp'),
+        });
+        narrow.add_setter(splitView, 'collapsed', true);
+        window.add_breakpoint(narrow);
+
+        return splitView;
+    }
+
+    _toolbarView(child) {
+        const view = new Adw.ToolbarView({content: child});
+        view.add_top_bar(new Adw.HeaderBar());
+        return view;
+    }
+
+    _navRow(item) {
+        const box = new Gtk.Box({spacing: 12});
+        box.append(new Gtk.Image({icon_name: item.icon}));
+        box.append(new Gtk.Label({label: item.title, xalign: 0}));
+        return new Gtk.ListBoxRow({child: box});
+    }
+
+    _buildPanelPage(settings, cleanups) {
+        const page = new Adw.PreferencesPage();
 
         const positionGroup = new Adw.PreferencesGroup({
             title: _('Panel position'),
@@ -122,6 +182,90 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         positionGroup.add(indexRow);
         page.add(positionGroup);
 
+        const labelGroup = new Adw.PreferencesGroup({
+            title: _('Panel label'),
+            // Translators: the {token} names are literal placeholders the user
+            // types — keep them verbatim, only translate the surrounding prose.
+            description: _('Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}'),
+        });
+        const barFormat = new Adw.EntryRow({title: _('Bar format')});
+        settings.bind('bar-format', barFormat, 'text', Gio.SettingsBindFlags.DEFAULT);
+        labelGroup.add(barFormat);
+        page.add(labelGroup);
+
+        return page;
+    }
+
+    _buildPopupPage(settings, cleanups) {
+        const page = new Adw.PreferencesPage();
+
+        const popupGroup = new Adw.PreferencesGroup({
+            title: _('Popup'),
+            // Translators: the {token} names are literal placeholders the user
+            // types — keep them verbatim, only translate the surrounding prose.
+            description: _('Optional extra lines shown above the popup. Empty uses the built-in layout. Placeholders: {plan} {session_pct} {session_reset} {weekly_pct} {weekly_reset}'),
+        });
+        popupGroup.add(this._entryRow(settings, 'tooltip-format', _('Popup format')));
+        popupGroup.add(this._switchRow(settings, 'show-pace-marker', _('Show pace marker'),
+            _('A tick at how much of the window has passed. Usage past it turns orange or red when it would run out before the reset.')));
+        popupGroup.add(this._shortcutRow(settings, 'toggle-menu', _('Shortcut to open'), cleanups));
+        page.add(popupGroup);
+
+        return page;
+    }
+
+    _buildDisplayPage(settings, cleanups) {
+        const page = new Adw.PreferencesPage();
+
+        const displayGroup = new Adw.PreferencesGroup({title: _('Display')});
+        const model = new Gtk.StringList();
+        // Vendor labels are brand names (Anthropic, OpenAI, …) — kept verbatim.
+        for (const label of VENDOR_LABELS)
+            model.append(label);
+        const combo = new Adw.ComboRow({
+            title: _('Primary vendor'),
+            subtitle: _('Shown by default and used as the scroll-cycle reset target'),
+            model,
+        });
+        // The schema enum nicks are ordered identically to VENDOR_IDS / VENDOR_LABELS,
+        // so the combo index IS the enum value. GJS lacks bind_with_mapping, so wire
+        // it manually with get_enum/set_enum and a resync handler.
+        combo.selected = settings.get_enum('primary-vendor');
+        const comboNotifyId = combo.connect('notify::selected', () => {
+            if (settings.get_enum('primary-vendor') !== combo.selected)
+                settings.set_enum('primary-vendor', combo.selected);
+        });
+        const comboResyncId = settings.connect('changed::primary-vendor', () => {
+            const v = settings.get_enum('primary-vendor');
+            if (combo.selected !== v)
+                combo.selected = v;
+        });
+        cleanups.push(() => {
+            combo.disconnect(comboNotifyId);
+            settings.disconnect(comboResyncId);
+        });
+        displayGroup.add(combo);
+        displayGroup.add(this._switchRow(settings, 'show-vendor-icons', _('Show vendor logos')));
+        page.add(displayGroup);
+
+        const colorGroup = new Adw.PreferencesGroup({
+            title: _('Severity colors'),
+            description: _('Pick a color per severity tier. Reset returns a tier to its built-in default.'),
+        });
+        const theme = defaultTheme();
+        // Translators: Low/Mid/High/Critical are usage-severity tier names.
+        colorGroup.add(this._colorRow(settings, 'color-low', _('Low'), theme[COLOR_KEY_PALETTE['color-low']], cleanups));
+        colorGroup.add(this._colorRow(settings, 'color-mid', _('Mid'), theme[COLOR_KEY_PALETTE['color-mid']], cleanups));
+        colorGroup.add(this._colorRow(settings, 'color-high', _('High'), theme[COLOR_KEY_PALETTE['color-high']], cleanups));
+        colorGroup.add(this._colorRow(settings, 'color-critical', _('Critical'), theme[COLOR_KEY_PALETTE['color-critical']], cleanups));
+        page.add(colorGroup);
+
+        return page;
+    }
+
+    _buildBehaviorPage(settings, cleanups) {
+        const page = new Adw.PreferencesPage();
+
         const cadenceGroup = new Adw.PreferencesGroup({
             title: _('Refresh'),
             // Translators: %d is the minimum refresh interval in seconds.
@@ -155,41 +299,6 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         });
         cadenceGroup.add(interval);
         page.add(cadenceGroup);
-
-        const labelGroup = new Adw.PreferencesGroup({
-            title: _('Panel label'),
-            // Translators: the {token} names are literal placeholders the user
-            // types — keep them verbatim, only translate the surrounding prose.
-            description: _('Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}'),
-        });
-        const barFormat = new Adw.EntryRow({title: _('Bar format')});
-        settings.bind('bar-format', barFormat, 'text', Gio.SettingsBindFlags.DEFAULT);
-        labelGroup.add(barFormat);
-        page.add(labelGroup);
-
-        const popupGroup = new Adw.PreferencesGroup({
-            title: _('Popup'),
-            // Translators: the {token} names are literal placeholders the user
-            // types — keep them verbatim, only translate the surrounding prose.
-            description: _('Optional extra lines shown above the popup. Empty uses the built-in layout. Placeholders: {plan} {session_pct} {session_reset} {weekly_pct} {weekly_reset}'),
-        });
-        popupGroup.add(this._entryRow(settings, 'tooltip-format', _('Popup format')));
-        popupGroup.add(this._switchRow(settings, 'show-pace-marker', _('Show pace marker'),
-            _('A tick at how much of the window has passed. Usage past it turns orange or red when it would run out before the reset.')));
-        popupGroup.add(this._shortcutRow(settings, 'toggle-menu', _('Shortcut to open'), cleanups));
-        page.add(popupGroup);
-
-        const colorGroup = new Adw.PreferencesGroup({
-            title: _('Severity colors'),
-            description: _('Pick a color per severity tier. Reset returns a tier to its built-in default.'),
-        });
-        const theme = defaultTheme();
-        // Translators: Low/Mid/High/Critical are usage-severity tier names.
-        colorGroup.add(this._colorRow(settings, 'color-low', _('Low'), theme[COLOR_KEY_PALETTE['color-low']], cleanups));
-        colorGroup.add(this._colorRow(settings, 'color-mid', _('Mid'), theme[COLOR_KEY_PALETTE['color-mid']], cleanups));
-        colorGroup.add(this._colorRow(settings, 'color-high', _('High'), theme[COLOR_KEY_PALETTE['color-high']], cleanups));
-        colorGroup.add(this._colorRow(settings, 'color-critical', _('Critical'), theme[COLOR_KEY_PALETTE['color-critical']], cleanups));
-        page.add(colorGroup);
 
         const notifyGroup = new Adw.PreferencesGroup({
             title: _('Notifications'),
@@ -241,22 +350,12 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _registerIconPath() {
-        // The bundled generic symbolic icon (icons/ai-symbolic.svg) lives outside
-        // any icon theme, so add the dir to the search path; pages reference it
-        // by bare basename via icon_name.
+        // The bundled symbolic icons (icons/*.svg) live outside any icon theme, so
+        // add the dir to the search path; the sidebar references them by basename.
         const iconDir = `${this.path}/icons`;
         const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         if (!iconTheme.get_search_path().includes(iconDir))
             iconTheme.add_search_path(iconDir);
-    }
-
-    _loadStyles() {
-        // Bottom tabs are AdwViewSwitcher buttons stacking icon over label with
-        // no spacing; push the icon up so the label has a vertical gap.
-        const provider = new Gtk.CssProvider();
-        provider.load_from_string('viewswitcher button image { margin-bottom: 6px; }');
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
     _confirmResetAll(settings, parent) {
@@ -282,12 +381,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildAnthropicPage(settings) {
-        // Translators: "Anthropic" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('Anthropic'),
-            icon_name: vendorIconName('anthropic'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "Anthropic" is a brand name — usually keep untranslated.
             title: _('Anthropic'),
             description: _('Credentials path — empty uses ~/.claude/.credentials.json.'),
         });
@@ -316,12 +412,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildOpenAiPage(settings) {
-        // Translators: "OpenAI" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('OpenAI'),
-            icon_name: vendorIconName('openai'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "OpenAI" is a brand name — usually keep untranslated.
             title: _('OpenAI'),
             description: _('Codex auth path — empty uses ~/.codex/auth.json.'),
         });
@@ -332,12 +425,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildZaiPage(settings) {
-        // Translators: "Z.AI" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('Z.AI'),
-            icon_name: vendorIconName('zai'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "Z.AI" is a brand name — usually keep untranslated.
             title: _('Z.AI'),
             description: _('Set the API key inline or via the environment variable (env wins).'),
         });
@@ -350,12 +440,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildOpenRouterPage(settings) {
-        // Translators: "OpenRouter" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('OpenRouter'),
-            icon_name: vendorIconName('openrouter'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "OpenRouter" is a brand name — usually keep untranslated.
             title: _('OpenRouter'),
             description: _('Set the API key inline or via the environment variable (env wins).'),
         });
@@ -367,12 +454,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildDeepSeekPage(settings) {
-        // Translators: "DeepSeek" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('DeepSeek'),
-            icon_name: vendorIconName('deepseek'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "DeepSeek" is a brand name — usually keep untranslated.
             title: _('DeepSeek'),
             description: _('Disabled by default; requires an API key (env var or inline).'),
         });
@@ -384,12 +468,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildKimiPage(settings) {
-        // Translators: "Kimi" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('Kimi'),
-            icon_name: vendorIconName('kimi'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "Kimi" is a brand name — usually keep untranslated.
             title: _('Kimi'),
             description: _('Disabled by default; requires an API key (env var or inline).'),
         });
@@ -401,12 +482,9 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildOllamaPage(settings) {
-        // Translators: "Ollama" is a brand name — usually keep untranslated.
-        const page = new Adw.PreferencesPage({
-            title: _('Ollama'),
-            icon_name: vendorIconName('ollama'),
-        });
+        const page = new Adw.PreferencesPage();
         const group = new Adw.PreferencesGroup({
+            // Translators: "Ollama" is a brand name — usually keep untranslated.
             title: _('Ollama Cloud'),
             description: _('Disabled by default; requires an API key (env var or inline).'),
         });
@@ -419,10 +497,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildCustomPage(settings, cleanups) {
-        const page = new Adw.PreferencesPage({
-            title: _('Custom'),
-            icon_name: vendorIconName('custom'),
-        });
+        const page = new Adw.PreferencesPage();
 
         const group = new Adw.PreferencesGroup({
             title: _('Custom provider'),

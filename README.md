@@ -154,7 +154,9 @@ In `bar-format`, the first two metrics are `{session_pct}`/`{session_reset}` and
 ## Configuration
 
 Open preferences with `gnome-extensions prefs ai-usagebar@wilfison` (or the
-gear button in the popup footer). The prefs window exposes:
+gear button in the popup footer). A sidebar groups the settings under
+**General** (Panel, Popup, Display, Behavior) and **Vendors** (one entry per
+vendor). The prefs window exposes:
 
 - **Primary vendor** — the default active vendor on startup.
 - **Show vendor logos** — each vendor's logo as the panel badge and in the popup
