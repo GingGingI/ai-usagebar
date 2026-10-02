@@ -34,7 +34,7 @@ via the popup's "Refresh all" button.
 ## Install
 
 This extension is developed and tested on **GNOME Shell 50** and declares
-support for **45–51**; on versions other than 50 it is untested, so please
+support for **47–51**; on versions other than 50 it is untested, so please
 [report](https://github.com/wilfison/ai-usagebar/issues) anything that breaks. There is no build step — it is plain
 GJS / ES modules.
 

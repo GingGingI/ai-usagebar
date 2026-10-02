@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A **GNOME Shell extension** (GJS / ES modules, `shell-version` 45–51, developed and tested on 50) that
+A **GNOME Shell extension** (GJS / ES modules, `shell-version` 47–51, developed and tested on 50) that
 shows AI plan usage in the top panel for seven vendors — **Anthropic, OpenAI,
 Z.AI/GLM, OpenRouter, DeepSeek, Kimi, Ollama Cloud** — plus a user-mapped
 **custom provider**. It is a port of the Rust Waybar widget
