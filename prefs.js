@@ -174,7 +174,8 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             description: _('Optional extra lines shown above the popup. Empty uses the built-in layout. Placeholders: {plan} {session_pct} {session_reset} {weekly_pct} {weekly_reset}'),
         });
         popupGroup.add(this._entryRow(settings, 'tooltip-format', _('Popup format')));
-        popupGroup.add(this._switchRow(settings, 'show-pace-marker', _('Show pace marker')));
+        popupGroup.add(this._switchRow(settings, 'show-pace-marker', _('Show pace marker'),
+            _('A tick at how much of the window has passed. Usage past it turns orange or red when it would run out before the reset.')));
         popupGroup.add(this._shortcutRow(settings, 'toggle-menu', _('Shortcut to open'), cleanups));
         page.add(popupGroup);
 
@@ -522,8 +523,8 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         return box;
     }
 
-    _switchRow(settings, key, title) {
-        const row = new Adw.SwitchRow({title});
+    _switchRow(settings, key, title, subtitle = null) {
+        const row = new Adw.SwitchRow(subtitle ? {title, subtitle} : {title});
         settings.bind(key, row, 'active', Gio.SettingsBindFlags.DEFAULT);
         return row;
     }
