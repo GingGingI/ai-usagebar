@@ -56,7 +56,7 @@ Open preferences with the gear button in the popup footer, or
 
 - **General**: *Panel* (position and label format), *Popup* (extra rows, pace
   marker, the `Super+U` shortcut), *Display* (primary vendor, vendor logos,
-  severity colors) and *Behavior* (refresh interval, notifications, reset all).
+  severity colors) and *Behavior* (refresh interval, notifications, update check, reset all).
 - **Vendors**: one page per vendor: enable it and set its credentials.
 
 ![The preferences window with its sidebar](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/preferences.png)
@@ -159,13 +159,17 @@ instead of a raw token count.
 - **Notifications.** Each usage window notifies once when it reaches the
   threshold (default 97%), and again only after usage drops 7 points below it or
   the window resets. A banked reset is announced 48 hours before it expires.
+- **Updates.** Once a day the extension asks GitHub for the latest release; when
+  it is newer than the installed one, a link to it appears at the bottom of the
+  popup. Turn it off under *Behavior*.
 
 ## Privacy
 
 - Credentials are read locally and sent only to the vendor they belong to, over
   HTTPS (the custom provider may use plain HTTP if you allow it). A redirect to
   another origin is never followed.
-- No telemetry, no analytics, no third parties.
+- No telemetry, no analytics, no third parties. The daily update check is one
+  unauthenticated request to `api.github.com`, and it can be turned off.
 - Only the figures shown in the popup are cached, under
   `~/.cache/ai-usagebar/`; credentials are never copied or logged, and refreshed
   OAuth tokens are written back only to the file they came from.

@@ -26,7 +26,8 @@ export default class AiUsagebarExtension extends Extension {
     // the cache's fresh TTL keeps that from refetching.
     _place() {
         this._indicator?.destroy();
-        this._indicator = new Indicator(this._settings, () => this.openPreferences(), this.path);
+        this._indicator = new Indicator(this._settings, () => this.openPreferences(), this.path,
+            this.metadata['version-name']);
         const {box, index} = readConfig(this._settings).panel;
         Main.panel.addToStatusArea(this.uuid, this._indicator, index, box);
     }

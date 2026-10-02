@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2026-10-02
 
+### Added
+
+- **Update check.** Once a day the extension asks GitHub for the latest
+  release; when it is newer than the installed version, a link to it appears at
+  the bottom of the popup. **Check for updates** under *Behavior* turns it off.
+
 ### Changed
 
 - **Preferences** use a sidebar instead of the bottom tabs, which truncated

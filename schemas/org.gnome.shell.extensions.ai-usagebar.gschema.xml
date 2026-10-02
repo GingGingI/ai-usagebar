@@ -118,6 +118,12 @@
       <description>Usage percentage of any single window at which a notification fires; 100 and above is sent as critical. Vendors without a percentage (DeepSeek) never notify.</description>
     </key>
 
+    <key name="update-check-enabled" type="b">
+      <default>true</default>
+      <summary>Check for a newer release</summary>
+      <description>When enabled, the extension asks the GitHub API once a day for the latest release and shows a link in the popup when it is newer than the installed version. No request is made while this is off.</description>
+    </key>
+
     <key name="context-enabled" type="b">
       <default>false</default>
       <summary>Show Claude Code session context</summary>

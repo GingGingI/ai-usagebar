@@ -66,6 +66,7 @@ describe('readConfig: schema defaults', () => {
     it('pace marker off by default', () => assertEqual(cfg.showPaceMarker, false));
     it('notifications on by default', () => assertEqual(cfg.notifications.enabled, true));
     it('notify threshold defaults to 97', () => assertEqual(cfg.notifications.threshold, 97));
+    it('update check on by default', () => assertEqual(cfg.updateCheck.enabled, true));
     it('openrouter env var name default', () =>
         assertEqual(cfg.vendors.openrouter.apiKeyEnv, 'OPENROUTER_API_KEY'));
     it('deepseek env var name default', () =>
@@ -90,6 +91,7 @@ describe('readConfig: overrides', () => {
     settings.set_boolean('deepseek-enabled', true);
     settings.set_boolean('notify-enabled', true);
     settings.set_int('notify-threshold', 75);
+    settings.set_boolean('update-check-enabled', false);
     const cfg = readConfig(settings);
     it('honors the creds-path override', () =>
         assertEqual(cfg.vendors.anthropic.credentialsPath, '/tmp/x.json'));
@@ -111,6 +113,7 @@ describe('readConfig: overrides', () => {
     it('honors a vendor enable toggle', () => assertEqual(cfg.vendors.deepseek.enabled, true));
     it('honors the notify-enabled toggle', () => assertEqual(cfg.notifications.enabled, true));
     it('honors the notify-threshold override', () => assertEqual(cfg.notifications.threshold, 75));
+    it('honors the update-check toggle', () => assertEqual(cfg.updateCheck.enabled, false));
 });
 
 describe('readConfig: custom provider', () => {

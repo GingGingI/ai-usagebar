@@ -334,6 +334,11 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         notifyGroup.add(threshold);
         page.add(notifyGroup);
 
+        const updateGroup = new Adw.PreferencesGroup({title: _('Updates')});
+        updateGroup.add(this._switchRow(settings, 'update-check-enabled', _('Check for updates'),
+            _('Once a day, ask GitHub whether a newer release exists')));
+        page.add(updateGroup);
+
         const resetGroup = new Adw.PreferencesGroup({
             title: _('Reset'),
             description: _('Restore every setting (vendor toggles, paths, keys, formats, and colors) to its built-in default.'),

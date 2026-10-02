@@ -26,6 +26,10 @@ import {decide, Urgency} from '../lib/notify.js';
 import {severityColor, Severity} from '../lib/severity.js';
 import {defaultTheme, withOverrides} from '../lib/theme.js';
 import {parseFakePct, FAKE_PCT_ENV} from '../lib/debug.js';
+import {
+    RELEASES_API_URL, RELEASES_PAGE_URL, afterCheck, availableUpdate, isDue, parseLatestTag,
+} from '../lib/update-check.js';
+import {readUpdateState, writeUpdateState} from '../lib/update-store.js';
 
 const RERENDER_INTERVAL_S = 60;
 // Claude Code transcripts belong to the Claude section only.
@@ -42,7 +46,7 @@ function vendorTag(id, config) {
 
 export const Indicator = GObject.registerClass(
 class Indicator extends PanelMenu.Button {
-    _init(settings, openPreferences, extensionPath) {
+    _init(settings, openPreferences, extensionPath, version) {
         const config = readConfig(settings);
         // Centered like the clock's menu when beside it; _place() rebuilds on a box change.
         super._init(config.panel.box === 'center' ? 0.5 : 0.0, 'ai-usagebar');
@@ -55,6 +59,8 @@ class Indicator extends PanelMenu.Button {
         this._settings = settings;
         this._openPreferences = openPreferences;
         this._path = extensionPath;
+        this._version = version;
+        this._updateCheckBusy = false;
         this._config = config;
         this._barFormat = this._config.barFormat;
 
@@ -134,6 +140,11 @@ class Indicator extends PanelMenu.Button {
         this._actionsItem.add_child(actionsBox);
         this.menu.addMenuItem(this._actionsItem);
 
+        this._updateItem = new PopupMenu.PopupImageMenuItem('', 'software-update-available-symbolic');
+        this._updateItem.visible = false;
+        this._updateItem.connect('activate', () => this._openReleasesPage());
+        this.menu.addMenuItem(this._updateItem);
+
         // Seed the active vendor with a Loading… state so its sub-section (and an
         // immediately-opened popup) is never empty before the first fetch lands.
         this._results.set(this._activeId, {ok: false, kind: 'loading'});
@@ -158,6 +169,7 @@ class Indicator extends PanelMenu.Button {
         // into the timeout callback / event loop.
         this._refresh().catch(e => console.warn(`ai-usagebar: refresh failed: ${e}`));
         this._rearmPollTimer(this._config.refreshIntervalSecs);
+        this._checkForUpdate();
     }
 
     _rearmPollTimer(secs) {
@@ -167,6 +179,7 @@ class Indicator extends PanelMenu.Button {
         }
         this._timeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, secs, () => {
             this._refresh().catch(e => console.warn(`ai-usagebar: refresh failed: ${e}`));
+            this._checkForUpdate();
             return GLib.SOURCE_CONTINUE;
         });
     }
@@ -194,6 +207,12 @@ class Indicator extends PanelMenu.Button {
         if (key === 'refresh-interval') {
             this._config = config;
             this._rearmPollTimer(config.refreshIntervalSecs);
+            return;
+        }
+
+        if (key === 'update-check-enabled') {
+            this._config = config;
+            this._checkForUpdate();
             return;
         }
 
@@ -490,6 +509,59 @@ class Indicator extends PanelMenu.Button {
             Main.messageTray.add(this._notifySource);
         }
         return this._notifySource;
+    }
+
+    // Rides the poll tick: the on-disk deadline, not a timer, keeps it to one
+    // request a day across indicator rebuilds and logins.
+    async _checkForUpdate() {
+        if (!this._config.updateCheck.enabled) {
+            this._updateItem.visible = false;
+            return;
+        }
+        if (this._updateCheckBusy)
+            return;
+        this._updateCheckBusy = true;
+        try {
+            let state = await readUpdateState();
+            if (this._destroyed)
+                return;
+            this._paintUpdate(state);
+            if (!isDue(state, Date.now()))
+                return;
+
+            const res = await request({
+                url: RELEASES_API_URL,
+                headers: {Accept: 'application/vnd.github+json'},
+                cancellable: this._cancellable,
+            });
+            if (this._destroyed)
+                return;
+            const latest = res.status === 200 ? parseLatestTag(new TextDecoder().decode(res.bodyBytes)) : null;
+            state = afterCheck(state, latest, Date.now());
+            writeUpdateState(state);
+            this._paintUpdate(state);
+        } catch (e) {
+            console.warn(`ai-usagebar: update check failed: ${e}`);
+        } finally {
+            this._updateCheckBusy = false;
+        }
+    }
+
+    _paintUpdate(state) {
+        const latest = this._config.updateCheck.enabled ? availableUpdate(state, this._version) : null;
+        if (latest) {
+            // Translators: %s is the version number of the newer release (e.g. "1.6.0").
+            this._updateItem.label.text = vformat(_('Update available: %s'), latest);
+        }
+        this._updateItem.visible = latest !== null;
+    }
+
+    _openReleasesPage() {
+        try {
+            Gio.AppInfo.launch_default_for_uri(RELEASES_PAGE_URL, global.create_app_launch_context(0, -1));
+        } catch (e) {
+            console.warn(`ai-usagebar: could not open the releases page: ${e}`);
+        }
     }
 
     _render(res) {

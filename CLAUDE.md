@@ -150,6 +150,13 @@ recorded (so jitter and a window sliding between fetches don't re-fire); a reset
 credit fires once 48 h before it expires. The dedupe state is JSON (`version: 2`) in the vendor's
 `.notified` sidecar, saved before delivery.
 
+**Update check** (`lib/update-check.js`, pure; `lib/update-store.js` does the
+IO): the poll tick calls `_checkForUpdate()`, which asks GitHub's
+`releases/latest` only when the deadline in `<cacheRoot>/update_check` has
+passed (24 h after a success, 1 h after a failure). A tag newer than
+`version-name` shows a menu item, below the action buttons, that opens the
+fixed `RELEASES_PAGE_URL`. `update-check-enabled` turns it off.
+
 **Context monitor** (`lib/context/`): `parser.js` is the pure Claude Code
 transcript-tail parser; `scan.js` (`gi://Gio`, async) walks
 `~/.claude/projects` and reads the tails of the 8 newest sessions. The
