@@ -9,7 +9,7 @@ The panel shows a compact label for the active vendor (e.g. `42% · 3h12m`),
 colored by severity. Click it for a popup with a section per enabled vendor;
 scroll over it to cycle between them.
 
-![The AI Usage Bar popup under the panel label](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/popup.png)
+![AI Usage Bar: the popup under the panel label, showing plan usage, pace and reset countdowns](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/popup.png)
 
 ## Vendors
 
