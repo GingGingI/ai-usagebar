@@ -43,7 +43,9 @@ function vendorTag(id, config) {
 export const Indicator = GObject.registerClass(
 class Indicator extends PanelMenu.Button {
     _init(settings, openPreferences, extensionPath) {
-        super._init(0.0, 'ai-usagebar');
+        const config = readConfig(settings);
+        // Centered like the clock's menu when beside it; _place() rebuilds on a box change.
+        super._init(config.panel.box === 'center' ? 0.5 : 0.0, 'ai-usagebar');
 
         // Pin the whole popup to a consistent width (see .aiusagebar-popup). Set
         // on the menu's item box so it holds regardless of which vendor sub-menu
@@ -53,7 +55,7 @@ class Indicator extends PanelMenu.Button {
         this._settings = settings;
         this._openPreferences = openPreferences;
         this._path = extensionPath;
-        this._config = readConfig(settings);
+        this._config = config;
         this._barFormat = this._config.barFormat;
 
         this._cancellable = new Gio.Cancellable();
