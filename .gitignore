@@ -13,8 +13,5 @@ node_modules/
 # Local secrets — never commit
 *.credentials.json
 
-# Claude Code local scratch state.
-.claude/
-
 # Sandbox marker, not part of the project.
 .ai-jail
