@@ -241,9 +241,9 @@ describe('buildSection — elapsedPct marker data', () => {
         assertEqual(Object.hasOwn(r, 'elapsedPct'), false);
     });
 
-    it('windowed row carries paceColor: base from pct, over from the delta', () => {
-        // weekly pct 80 (high→orange base); usage runs ahead of pace so the
-        // delta is critical → red overshoot colour.
+    it('windowed row carries paceColor: base from pct, tail from the verdict', () => {
+        // weekly 80% used with 4 of 7 days gone (high→orange base) projects
+        // 140%: critical → red overshoot colour.
         const r = model.rows[1];
         assertEqual(r.color, theme.orange);
         assertEqual(r.paceColor, theme.red);

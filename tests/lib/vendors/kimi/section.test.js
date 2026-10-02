@@ -69,10 +69,18 @@ describe('buildSection (kimi)', () => {
     });
 
     it('window rows carry elapsedPct + paceColor (bicolor bar data)', () => {
-        const m = buildSection(fullSnapshot(), META, NOW, theme);
-        const expected = calc({usagePct: 80, reset: fullSnapshot().window.resetAt, now: NOW, windowMs: WINDOW_MS}).elapsedPct;
+        // 60% used 40% into the window: critical, a red tail past the marker.
+        const s = {...fullSnapshot(), window: block(60, 100, 180)};
+        const m = buildSection(s, META, NOW, theme);
+        const expected = calc({usagePct: 60, reset: s.window.resetAt, now: NOW, windowMs: WINDOW_MS}).elapsedPct;
         assertEqual(m.rows[0].elapsedPct, expected);
-        assertEqual(typeof m.rows[0].paceColor, 'string');
+        assertEqual(m.rows[0].paceColor, theme.red);
+    });
+
+    it('an over-pace tail the same colour as its base is left out', () => {
+        // 80% used 70% into the window: over (orange) on an orange base.
+        const m = buildSection(fullSnapshot(), META, NOW, theme);
+        assertEqual('paceColor' in m.rows[0], false);
     });
 
     it('weekly row uses the weekly window length for the marker', () => {

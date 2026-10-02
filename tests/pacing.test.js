@@ -5,8 +5,6 @@ import {
     Pace,
     paceGlyph,
     PaceVerdict,
-    paceSeverity,
-    PaceSeverity,
     DEFAULT_TOLERANCE,
 } from '../lib/pacing.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
@@ -133,17 +131,6 @@ describe('paceGlyph', () => {
     it('AHEAD → ↑', () => assertEqual(paceGlyph(Pace.AHEAD), '↑'));
     it('ON_TRACK → →', () => assertEqual(paceGlyph(Pace.ON_TRACK), '→'));
     it('UNDER → ↓', () => assertEqual(paceGlyph(Pace.UNDER), '↓'));
-});
-
-describe('paceSeverity', () => {
-    it('15 → critical', () => assertEqual(paceSeverity(15), PaceSeverity.CRITICAL));
-    it('10 → critical (lower edge)', () => assertEqual(paceSeverity(10), PaceSeverity.CRITICAL));
-    it('9 → high (upper edge)', () => assertEqual(paceSeverity(9), PaceSeverity.HIGH));
-    it('1 → high (lower edge)', () => assertEqual(paceSeverity(1), PaceSeverity.HIGH));
-    it('0 → mid', () => assertEqual(paceSeverity(0), PaceSeverity.MID));
-    it('-10 → mid (lower edge of band)', () => assertEqual(paceSeverity(-10), PaceSeverity.MID));
-    it('-11 → low (just past the -10 boundary)', () => assertEqual(paceSeverity(-11), PaceSeverity.LOW));
-    it('-100 → low', () => assertEqual(paceSeverity(-100), PaceSeverity.LOW));
 });
 
 describe('calc — state', () => {

@@ -1,6 +1,7 @@
 import system from 'system';
 
 import {fillColors, fillSegments} from '../../lib/pace-fill.js';
+import {PaceVerdict} from '../../lib/pacing.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from '../_assert.js';
 
 // Minimal palette: distinct hex per severity so we can assert which class won.
@@ -14,24 +15,30 @@ describe('fillColors — base (pct → colour)', () => {
     it('critical pct (>=90) → red', () => assertEqual(fillColors(95, null, theme).base, theme.red));
 });
 
-describe('fillColors — over (delta → colour)', () => {
-    it('no marker → over is null', () =>
-        assertEqual(fillColors(80, null, theme).over, null));
+describe('fillColors — over (verdict → colour)', () => {
+    it('no verdict → no tail', () =>
+        assertEqual(fillColors(30, null, theme).over, null));
 
-    // delta = pct - elapsed. Thresholds: >=10 crit, >0 high, >=-10 mid, else low.
-    it('delta >= 10 → critical (red)', () =>
-        assertEqual(fillColors(80, 60, theme).over, theme.red)); // delta 20
-
-    it('0 < delta < 10 → high (orange)', () =>
-        assertEqual(fillColors(55, 50, theme).over, theme.orange)); // delta 5
-
-    it('-10 <= delta <= 0 → mid (yellow)', () => {
-        assertEqual(fillColors(50, 50, theme).over, theme.yellow); // delta 0
-        assertEqual(fillColors(40, 50, theme).over, theme.yellow); // delta -10
+    it('calm → no tail, whatever the base', () => {
+        assertEqual(fillColors(30, PaceVerdict.CALM, theme).over, null);
+        assertEqual(fillColors(60, PaceVerdict.CALM, theme).over, null);
     });
 
-    it('delta < -10 → low (green)', () =>
-        assertEqual(fillColors(30, 50, theme).over, theme.green)); // delta -20
+    it('over → orange tail', () => {
+        assertEqual(fillColors(30, PaceVerdict.OVER, theme).over, theme.orange);
+        assertEqual(fillColors(60, PaceVerdict.OVER, theme).over, theme.orange);
+    });
+
+    it('critical → red tail', () => {
+        assertEqual(fillColors(30, PaceVerdict.CRITICAL, theme).over, theme.red);
+        assertEqual(fillColors(80, PaceVerdict.CRITICAL, theme).over, theme.red);
+    });
+
+    it('a tail the same colour as the base is dropped', () =>
+        assertEqual(fillColors(80, PaceVerdict.OVER, theme).over, null)); // orange base
+
+    it('a red base never gets a tail', () =>
+        assertEqual(fillColors(95, PaceVerdict.CRITICAL, theme).over, null));
 });
 
 describe('fillSegments — geometry', () => {
@@ -66,8 +73,8 @@ describe('fillSegments — geometry', () => {
 
 describe('limit — a full bar has no pace tail', () => {
     it('fillColors: no over colour at 100%', () => {
-        assertEqual(fillColors(100, 40, theme).over, null);
-        assertEqual(fillColors(100, 40, theme).base, theme.red);
+        assertEqual(fillColors(100, PaceVerdict.CRITICAL, theme).over, null);
+        assertEqual(fillColors(100, PaceVerdict.CRITICAL, theme).base, theme.red);
     });
 
     it('fillSegments: a full fill stays one base segment', () => {

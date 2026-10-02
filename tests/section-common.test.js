@@ -280,18 +280,24 @@ describe('paceFields', () => {
         assertDeepEqual(paceFields(30, null, palette), {color: '#g', paceGlyph: ''});
     });
 
-    it('ok → glyph, marker, over colour and footnote', () => {
-        const f = paceFields(30, pace('ok'), palette);
+    it('ok → glyph, marker and footnote; a calm row has no tail colour', () => {
+        const f = paceFields(30, pace('ok', {verdict: 'calm'}), palette);
         assertEqual(f.paceGlyph, '↓');
         assertEqual(f.elapsedPct, 40);
-        assertEqual(typeof f.paceColor, 'string');
+        assertEqual('paceColor' in f, false);
         assertEqual(f.paceFootnote, '40% elapsed · 10pts under');
     });
 
-    it('estimating keeps the marker but drops the glyph', () => {
-        const f = paceFields(30, pace('estimating'), palette);
+    it('ok → the tail colour follows the verdict', () => {
+        assertEqual(paceFields(30, pace('ok', {verdict: 'over'}), palette).paceColor, '#o');
+        assertEqual(paceFields(30, pace('ok', {verdict: 'critical'}), palette).paceColor, '#r');
+    });
+
+    it('estimating keeps the marker but drops the glyph and the tail', () => {
+        const f = paceFields(30, pace('estimating', {delta: 20, verdict: null}), palette);
         assertEqual(f.paceGlyph, '');
         assertEqual(f.elapsedPct, 40);
+        assertEqual('paceColor' in f, false);
         assertEqual(f.paceFootnote, 'Estimating…');
     });
 
