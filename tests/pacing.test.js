@@ -4,6 +4,7 @@ import {
     calc,
     Pace,
     paceGlyph,
+    PaceVerdict,
     paceSeverity,
     PaceSeverity,
     DEFAULT_TOLERANCE,
@@ -25,6 +26,10 @@ const NEUTRAL = {
     ratioLabel: 'on track',
     pointLabel: 'on track',
     state: 'neutral',
+    projectedPct: null,
+    runsOutAt: null,
+    verdict: null,
+    now,
 };
 
 describe('calc — neutral / clamp branches', () => {
@@ -187,6 +192,81 @@ describe('calc — state', () => {
 
     it('a reset already in the past is not estimating', () => {
         assertEqual(calc({usagePct: 7, reset: at(-MINUTE), now, windowMs: WEEK}).state, 'ok');
+    });
+});
+
+describe('calc — verdict', () => {
+    const WEEK = 168 * HOUR;
+    // `usagePct` used `elapsed` into a window of `windowMs`.
+    const paced = (usagePct, elapsed, windowMs) =>
+        calc({usagePct, reset: at(windowMs - elapsed), now, windowMs});
+
+    it('4% at 7 h of a week: on the line → calm', () => {
+        const p = paced(4, 7 * HOUR, WEEK);
+        assertEqual(Math.round(p.projectedPct), 96);
+        assertEqual(p.verdict, PaceVerdict.CALM);
+    });
+
+    it('7% at 8 h of a week: 147% projected but 2.2 pts past → calm', () => {
+        const p = paced(7, 8 * HOUR, WEEK);
+        assertEqual(Math.round(p.projectedPct), 147);
+        assertEqual(p.delta, 3); // the rounded delta alone would cross the gap edge
+        assertEqual(p.verdict, PaceVerdict.CALM);
+    });
+
+    it('60% at half of 5 h: 120% projected, 10 pts past → over', () => {
+        const p = paced(60, 150 * MINUTE, FIVE_H);
+        assertEqual(p.projectedPct, 120);
+        assertEqual(p.verdict, PaceVerdict.OVER);
+        assertEqual(p.runsOutAt, null);
+    });
+
+    it('70% at half of 5 h: 140% projected, 20 pts past → critical', () => {
+        const p = paced(70, 150 * MINUTE, FIVE_H);
+        assertEqual(p.projectedPct, 140);
+        assertEqual(p.verdict, PaceVerdict.CRITICAL);
+    });
+
+    it('92% at 4.5 h of 5 h: under 10% left and over the line → critical', () => {
+        const p = paced(92, 270 * MINUTE, FIVE_H);
+        assertEqual(p.verdict, PaceVerdict.CRITICAL);
+    });
+
+    it('55% at half of 5 h: exactly 110% projected → calm', () => {
+        const p = paced(55, 150 * MINUTE, FIVE_H);
+        assertEqual(p.projectedPct, 110);
+        assertEqual(p.verdict, PaceVerdict.CALM);
+    });
+
+    it('limit, estimating and neutral states have no verdict', () => {
+        assertEqual(paced(100, 2 * HOUR, FIVE_H).verdict, null);
+        assertEqual(paced(5, 30 * MINUTE, WEEK).state, 'estimating');
+        assertEqual(paced(5, 30 * MINUTE, WEEK).verdict, null);
+        assertEqual(calc({usagePct: 50, reset: null, now, windowMs: FIVE_H}).verdict, null);
+    });
+
+    it('no projection at the very start of the window', () => {
+        const p = paced(0, 0, FIVE_H);
+        assertEqual(p.projectedPct, null);
+        assertEqual(p.verdict, null);
+    });
+
+    it('a critical row runs out at its current rate, before the reset', () => {
+        // 70% in 150 min → the last 30% takes 64 min 17 s.
+        const p = paced(70, 150 * MINUTE, FIVE_H);
+        assertEqual(p.runsOutAt.getTime(), now.getTime() + Math.trunc(30 * 150 * MINUTE / 70));
+        assertEqual(p.now, now);
+    });
+
+    it('a critical row runs out between now and its reset', () => {
+        const reset = at(30 * MINUTE);
+        const p = calc({usagePct: 92, reset, now, windowMs: FIVE_H});
+        assertEqual(p.runsOutAt > now && p.runsOutAt < reset, true);
+    });
+
+    it('calm and over rows have no run-out instant', () => {
+        assertEqual(paced(55, 150 * MINUTE, FIVE_H).runsOutAt, null);
+        assertEqual(paced(60, 150 * MINUTE, FIVE_H).runsOutAt, null);
     });
 });
 
