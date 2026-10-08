@@ -105,16 +105,17 @@ from each label's vendor. An unknown token is left as is; a window the vendor di
 not report resolves to an empty string.
 
 Every vendor provides `{icon}`, `{vendor_short}`, `{plan}`, `{session_pct}`,
-`{session_remain}`, `{session_reset}`, `{session_elapsed}`, `{weekly_pct}`,
-`{weekly_remain}`, `{weekly_reset}` and `{weekly_elapsed}`. The `*_remain` tokens
+`{session_rem}`, `{session_reset}`, `{session_elapsed}`, `{weekly_pct}`,
+`{weekly_rem}`, `{weekly_reset}` and `{weekly_elapsed}`. The `*_rem` tokens
 are the percentage still available (`100 - *_pct`), so append `%` in a label:
-`{session_remain}% · {weekly_remain}%`. An unreported quota yields an empty
-remaining value. Reset tokens are countdowns such as `4h 05m`; `*_elapsed` is
-the share of the window that has passed. Vendors with a reset instant also give
-`{session_pace}` and `{weekly_pace}` (`↑` ahead of pace, `→` on track, `↓`
-under). OpenRouter and DeepSeek have no usage windows: OpenRouter's shared
-percent tokens reflect the consumed or remaining share of its credits, while
-DeepSeek's `*_pct` tokens are `0` and its `*_remain` tokens are empty.
+`{session_rem}% · {weekly_rem}%`. The longer `{session_remain}` and
+`{weekly_remain}` aliases also work for existing labels. An unreported quota
+yields an empty remaining value. Reset tokens are countdowns such as `4h 05m`;
+`*_elapsed` is the share of the window that has passed. Vendors with a reset
+instant also give `{session_pace}` and `{weekly_pace}` (`↑` ahead of pace, `→`
+on track, `↓` under). OpenRouter and DeepSeek have no usage windows.
+OpenRouter's shared percent tokens reflect the consumed or remaining share of
+its credits. DeepSeek's `*_pct` tokens are `0` and its `*_rem` tokens are empty.
 
 <details>
 <summary>Vendor-specific tokens</summary>

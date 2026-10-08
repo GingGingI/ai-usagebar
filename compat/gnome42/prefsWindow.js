@@ -221,7 +221,7 @@ export default class AiUsagebarPreferences {
             title: _('Panel label'),
             // Translators: the {token} names are literal placeholders the user
             // types: keep them verbatim, only translate the surrounding prose.
-            description: _('Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_remain}%, {weekly_remain}%. Reset: {session_reset}, {weekly_reset}.'),
+            description: _('Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_rem}%, {weekly_rem}%. Reset: {session_reset}, {weekly_reset}.'),
         });
         labelGroup.add(this._entryRow(settings, 'bar-format', _('Default label')));
         for (const [index, id] of VENDOR_IDS.entries()) {

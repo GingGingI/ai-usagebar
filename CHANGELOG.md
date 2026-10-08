@@ -18,8 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   enables it. Existing all-or-active settings migrate to the corresponding list.
 - A default panel label and optional custom label template for each selected
   vendor. An empty custom label inherits the default.
-- `{session_remain}` and `{weekly_remain}` label placeholders for the percentage
-  of quota left; unreported quotas leave these fields empty.
+- `{session_rem}` and `{weekly_rem}` label placeholders for the percentage of
+  quota left (with `{session_remain}` and `{weekly_remain}` aliases); unreported
+  quotas leave these fields empty.
 - `make test-gnome42` runs the unit suite against the staged GNOME 42 package.
 
 ### Fixed

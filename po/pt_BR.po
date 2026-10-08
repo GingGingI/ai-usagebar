@@ -932,8 +932,8 @@ msgstr "Mostrar todos os provedores habilitados"
 msgid "Default label"
 msgstr "Rótulo padrão"
 
-msgid "Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_remain}%, {weekly_remain}%. Reset: {session_reset}, {weekly_reset}."
-msgstr "Rótulos vazios de provedores usam o padrão. Uso: {session_pct}%, {weekly_pct}%. Restante: {session_remain}%, {weekly_remain}%. Redefinição: {session_reset}, {weekly_reset}."
+msgid "Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_rem}%, {weekly_rem}%. Reset: {session_reset}, {weekly_reset}."
+msgstr "Rótulos vazios de provedores usam o padrão. Uso: {session_pct}%, {weekly_pct}%. Restante: {session_rem}%, {weekly_rem}%. Redefinição: {session_reset}, {weekly_reset}."
 
 msgid "No panel vendors selected"
 msgstr "Nenhum provedor selecionado para o painel"

@@ -936,8 +936,8 @@ msgstr "Mostrar todos los proveedores habilitados"
 msgid "Default label"
 msgstr "Etiqueta predeterminada"
 
-msgid "Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_remain}%, {weekly_remain}%. Reset: {session_reset}, {weekly_reset}."
-msgstr "Las etiquetas vacías de proveedores usan la predeterminada. Uso: {session_pct}%, {weekly_pct}%. Restante: {session_remain}%, {weekly_remain}%. Reinicio: {session_reset}, {weekly_reset}."
+msgid "Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_rem}%, {weekly_rem}%. Reset: {session_reset}, {weekly_reset}."
+msgstr "Las etiquetas vacías de proveedores usan la predeterminada. Uso: {session_pct}%, {weekly_pct}%. Restante: {session_rem}%, {weekly_rem}%. Reinicio: {session_reset}, {weekly_reset}."
 
 msgid "No panel vendors selected"
 msgstr "No hay proveedores seleccionados para el panel"

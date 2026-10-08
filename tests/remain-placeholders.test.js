@@ -41,14 +41,18 @@ describe('remaining percentage placeholders', () => {
     for (const [name, fake, placeholders] of quotaVendors) {
         it(`${name} shows 59% remaining when 41% is used`, () => {
             const values = placeholders(fake(41, NOW), NOW);
+            assertEqual(values.get('session_rem'), '59');
+            assertEqual(values.get('weekly_rem'), '59');
             assertEqual(values.get('session_remain'), '59');
             assertEqual(values.get('weekly_remain'), '59');
-            assertEqual(substitute('{session_remain}% / {weekly_remain}%', values), '59% / 59%');
+            assertEqual(substitute('{session_rem}% / {weekly_rem}%', values), '59% / 59%');
         });
     }
 
     it('does not invent a percentage for DeepSeek balance', () => {
         const values = deepseekPlaceholders(deepseekFake(41), NOW);
+        assertEqual(values.get('session_rem'), '');
+        assertEqual(values.get('weekly_rem'), '');
         assertEqual(values.get('session_remain'), '');
         assertEqual(values.get('weekly_remain'), '');
     });
@@ -58,19 +62,23 @@ describe('remaining percentage placeholders', () => {
             {pct: 12, resetsAt: null, windowMs: null},
             {pct: 43, resetsAt: null, windowMs: null},
         ]}, NOW);
+        assertEqual(values.get('session_rem'), '88');
+        assertEqual(values.get('weekly_rem'), '57');
         assertEqual(values.get('session_remain'), '88');
         assertEqual(values.get('weekly_remain'), '57');
         assertEqual(customPlaceholders({name: 'Custom', metrics: []}, NOW).get('weekly_remain'), '');
+        assertEqual(customPlaceholders({name: 'Custom', metrics: []}, NOW).get('weekly_rem'), '');
     });
 
     it('leaves an unreported weekly window empty', () => {
         assertEqual(anthropicPlaceholders(anthropicParseUsage('{}', 'Pro'), NOW).get('weekly_remain'), '');
+        assertEqual(anthropicPlaceholders(anthropicParseUsage('{}', 'Pro'), NOW).get('weekly_rem'), '');
         const openai = openaiFake(41, NOW);
-        assertEqual(openaiPlaceholders({...openai, weekly: null}, NOW).get('weekly_remain'), '');
+        assertEqual(openaiPlaceholders({...openai, weekly: null}, NOW).get('weekly_rem'), '');
         const kimi = kimiFake(41, NOW);
-        assertEqual(kimiPlaceholders({...kimi, weekly: null}, NOW).get('weekly_remain'), '');
+        assertEqual(kimiPlaceholders({...kimi, weekly: null}, NOW).get('weekly_rem'), '');
         const zai = zaiFake(41, NOW);
-        assertEqual(zaiPlaceholders({...zai, weekly: null}, NOW).get('weekly_remain'), '');
+        assertEqual(zaiPlaceholders({...zai, weekly: null}, NOW).get('weekly_rem'), '');
     });
 });
 
