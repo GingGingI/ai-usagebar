@@ -35,8 +35,55 @@
 
     <key name="bar-format" type="s">
       <default>'{session_pct}% · {session_reset}'</default>
-      <summary>Panel label format template</summary>
-      <description>Template for each vendor's top-panel label. Supports {placeholder} substitution from that vendor's value set.</description>
+      <summary>Default panel label format</summary>
+      <description>Used for a vendor's top-panel label when its custom label is empty. Supports placeholders from that vendor's value set.</description>
+    </key>
+
+    <key name="panel-vendors" type="as">
+      <default>['anthropic', 'openai', 'zai', 'openrouter']</default>
+      <summary>Vendors selected for the panel</summary>
+      <description>Only selected and enabled vendors are displayed and automatically refreshed on the top panel. Order follows the vendor list.</description>
+    </key>
+
+    <key name="bar-format-anthropic" type="s">
+      <default>''</default>
+      <summary>Anthropic panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-openai" type="s">
+      <default>''</default>
+      <summary>OpenAI panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-zai" type="s">
+      <default>''</default>
+      <summary>Z.AI panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-openrouter" type="s">
+      <default>''</default>
+      <summary>OpenRouter panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-deepseek" type="s">
+      <default>''</default>
+      <summary>DeepSeek panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-kimi" type="s">
+      <default>''</default>
+      <summary>Kimi panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-ollama" type="s">
+      <default>''</default>
+      <summary>Ollama panel label</summary>
+      <description>Empty uses the default panel label.</description>
+    </key>
+    <key name="bar-format-custom" type="s">
+      <default>''</default>
+      <summary>Custom provider panel label</summary>
+      <description>Empty uses the default panel label.</description>
     </key>
 
     <key name="tooltip-format" type="s">
@@ -101,8 +148,8 @@
 
     <key name="show-all-vendors" type="b">
       <default>true</default>
-      <summary>Show all enabled vendors on the panel</summary>
-      <description>Display a separate badge and usage label for every enabled vendor, and refresh them all at the configured interval. Off displays and polls only the active vendor. Click a vendor badge to open its popup section; scrolling changes the selected section.</description>
+      <summary>Legacy panel display mode</summary>
+      <description>Used once to migrate the previous all-or-active panel selection to panel-vendors.</description>
     </key>
 
     <key name="show-pace-marker" type="b">

@@ -4,6 +4,7 @@ import Shell from 'gi://Shell';
 import {ExtensionUtils, Main} from './compat/shell.js';
 
 import {readConfig} from './lib/config.js';
+import {legacyPanelVendors} from './lib/config-resolve.js';
 import {Indicator} from './ui/indicator.js';
 
 const TOGGLE_MENU_KEY = 'toggle-menu';
@@ -26,6 +27,8 @@ export default class AiUsagebarExtension {
 
     enable() {
         this._settings = this.getSettings();
+        if (this._settings.get_user_value('panel-vendors') === null)
+            this._settings.set_strv('panel-vendors', legacyPanelVendors(readConfig(this._settings)));
         this._placeIds = ['changed::panel-box', 'changed::panel-index']
             .map(signal => this._settings.connect(signal, () => this._place()));
         this._place();

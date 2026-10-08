@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-10-08 13:35+0900\n"
+"POT-Creation-Date: 2026-10-08 13:48+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,11 +110,11 @@ msgstr ""
 msgid "Panel"
 msgstr ""
 
-#: lib/prefs-nav.js:11 prefs.js:208 compat/gnome42/prefsWindow.js:226
+#: lib/prefs-nav.js:11 prefs.js:218 compat/gnome42/prefsWindow.js:241
 msgid "Popup"
 msgstr ""
 
-#: lib/prefs-nav.js:12 prefs.js:225 compat/gnome42/prefsWindow.js:243
+#: lib/prefs-nav.js:12 prefs.js:235 compat/gnome42/prefsWindow.js:258
 msgid "Display"
 msgstr ""
 
@@ -227,8 +227,8 @@ msgstr ""
 msgid "Claude %s"
 msgstr ""
 
-#: lib/vendors/custom/section.js:34 prefs.js:513
-#: compat/gnome42/prefsWindow.js:529
+#: lib/vendors/custom/section.js:34 prefs.js:523
+#: compat/gnome42/prefsWindow.js:544
 msgid "Custom provider"
 msgstr ""
 
@@ -458,424 +458,419 @@ msgstr ""
 msgid "MCP tools (monthly)"
 msgstr ""
 
-#: prefs.js:151 compat/gnome42/prefsWindow.js:173
+#: prefs.js:152 compat/gnome42/prefsWindow.js:174
 msgid "Panel position"
 msgstr ""
 
-#: prefs.js:152 compat/gnome42/prefsWindow.js:174
+#: prefs.js:153 compat/gnome42/prefsWindow.js:175
 msgid "Changes apply immediately."
 msgstr ""
 
-#: prefs.js:156 compat/gnome42/prefsWindow.js:178
+#: prefs.js:157 compat/gnome42/prefsWindow.js:179
 msgid "Left"
 msgstr ""
 
-#: prefs.js:156 compat/gnome42/prefsWindow.js:178
+#: prefs.js:157 compat/gnome42/prefsWindow.js:179
 msgid "Center (beside the clock)"
 msgstr ""
 
-#: prefs.js:156 compat/gnome42/prefsWindow.js:178
+#: prefs.js:157 compat/gnome42/prefsWindow.js:179
 msgid "Right (beside the system menu)"
 msgstr ""
 
-#: prefs.js:158 compat/gnome42/prefsWindow.js:180
+#: prefs.js:159 compat/gnome42/prefsWindow.js:181
 msgid "Area"
 msgstr ""
 
-#: prefs.js:176 compat/gnome42/prefsWindow.js:198
+#: prefs.js:177 compat/gnome42/prefsWindow.js:199
 msgid "Position within the area"
 msgstr ""
 
-#: prefs.js:177 compat/gnome42/prefsWindow.js:200
+#: prefs.js:178 compat/gnome42/prefsWindow.js:201
 msgid "0 is leftmost; in the center, 0 is left of the clock and 1 right of it"
 msgstr ""
 
-#: prefs.js:185 compat/gnome42/prefsWindow.js:205
+#: prefs.js:187 compat/gnome42/prefsWindow.js:207
 msgid "Panel vendors"
 msgstr ""
 
-#: prefs.js:186 compat/gnome42/prefsWindow.js:206
-msgid "Show all enabled vendors"
+#: prefs.js:188 compat/gnome42/prefsWindow.js:208
+msgid "Select the vendors to show and refresh on the panel."
 msgstr ""
 
-#: prefs.js:187 compat/gnome42/prefsWindow.js:207
-msgid ""
-"Display and automatically refresh every enabled vendor. Click a vendor to "
-"open its details."
-msgstr ""
-
-#: prefs.js:191 compat/gnome42/prefsWindow.js:211
+#: prefs.js:198 compat/gnome42/prefsWindow.js:221
 msgid "Panel label"
 msgstr ""
 
 #. Translators: the {token} names are literal placeholders the user
 #. types: keep them verbatim, only translate the surrounding prose.
-#: prefs.js:194 compat/gnome42/prefsWindow.js:214
+#: prefs.js:201 compat/gnome42/prefsWindow.js:224
 msgid ""
-"Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} "
-"{weekly_pct} {weekly_reset}"
+"Leave a vendor label empty to use the default label. Placeholders: "
+"{vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} "
+"{weekly_reset}"
 msgstr ""
 
-#: prefs.js:196 compat/gnome42/prefsWindow.js:216
-msgid "Bar format"
+#: prefs.js:203 compat/gnome42/prefsWindow.js:226
+msgid "Default label"
 msgstr ""
 
 #. Translators: the {token} names are literal placeholders the user
 #. types: keep them verbatim, only translate the surrounding prose.
-#: prefs.js:211 compat/gnome42/prefsWindow.js:229
+#: prefs.js:221 compat/gnome42/prefsWindow.js:244
 msgid ""
 "Optional extra lines shown above the popup. Empty uses the built-in layout. "
 "Placeholders: {plan} {session_pct} {session_reset} {weekly_pct} "
 "{weekly_reset}"
 msgstr ""
 
-#: prefs.js:213 compat/gnome42/prefsWindow.js:231
+#: prefs.js:223 compat/gnome42/prefsWindow.js:246
 msgid "Popup format"
 msgstr ""
 
-#: prefs.js:214 compat/gnome42/prefsWindow.js:232
+#: prefs.js:224 compat/gnome42/prefsWindow.js:247
 msgid "Show pace marker"
 msgstr ""
 
-#: prefs.js:215 compat/gnome42/prefsWindow.js:233
+#: prefs.js:225 compat/gnome42/prefsWindow.js:248
 msgid ""
 "A tick at how much of the window has passed. Usage past it turns orange or "
 "red when it would run out before the reset."
 msgstr ""
 
-#: prefs.js:216 compat/gnome42/prefsWindow.js:234
+#: prefs.js:226 compat/gnome42/prefsWindow.js:249
 msgid "Shortcut to open"
 msgstr ""
 
-#: prefs.js:231 compat/gnome42/prefsWindow.js:249
+#: prefs.js:241 compat/gnome42/prefsWindow.js:264
 msgid "Primary vendor"
 msgstr ""
 
-#: prefs.js:232 compat/gnome42/prefsWindow.js:250
+#: prefs.js:242 compat/gnome42/prefsWindow.js:265
 msgid ""
 "Selected by default in the popup; shown on the panel when displaying one "
 "vendor"
 msgstr ""
 
-#: prefs.js:253 compat/gnome42/prefsWindow.js:271
+#: prefs.js:263 compat/gnome42/prefsWindow.js:286
 msgid "Show vendor logos"
 msgstr ""
 
-#: prefs.js:257 compat/gnome42/prefsWindow.js:275
+#: prefs.js:267 compat/gnome42/prefsWindow.js:290
 msgid "Severity colors"
 msgstr ""
 
-#: prefs.js:258 compat/gnome42/prefsWindow.js:276
+#: prefs.js:268 compat/gnome42/prefsWindow.js:291
 msgid ""
 "Pick a color per severity tier. Reset returns a tier to its built-in default."
 msgstr ""
 
 #. Translators: Low/Mid/High/Critical are usage-severity tier names.
-#: prefs.js:262 compat/gnome42/prefsWindow.js:280
+#: prefs.js:272 compat/gnome42/prefsWindow.js:295
 msgid "Low"
 msgstr ""
 
-#: prefs.js:263 compat/gnome42/prefsWindow.js:281
+#: prefs.js:273 compat/gnome42/prefsWindow.js:296
 msgid "Mid"
 msgstr ""
 
-#: prefs.js:264 compat/gnome42/prefsWindow.js:282
+#: prefs.js:274 compat/gnome42/prefsWindow.js:297
 msgid "High"
 msgstr ""
 
-#: prefs.js:265 compat/gnome42/prefsWindow.js:283
+#: prefs.js:275 compat/gnome42/prefsWindow.js:298
 msgid "Critical"
 msgstr ""
 
-#: prefs.js:275 compat/gnome42/prefsWindow.js:293
+#: prefs.js:285 compat/gnome42/prefsWindow.js:308
 msgid "Refresh"
 msgstr ""
 
 #. Translators: %d is the minimum refresh interval in seconds.
-#: prefs.js:277 compat/gnome42/prefsWindow.js:295
+#: prefs.js:287 compat/gnome42/prefsWindow.js:310
 #, javascript-format
 msgid "Minimum %d s: the upstream endpoints rate-limit below that."
 msgstr ""
 
-#: prefs.js:286 compat/gnome42/prefsWindow.js:303
+#: prefs.js:296 compat/gnome42/prefsWindow.js:318
 msgid "Refresh interval (seconds)"
 msgstr ""
 
-#: prefs.js:309 compat/gnome42/prefsWindow.js:323
+#: prefs.js:319 compat/gnome42/prefsWindow.js:338
 msgid "Notifications"
 msgstr ""
 
-#: prefs.js:310 compat/gnome42/prefsWindow.js:324
+#: prefs.js:320 compat/gnome42/prefsWindow.js:339
 msgid ""
 "Show a desktop notification the first time a usage window reaches the "
 "threshold. It re-arms when usage drops 7 points below it or the window "
 "resets, and warns 48 hours before a reset credit expires."
 msgstr ""
 
-#: prefs.js:312 compat/gnome42/prefsWindow.js:326
+#: prefs.js:322 compat/gnome42/prefsWindow.js:341
 msgid "Notify on high usage"
 msgstr ""
 
-#: prefs.js:320 compat/gnome42/prefsWindow.js:333
+#: prefs.js:330 compat/gnome42/prefsWindow.js:348
 msgid "Notification threshold (%)"
 msgstr ""
 
-#: prefs.js:342 compat/gnome42/prefsWindow.js:352
+#: prefs.js:352 compat/gnome42/prefsWindow.js:367
 msgid "Updates"
 msgstr ""
 
-#: prefs.js:343 compat/gnome42/prefsWindow.js:353
+#: prefs.js:353 compat/gnome42/prefsWindow.js:368
 msgid "Check for updates"
 msgstr ""
 
-#: prefs.js:344 compat/gnome42/prefsWindow.js:354
+#: prefs.js:354 compat/gnome42/prefsWindow.js:369
 msgid "Once a day, ask GitHub whether a newer release exists"
 msgstr ""
 
-#: prefs.js:348 prefs.js:377 compat/gnome42/prefsWindow.js:358
-#: compat/gnome42/prefsWindow.js:363 compat/gnome42/prefsWindow.js:396
+#: prefs.js:358 prefs.js:387 compat/gnome42/prefsWindow.js:373
+#: compat/gnome42/prefsWindow.js:378 compat/gnome42/prefsWindow.js:411
 msgid "Reset"
 msgstr ""
 
-#: prefs.js:349 compat/gnome42/prefsWindow.js:359
+#: prefs.js:359 compat/gnome42/prefsWindow.js:374
 msgid ""
 "Restore every setting (vendor toggles, paths, keys, formats, and colors) to "
 "its built-in default."
 msgstr ""
 
-#: prefs.js:351 compat/gnome42/prefsWindow.js:361
+#: prefs.js:361 compat/gnome42/prefsWindow.js:376
 msgid "Reset all settings"
 msgstr ""
 
-#: prefs.js:373 compat/gnome42/prefsWindow.js:392
+#: prefs.js:383 compat/gnome42/prefsWindow.js:407
 msgid "Reset all settings?"
 msgstr ""
 
-#: prefs.js:374 compat/gnome42/prefsWindow.js:393
+#: prefs.js:384 compat/gnome42/prefsWindow.js:408
 msgid ""
 "This restores every setting to its built-in default and cannot be undone."
 msgstr ""
 
-#: prefs.js:376 prefs.js:711 compat/gnome42/prefsWindow.js:395
-#: compat/gnome42/prefsWindow.js:743
+#: prefs.js:386 prefs.js:721 compat/gnome42/prefsWindow.js:410
+#: compat/gnome42/prefsWindow.js:758
 msgid "Cancel"
 msgstr ""
 
 #. Translators: "Anthropic" is a brand name, usually keep untranslated.
-#: prefs.js:397 compat/gnome42/prefsWindow.js:416
+#: prefs.js:407 compat/gnome42/prefsWindow.js:431
 msgid "Anthropic"
 msgstr ""
 
-#: prefs.js:398 compat/gnome42/prefsWindow.js:417
+#: prefs.js:408 compat/gnome42/prefsWindow.js:432
 msgid "Credentials path: empty uses ~/.claude/.credentials.json."
 msgstr ""
 
-#: prefs.js:400 prefs.js:431 prefs.js:444 prefs.js:459 prefs.js:473
-#: prefs.js:487 prefs.js:501 prefs.js:516 compat/gnome42/prefsWindow.js:419
-#: compat/gnome42/prefsWindow.js:447 compat/gnome42/prefsWindow.js:460
-#: compat/gnome42/prefsWindow.js:475 compat/gnome42/prefsWindow.js:489
-#: compat/gnome42/prefsWindow.js:503 compat/gnome42/prefsWindow.js:517
-#: compat/gnome42/prefsWindow.js:532
+#: prefs.js:410 prefs.js:441 prefs.js:454 prefs.js:469 prefs.js:483
+#: prefs.js:497 prefs.js:511 prefs.js:526 compat/gnome42/prefsWindow.js:434
+#: compat/gnome42/prefsWindow.js:462 compat/gnome42/prefsWindow.js:475
+#: compat/gnome42/prefsWindow.js:490 compat/gnome42/prefsWindow.js:504
+#: compat/gnome42/prefsWindow.js:518 compat/gnome42/prefsWindow.js:532
+#: compat/gnome42/prefsWindow.js:547
 msgid "Enabled"
 msgstr ""
 
-#: prefs.js:401 compat/gnome42/prefsWindow.js:420
+#: prefs.js:411 compat/gnome42/prefsWindow.js:435
 msgid "Credentials path"
 msgstr ""
 
-#: prefs.js:405 compat/gnome42/prefsWindow.js:424
+#: prefs.js:415 compat/gnome42/prefsWindow.js:439
 msgid "Context monitor"
 msgstr ""
 
-#: prefs.js:406 compat/gnome42/prefsWindow.js:425
+#: prefs.js:416 compat/gnome42/prefsWindow.js:440
 msgid ""
 "Lists recent Claude Code sessions in the Claude section, with how much of "
 "the context window each one used. Transcripts are read only while this is on."
 msgstr ""
 
-#: prefs.js:408 compat/gnome42/prefsWindow.js:427
+#: prefs.js:418 compat/gnome42/prefsWindow.js:442
 msgid "Show session context"
 msgstr ""
 
-#: prefs.js:409 compat/gnome42/prefsWindow.js:428
+#: prefs.js:419 compat/gnome42/prefsWindow.js:443
 msgid "Projects directory (empty: ~/.claude/projects)"
 msgstr ""
 
-#: prefs.js:412 compat/gnome42/prefsWindow.js:431
+#: prefs.js:422 compat/gnome42/prefsWindow.js:446
 msgid "Default context window (tokens)"
 msgstr ""
 
-#: prefs.js:413 compat/gnome42/prefsWindow.js:432
+#: prefs.js:423 compat/gnome42/prefsWindow.js:447
 msgid "0 shows raw token counts instead of a percentage"
 msgstr ""
 
-#: prefs.js:419 compat/gnome42/prefsWindow.js:435
+#: prefs.js:429 compat/gnome42/prefsWindow.js:450
 msgid "Window per model (JSON, e.g. {\"claude-opus-5\": 1000000})"
 msgstr ""
 
 #. Translators: "OpenAI" is a brand name, usually keep untranslated.
-#: prefs.js:428 compat/gnome42/prefsWindow.js:444
+#: prefs.js:438 compat/gnome42/prefsWindow.js:459
 msgid "OpenAI"
 msgstr ""
 
-#: prefs.js:429 compat/gnome42/prefsWindow.js:445
+#: prefs.js:439 compat/gnome42/prefsWindow.js:460
 msgid "Codex auth path: empty uses ~/.codex/auth.json."
 msgstr ""
 
-#: prefs.js:432 compat/gnome42/prefsWindow.js:448
+#: prefs.js:442 compat/gnome42/prefsWindow.js:463
 msgid "Codex auth path"
 msgstr ""
 
 #. Translators: "Z.AI" is a brand name, usually keep untranslated.
-#: prefs.js:441 compat/gnome42/prefsWindow.js:457
+#: prefs.js:451 compat/gnome42/prefsWindow.js:472
 msgid "Z.AI"
 msgstr ""
 
-#: prefs.js:442 prefs.js:457 compat/gnome42/prefsWindow.js:458
-#: compat/gnome42/prefsWindow.js:473
+#: prefs.js:452 prefs.js:467 compat/gnome42/prefsWindow.js:473
+#: compat/gnome42/prefsWindow.js:488
 msgid "Set the API key inline or via the environment variable (env wins)."
 msgstr ""
 
-#: prefs.js:445 prefs.js:460 prefs.js:474 prefs.js:488 prefs.js:502
-#: compat/gnome42/prefsWindow.js:461 compat/gnome42/prefsWindow.js:476
-#: compat/gnome42/prefsWindow.js:490 compat/gnome42/prefsWindow.js:504
-#: compat/gnome42/prefsWindow.js:518
+#: prefs.js:455 prefs.js:470 prefs.js:484 prefs.js:498 prefs.js:512
+#: compat/gnome42/prefsWindow.js:476 compat/gnome42/prefsWindow.js:491
+#: compat/gnome42/prefsWindow.js:505 compat/gnome42/prefsWindow.js:519
+#: compat/gnome42/prefsWindow.js:533
 msgid "API key env var"
 msgstr ""
 
-#: prefs.js:446 prefs.js:461 prefs.js:475 prefs.js:489 prefs.js:503
-#: prefs.js:527 compat/gnome42/prefsWindow.js:462
-#: compat/gnome42/prefsWindow.js:477 compat/gnome42/prefsWindow.js:491
-#: compat/gnome42/prefsWindow.js:505 compat/gnome42/prefsWindow.js:519
-#: compat/gnome42/prefsWindow.js:543
+#: prefs.js:456 prefs.js:471 prefs.js:485 prefs.js:499 prefs.js:513
+#: prefs.js:537 compat/gnome42/prefsWindow.js:477
+#: compat/gnome42/prefsWindow.js:492 compat/gnome42/prefsWindow.js:506
+#: compat/gnome42/prefsWindow.js:520 compat/gnome42/prefsWindow.js:534
+#: compat/gnome42/prefsWindow.js:558
 msgid "API key (inline)"
 msgstr ""
 
-#: prefs.js:447 compat/gnome42/prefsWindow.js:463
+#: prefs.js:457 compat/gnome42/prefsWindow.js:478
 msgid "Plan tier (lite/pro/max)"
 msgstr ""
 
 #. Translators: "OpenRouter" is a brand name, usually keep untranslated.
-#: prefs.js:456 compat/gnome42/prefsWindow.js:472
+#: prefs.js:466 compat/gnome42/prefsWindow.js:487
 msgid "OpenRouter"
 msgstr ""
 
 #. Translators: "DeepSeek" is a brand name, usually keep untranslated.
-#: prefs.js:470 compat/gnome42/prefsWindow.js:486
+#: prefs.js:480 compat/gnome42/prefsWindow.js:501
 msgid "DeepSeek"
 msgstr ""
 
-#: prefs.js:471 prefs.js:485 prefs.js:499 compat/gnome42/prefsWindow.js:487
-#: compat/gnome42/prefsWindow.js:501 compat/gnome42/prefsWindow.js:515
+#: prefs.js:481 prefs.js:495 prefs.js:509 compat/gnome42/prefsWindow.js:502
+#: compat/gnome42/prefsWindow.js:516 compat/gnome42/prefsWindow.js:530
 msgid "Disabled by default; requires an API key (env var or inline)."
 msgstr ""
 
 #. Translators: "Kimi" is a brand name, usually keep untranslated.
-#: prefs.js:484 compat/gnome42/prefsWindow.js:500
+#: prefs.js:494 compat/gnome42/prefsWindow.js:515
 msgid "Kimi"
 msgstr ""
 
 #. Translators: "Ollama" is a brand name, usually keep untranslated.
-#: prefs.js:498 compat/gnome42/prefsWindow.js:514
+#: prefs.js:508 compat/gnome42/prefsWindow.js:529
 msgid "Ollama Cloud"
 msgstr ""
 
-#: prefs.js:504 compat/gnome42/prefsWindow.js:520
+#: prefs.js:514 compat/gnome42/prefsWindow.js:535
 msgid "Plan name (optional)"
 msgstr ""
 
-#: prefs.js:514 compat/gnome42/prefsWindow.js:530
+#: prefs.js:524 compat/gnome42/prefsWindow.js:545
 msgid ""
 "Any HTTPS endpoint that answers a GET with JSON, mapped to usage rows by "
 "JSON Pointer. See the README for an example."
 msgstr ""
 
-#: prefs.js:517 compat/gnome42/prefsWindow.js:533
+#: prefs.js:527 compat/gnome42/prefsWindow.js:548
 msgid "Name"
 msgstr ""
 
-#: prefs.js:518 compat/gnome42/prefsWindow.js:534
+#: prefs.js:528 compat/gnome42/prefsWindow.js:549
 msgid "URL"
 msgstr ""
 
-#: prefs.js:519 compat/gnome42/prefsWindow.js:535
+#: prefs.js:529 compat/gnome42/prefsWindow.js:550
 msgid "Allow plain HTTP"
 msgstr ""
 
-#: prefs.js:523 compat/gnome42/prefsWindow.js:539
+#: prefs.js:533 compat/gnome42/prefsWindow.js:554
 msgid "Authentication"
 msgstr ""
 
-#: prefs.js:524 compat/gnome42/prefsWindow.js:540
+#: prefs.js:534 compat/gnome42/prefsWindow.js:555
 msgid ""
 "Without a key no auth header is sent. An empty scheme sends the key bare."
 msgstr ""
 
-#: prefs.js:526 compat/gnome42/prefsWindow.js:542
+#: prefs.js:536 compat/gnome42/prefsWindow.js:557
 msgid "API key env var (optional)"
 msgstr ""
 
-#: prefs.js:528 compat/gnome42/prefsWindow.js:544
+#: prefs.js:538 compat/gnome42/prefsWindow.js:559
 msgid "Auth header"
 msgstr ""
 
-#: prefs.js:529 compat/gnome42/prefsWindow.js:545
+#: prefs.js:539 compat/gnome42/prefsWindow.js:560
 msgid "Auth scheme"
 msgstr ""
 
-#: prefs.js:533 compat/gnome42/prefsWindow.js:549
+#: prefs.js:543 compat/gnome42/prefsWindow.js:564
 msgid "Extra headers"
 msgstr ""
 
-#: prefs.js:534 compat/gnome42/prefsWindow.js:550
+#: prefs.js:544 compat/gnome42/prefsWindow.js:565
 msgid ""
 "A JSON object of header names to string values; it must not repeat the auth "
 "header."
 msgstr ""
 
-#: prefs.js:539 compat/gnome42/prefsWindow.js:555
+#: prefs.js:549 compat/gnome42/prefsWindow.js:570
 msgid ""
 "Not a JSON object of string header values, or it repeats the auth header."
 msgstr ""
 
-#: prefs.js:545 compat/gnome42/prefsWindow.js:561
+#: prefs.js:555 compat/gnome42/prefsWindow.js:576
 msgid "Mapping"
 msgstr ""
 
-#: prefs.js:546 compat/gnome42/prefsWindow.js:562
+#: prefs.js:556 compat/gnome42/prefsWindow.js:577
 msgid ""
 "Metrics (used + limit, or percent) and texts, each read from the response by "
 "JSON Pointer. Saved when the editor loses focus and the mapping is valid."
 msgstr ""
 
-#: prefs.js:553 compat/gnome42/prefsWindow.js:569
+#: prefs.js:563 compat/gnome42/prefsWindow.js:584
 #, javascript-format
 msgid "Not valid JSON: %s"
 msgstr ""
 
-#: prefs.js:632 prefs.js:680 compat/gnome42/prefsWindow.js:662
-#: compat/gnome42/prefsWindow.js:710
+#: prefs.js:642 prefs.js:690 compat/gnome42/prefsWindow.js:677
+#: compat/gnome42/prefsWindow.js:725
 msgid "Reset to default"
 msgstr ""
 
-#: prefs.js:673 compat/gnome42/prefsWindow.js:703
+#: prefs.js:683 compat/gnome42/prefsWindow.js:718
 msgid "Disabled"
 msgstr ""
 
-#: prefs.js:708 compat/gnome42/prefsWindow.js:740
+#: prefs.js:718 compat/gnome42/prefsWindow.js:755
 msgid "Set shortcut"
 msgstr ""
 
-#: prefs.js:709 compat/gnome42/prefsWindow.js:741
+#: prefs.js:719 compat/gnome42/prefsWindow.js:756
 msgid "Press the new shortcut for opening the popup, or Esc to cancel."
 msgstr ""
 
-#: prefs.js:712 compat/gnome42/prefsWindow.js:744
+#: prefs.js:722 compat/gnome42/prefsWindow.js:759
 msgid "Disable"
 msgstr ""
 
 #: ui/indicator.js:93
-msgid "No vendors enabled"
+msgid "No panel vendors selected"
 msgstr ""
 
 #: ui/indicator.js:114
@@ -894,7 +889,7 @@ msgstr ""
 msgid "No data: use \"Refresh all\""
 msgstr ""
 
-#: ui/indicator.js:344 ui/indicator.js:583
+#: ui/indicator.js:344 ui/indicator.js:584
 msgid "Loading…"
 msgstr ""
 
@@ -904,6 +899,6 @@ msgstr ""
 msgid "Update available: %s"
 msgstr ""
 
-#: compat/gnome42/prefsWindow.js:86
+#: compat/gnome42/prefsWindow.js:87
 msgid "Back"
 msgstr ""

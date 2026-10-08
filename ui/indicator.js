@@ -90,7 +90,7 @@ class Indicator extends PanelMenu.Button {
         this._panelItems = new Map(); // vendorId -> {box, icon, tag, label}
         this._box = new St.BoxLayout({style_class: 'panel-status-menu-box aiusagebar-panel-vendors'});
         this._emptyLabel = new St.Label({
-            text: _('No vendors enabled'),
+            text: _('No panel vendors selected'),
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._box.add_child(this._emptyLabel);
@@ -206,13 +206,13 @@ class Indicator extends PanelMenu.Button {
 
         const activeChanged = normalizeActive(config) !== this._activeId;
         const vendorsChanged = enabledVendors(config).join(',') !== enabledVendors(this._config).join(',');
-        const modeChanged = config.showAllVendors !== this._config.showAllVendors;
+        const panelSelectionChanged = panelVendors(config).join(',') !== panelVendors(this._config).join(',');
         this._syncConfig(config);
         if (key.startsWith('color-'))
             this._rebuildTheme();
         this._reRenderAllSections();
 
-        if (vendorsChanged || modeChanged) {
+        if (vendorsChanged || panelSelectionChanged) {
             this._refresh().catch(e => console.warn(`ai-usagebar: refresh failed: ${e}`));
         } else if (activeChanged && isEnabled(config, this._activeId)) {
             this._refreshVendor(this._activeId, config)
@@ -574,7 +574,8 @@ class Indicator extends PanelMenu.Button {
         const res = this._results.get(id);
         if (res?.ok) {
             const adapter = getAdapter(id);
-            let text = substitute(this._barFormat, adapter.placeholders(res.snapshot, new Date(), ngettext));
+            const format = this._config.vendorBarFormats[id] || this._barFormat;
+            let text = substitute(format, adapter.placeholders(res.snapshot, new Date(), ngettext));
             if (res.stale)
                 text += STALE_MARK;
             item.label.text = text;

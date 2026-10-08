@@ -130,10 +130,11 @@ trailing `⏸` when stale); the **popup sub-section** = `adapter.buildSection(..
 widgets laid out as a libadwaita boxed-list card; loading/error states get a
 single message row.
 
-With `show-all-vendors` enabled (the default), every enabled vendor has its own
-panel badge/label and is polled on the timer. `panelVendors(config)` supplies both
-the displayed and polled list; in single-vendor mode it resolves only the active
-vendor, and when all vendors are disabled it returns an empty list.
+`panel-vendors` stores the selected panel vendor IDs. `panelVendors(config)`
+filters that list by the enabled vendors in canonical order, then supplies both
+the displayed and polled list. A selected vendor's empty `bar-format-<id>` value
+inherits `bar-format`. On the first enable after upgrade, `legacyPanelVendors()`
+converts the old `show-all-vendors` setting into the new selection.
 `lib/fetch-guard.js` provides one fetch slot per vendor, coalescing overlapping
 requests without blocking another vendor. The results map retains each vendor's
 last result. Clicking a panel label selects its popup section; scrolling cycles

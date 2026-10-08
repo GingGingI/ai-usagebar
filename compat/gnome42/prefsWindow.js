@@ -11,7 +11,8 @@ import {rgbToHex} from './lib/color.js';
 import {vformat} from './lib/format.js';
 import {defaultTheme} from './lib/theme.js';
 import {prefsNav, prefsNavItems} from './lib/prefs-nav.js';
-import {VENDOR_LABELS} from './lib/vendors.js';
+import {bindPanelVendor, bindPanelLabelVisibility} from './lib/panel-prefs.js';
+import {VENDOR_IDS, VENDOR_LABELS} from './lib/vendors.js';
 import {parseExtraHeaders, validateMapping} from './lib/vendors/custom/parser.js';
 
 const INTERVAL_MIN = 300;
@@ -202,18 +203,32 @@ export default class AiUsagebarPreferences {
         positionGroup.add(indexRow);
         page.add(positionGroup);
 
-        const vendorsGroup = new Adw.PreferencesGroup({title: _('Panel vendors')});
-        vendorsGroup.add(this._switchRow(settings, 'show-all-vendors', _('Show all enabled vendors'),
-            _('Display and automatically refresh every enabled vendor. Click a vendor to open its details.')));
+        const vendorsGroup = new Adw.PreferencesGroup({
+            title: _('Panel vendors'),
+            description: _('Select the vendors to show and refresh on the panel.'),
+        });
+        VENDOR_IDS.forEach((id, index) => {
+            const row = new Adw.ActionRow({title: VENDOR_LABELS[index]});
+            const toggle = new Gtk.Switch({valign: Gtk.Align.CENTER});
+            row.add_suffix(toggle);
+            row.set_activatable_widget(toggle);
+            bindPanelVendor(settings, id, toggle, cleanups);
+            vendorsGroup.add(row);
+        });
         page.add(vendorsGroup);
 
         const labelGroup = new Adw.PreferencesGroup({
             title: _('Panel label'),
             // Translators: the {token} names are literal placeholders the user
             // types: keep them verbatim, only translate the surrounding prose.
-            description: _('Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}'),
+            description: _('Leave a vendor label empty to use the default label. Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}'),
         });
-        labelGroup.add(this._entryRow(settings, 'bar-format', _('Bar format')));
+        labelGroup.add(this._entryRow(settings, 'bar-format', _('Default label')));
+        for (const [index, id] of VENDOR_IDS.entries()) {
+            const row = this._entryRow(settings, `bar-format-${id}`, VENDOR_LABELS[index]);
+            bindPanelLabelVisibility(settings, id, row, cleanups);
+            labelGroup.add(row);
+        }
         page.add(labelGroup);
 
         return page;

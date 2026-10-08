@@ -937,3 +937,15 @@ msgstr "Sélectionné par défaut dans le menu ; affiché dans le panneau lorsqu
 
 msgid "Show all enabled vendors"
 msgstr "Afficher tous les fournisseurs activés"
+
+msgid "Default label"
+msgstr "Libellé par défaut"
+
+msgid "Leave a vendor label empty to use the default label. Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}"
+msgstr "Laissez le libellé d’un fournisseur vide pour utiliser le libellé par défaut. Variables : {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}"
+
+msgid "No panel vendors selected"
+msgstr "Aucun fournisseur sélectionné pour le panneau"
+
+msgid "Select the vendors to show and refresh on the panel."
+msgstr "Sélectionnez les fournisseurs à afficher et à actualiser dans le panneau."

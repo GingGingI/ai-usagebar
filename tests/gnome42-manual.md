@@ -29,10 +29,13 @@ Check the following inside the test Shell:
   logo and synthetic 23% usage.
 - Clicking a vendor opens the popup with that vendor's section expanded.
 - Scrolling selects another section while all panel labels remain visible.
-- Preferences > Panel > Show all enabled vendors toggles between all vendors
-  and the selected vendor. Vendor enable switches update the panel immediately.
+- Preferences > Panel lists all vendors. Deselecting one removes only that
+  vendor from the panel; selecting a disabled one also enables it.
+- Preferences > Panel label shows a default label and a field for each selected
+  vendor. Empty fields inherit the default; a custom template changes only its
+  vendor's panel label.
 - Preferences > Display > Show vendor logos replaces logos with short codes.
-- Disabling all vendors shows "No vendors enabled" and does not fetch anything.
+- Deselecting all vendors shows "No panel vendors selected" and does not fetch.
 - Closing the popup leaves the panel countdowns updating once a minute.
 - Disabling and re-enabling the extension does not leave timers or actors behind.
 
@@ -44,7 +47,7 @@ isolated XDG profile above, synthetic usage, and
 A temporary test extension allowed D-Bus `org.gnome.Shell.Eval` only in that
 isolated Shell. Shell screenshots confirmed four logos and separate usage labels.
 A virtual pointer click on OpenRouter opened the popup and expanded OpenRouter.
-Single-vendor mode, vendor disabling, short-code display, an injected error,
+The previous single-vendor mode, vendor disabling, short-code display, an injected error,
 all-disabled configuration and disable/re-enable were checked in the Shell.
 The injected Anthropic error displayed a warning only for Anthropic; the other
 labels retained their usage. Preferences were rendered with GTK 4.6 and
@@ -57,3 +60,14 @@ across 57 files. `make lint`, ESLint with Node 22, `make validate`,
 Modern GNOME 47–51 Shell UI was not available for a live rendering check.
 Synthetic snapshots were used for Shell rendering, so these checks do not
 verify real vendor credentials or network quotas.
+
+The panel selection and custom-label follow-up was checked in the same isolated
+GNOME 42 Shell. Selecting Anthropic and OpenAI showed only those two panel
+items, with OpenAI's custom label (`{weekly_pct}% weekly`) and Anthropic's
+default label (`{session_pct}%`) rendered from synthetic usage. Selecting only
+OpenAI removed Anthropic, and selecting none displayed the empty-panel text.
+In the actual GTK preferences window, deselecting OpenAI removed it from the
+panel; selecting disabled DeepSeek enabled it and added its panel item. The
+Panel label group displayed the default field and only Anthropic and DeepSeek
+custom fields after that selection. Both test suites passed 1,232 tests across
+58 files for this follow-up.

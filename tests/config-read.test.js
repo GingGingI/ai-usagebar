@@ -39,6 +39,10 @@ describe('readConfig: schema defaults', () => {
     });
     it('default bar format', () =>
         assertEqual(cfg.barFormat, '{session_pct}% · {session_reset}'));
+    it('panel vendor defaults mirror the previously enabled vendors', () =>
+        assertEqual(JSON.stringify(cfg.panelVendorIds), '["anthropic","openai","zai","openrouter"]'));
+    it('vendor labels use the default when empty', () =>
+        assertEqual(cfg.vendorBarFormats.openai, ''));
     it('primary vendor defaults to anthropic', () => assertEqual(cfg.primaryVendor, 'anthropic'));
     it('anthropic enabled by default', () => assertEqual(cfg.vendors.anthropic.enabled, true));
     it('anthropic creds path unset → null', () => assertEqual(cfg.vendors.anthropic.credentialsPath, null));
@@ -89,6 +93,8 @@ describe('readConfig: overrides', () => {
     settings.set_string('active-vendor', 'zai');
     settings.set_boolean('show-pace-marker', true);
     settings.set_boolean('show-all-vendors', false);
+    settings.set_strv('panel-vendors', ['anthropic', 'openai']);
+    settings.set_string('bar-format-openai', '{weekly_pct}%');
     settings.set_int('refresh-interval', 600);
     settings.set_boolean('deepseek-enabled', true);
     settings.set_boolean('notify-enabled', true);
@@ -111,7 +117,10 @@ describe('readConfig: overrides', () => {
         assertEqual(cfg.vendors.deepseek.apiKey, 'dsk'));
     it('honors the active-vendor override', () => assertEqual(cfg.activeVendor, 'zai'));
     it('honors the pace-marker toggle', () => assertEqual(cfg.showPaceMarker, true));
-    it('honors single-vendor panel mode', () => assertEqual(cfg.showAllVendors, false));
+    it('reads the legacy panel mode for migration', () => assertEqual(cfg.showAllVendors, false));
+    it('honors the selected panel vendors', () =>
+        assertEqual(JSON.stringify(cfg.panelVendorIds), '["anthropic","openai"]'));
+    it('honors a vendor-specific label', () => assertEqual(cfg.vendorBarFormats.openai, '{weekly_pct}%'));
     it('honors the refresh-interval override', () => assertEqual(cfg.refreshIntervalSecs, 600));
     it('honors a vendor enable toggle', () => assertEqual(cfg.vendors.deepseek.enabled, true));
     it('honors the notify-enabled toggle', () => assertEqual(cfg.notifications.enabled, true));

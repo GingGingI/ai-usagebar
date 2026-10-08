@@ -8,6 +8,7 @@ import {
     normalizePrimary,
     normalizeActive,
     panelVendors,
+    legacyPanelVendors,
     cycleVendor,
 } from '../lib/config-resolve.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
@@ -25,6 +26,7 @@ function snapshot(overrides = {}) {
         primaryVendor: overrides.primaryVendor ?? 'anthropic',
         activeVendor: overrides.activeVendor ?? '',
         showAllVendors: overrides.showAllVendors ?? true,
+        panelVendorIds: overrides.panelVendorIds ?? ['anthropic', 'openai', 'zai', 'openrouter'],
         vendors: {
             anthropic: {enabled: enabled.anthropic},
             openai: {enabled: enabled.openai},
@@ -159,23 +161,38 @@ describe('cycleVendor', () => {
 });
 
 describe('panelVendors', () => {
-    it('shows every enabled vendor in canonical order', () => {
+    it('shows the selected enabled vendors in canonical order', () => {
         assertDeepEqual(panelVendors(snapshot({activeVendor: 'zai'})),
             ['anthropic', 'openai', 'zai', 'openrouter']);
     });
-    it('single-vendor mode follows the active vendor', () => {
-        assertDeepEqual(panelVendors(snapshot({showAllVendors: false, activeVendor: 'openai'})), ['openai']);
+    it('selection can show one vendor independently of the active vendor', () => {
+        assertDeepEqual(panelVendors(snapshot({panelVendorIds: ['openai'], activeVendor: 'zai'})), ['openai']);
     });
-    it('single-vendor mode resolves a disabled selection', () => {
-        assertDeepEqual(panelVendors(snapshot({showAllVendors: false, activeVendor: 'deepseek'})), ['anthropic']);
+    it('selection order does not alter the canonical panel order', () => {
+        assertDeepEqual(panelVendors(snapshot({panelVendorIds: ['openrouter', 'anthropic']})),
+            ['anthropic', 'openrouter']);
     });
-    it('disabling a vendor removes it from the displayed and polled list', () => {
-        assertDeepEqual(panelVendors(snapshot({enabled: {anthropic: false, zai: false}})), ['openai', 'openrouter']);
+    it('disabled selections do not appear or poll', () => {
+        assertDeepEqual(panelVendors(snapshot({panelVendorIds: ['anthropic', 'zai'], enabled: {zai: false}})),
+            ['anthropic']);
     });
-    it('all-disabled configurations have no panel fetch targets in either mode', () => {
+    it('empty and all-disabled selections have no panel fetch targets', () => {
         const enabled = {anthropic: false, openai: false, zai: false, openrouter: false, deepseek: false};
+        assertDeepEqual(panelVendors(snapshot({panelVendorIds: []})), []);
         assertDeepEqual(panelVendors(snapshot({enabled})), []);
-        assertDeepEqual(panelVendors(snapshot({enabled, showAllVendors: false})), []);
+    });
+    it('unknown and duplicate ids are ignored', () => {
+        assertDeepEqual(panelVendors(snapshot({panelVendorIds: ['openai', 'openai', 'unknown']})), ['openai']);
+    });
+});
+
+describe('legacyPanelVendors', () => {
+    it('migrates the previous all-vendor mode', () => {
+        assertDeepEqual(legacyPanelVendors(snapshot({showAllVendors: true})),
+            ['anthropic', 'openai', 'zai', 'openrouter']);
+    });
+    it('migrates the previous single-vendor mode', () => {
+        assertDeepEqual(legacyPanelVendors(snapshot({showAllVendors: false, activeVendor: 'zai'})), ['zai']);
     });
 });
 
