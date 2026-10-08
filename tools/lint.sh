@@ -9,7 +9,7 @@ set -u
 
 fail=0
 
-scan_dirs=(lib tests tools ui)
+scan_dirs=(lib tests tools ui compat)
 root_files=()
 for f in extension.js prefs.js; do
     [ -f "$f" ] && root_files+=("$f")
@@ -23,7 +23,8 @@ for f in $files; do
     fi
 done
 
-if grep -RnE --include='*.js' '(^|[^a-zA-Z_.])imports\.' lib tests tools ui "${root_files[@]}" 2>/dev/null; then
+# Legacy imports are confined to the explicit GNOME 42 compatibility sources.
+if grep -RnE --include='*.js' '(^|[^a-zA-Z_.])imports\.' lib tests tools ui compat/shell.js "${root_files[@]}" 2>/dev/null; then
     echo "FOUND LEGACY imports.* USAGE (see above)"
     fail=1
 fi

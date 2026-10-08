@@ -19,7 +19,7 @@ try {
     system.exit(1);
 }
 
-const missing = REQUIRED.filter(k => !Object.hasOwn(meta, k));
+const missing = REQUIRED.filter(k => !Object.prototype.hasOwnProperty.call(meta, k));
 if (missing.length) {
     printerr(`validate: ${PATH} missing required keys: ${missing.join(', ')}`);
     system.exit(1);

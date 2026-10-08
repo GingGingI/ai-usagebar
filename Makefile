@@ -8,6 +8,7 @@ help:
 	@echo "  reload          Disable then enable in one step"
 	@echo "  logs            Tail gnome-shell logs (journalctl -f)"
 	@echo "  test            Run the gjs unit-test suite (tests/run.js)"
+	@echo "  test-gnome42    Run the suite against the GNOME 42 build and libsoup 2.4"
 	@echo "  lint            Check trailing newline + no imports.* in JS files"
 	@echo "  eslint          Run eslint (GNOME Shell style); needs 'npm ci' first"
 	@echo "  validate        Validate metadata.json + compile schema with --strict"
@@ -18,6 +19,8 @@ help:
 	@echo "  compile-locale  Compile po/*.po into locale/<lang>/LC_MESSAGES/*.mo"
 	@echo "  i18n-check      Fail on a stale .pot or a malformed po/*.po (CI gate)"
 	@echo "  pack            Build the upload zip via gnome-extensions pack (--podir=po)"
+	@echo "  build-gnome42   Stage the GNOME 42-compatible extension under build/gnome42/"
+	@echo "  pack-gnome42    Build the GNOME 42 installable zip under build/gnome42/"
 	@echo "  info            Show gnome-extensions info for $(UUID)"
 
 schemas:
@@ -64,7 +67,7 @@ run:
 	@if [ -n "$$AI_USAGEBAR_FAKE_PCT" ]; then \
 		echo "run: AI_USAGEBAR_FAKE_PCT=$$AI_USAGEBAR_FAKE_PCT, overriding usage fetch"; \
 	fi
-	dbus-run-session -- gnome-shell --wayland --devkit
+	dbus-run-session -- gnome-shell --wayland --nested
 
 # Extract every marked string into the tracked .pot template.
 pot:
@@ -84,10 +87,20 @@ i18n-check:
 
 # pack bundles only a fixed top-level set, so lib/ and ui/ need --extra-source; --podir=po ships the .mo files.
 pack: schemas
-	gnome-extensions pack . --extra-source=lib --extra-source=ui --extra-source=icons --podir=po --force
+	gnome-extensions pack . --extra-source=lib --extra-source=ui --extra-source=icons --extra-source=compat --podir=po --force
+
+build-gnome42:
+	@./tools/build-gnome42.sh
+
+test-gnome42: build-gnome42
+	cp -R tests build/gnome42/$(UUID)/
+	gjs -m build/gnome42/$(UUID)/tests/run.js
+
+pack-gnome42: build-gnome42
+	gnome-extensions pack build/gnome42/$(UUID) --extra-source=main.js --extra-source=prefsWindow.js --extra-source=lib --extra-source=ui --extra-source=icons --extra-source=compat --podir="$(CURDIR)/po" --out-dir=build/gnome42 --force
 
 info:
 	gnome-extensions info $(UUID)
 
 .PHONY: help schemas enable disable reload logs test lint eslint validate watch \
-	run pot update-po compile-locale i18n-check pack info
+	run pot update-po compile-locale i18n-check pack build-gnome42 test-gnome42 pack-gnome42 info

@@ -17,7 +17,7 @@
     <key name="primary-vendor" enum="org.gnome.shell.extensions.ai-usagebar.vendor">
       <default>'anthropic'</default>
       <summary>Primary vendor shown on the panel</summary>
-      <description>Which vendor's usage the top-panel label displays.</description>
+      <description>The default vendor selected in the popup, and the panel vendor when Show all enabled vendors is off.</description>
     </key>
 
     <key name="active-vendor" enum="org.gnome.shell.extensions.ai-usagebar.vendor">
@@ -36,7 +36,7 @@
     <key name="bar-format" type="s">
       <default>'{session_pct}% · {session_reset}'</default>
       <summary>Panel label format template</summary>
-      <description>Template for the top-panel label. Supports {placeholder} substitution from the active vendor's value set.</description>
+      <description>Template for each vendor's top-panel label. Supports {placeholder} substitution from that vendor's value set.</description>
     </key>
 
     <key name="tooltip-format" type="s">
@@ -97,6 +97,12 @@
       <default>true</default>
       <summary>Show vendor logos</summary>
       <description>Show each vendor's logo as the panel badge and in the popup headers. Off shows the vendor's short code on the panel and a generic icon in the popup.</description>
+    </key>
+
+    <key name="show-all-vendors" type="b">
+      <default>true</default>
+      <summary>Show all enabled vendors on the panel</summary>
+      <description>Display a separate badge and usage label for every enabled vendor, and refresh them all at the configured interval. Off displays and polls only the active vendor. Click a vendor badge to open its popup section; scrolling changes the selected section.</description>
     </key>
 
     <key name="show-pace-marker" type="b">

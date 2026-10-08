@@ -19,6 +19,7 @@ POT="po/${UUID}.pot"
 # Echo the runtime *.js sources xgettext should scan (one per line, sorted).
 sources() {
     find extension.js prefs.js ui lib -name '*.js' | sort
+    find compat -name '*.js' | sort
 }
 
 # Extract all marked strings into the .pot-format file named by $1.

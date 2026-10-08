@@ -2,7 +2,7 @@ import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
 import St from 'gi://St';
 
-import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import {PopupMenu} from '../compat/shell.js';
 
 import {makeBar} from './bar.js';
 

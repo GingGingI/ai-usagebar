@@ -10,6 +10,11 @@ Z.AI/GLM, OpenRouter, DeepSeek, Kimi, Ollama Cloud**) plus a user-mapped
 **custom provider**. It is a port of the Rust Waybar widget
 [ai-usagebar](https://github.com/akitaonrails/ai-usagebar) by akitaonrails.
 
+GNOME 42 is supported by a separate staged package (`make pack-gnome42`).
+`compat/gnome42/` holds its legacy entry points, GTK preferences and libsoup 2.4
+backend; `tools/build-gnome42.sh` overlays them onto the shared modules. The
+source package remains GNOME 47–51 ESM.
+
 The extension is fully built: panel indicator, per-vendor fetch + OAuth refresh,
 scroll-to-cycle, a collapsible multi-vendor popup, and a prefs window. This repo
 IS the installed extension (it lives under
@@ -23,6 +28,8 @@ The `Makefile` is the canonical dev loop: prefer these targets over raw
 
 ```bash
 make test      # gjs -m tests/run.js: pure-JS unit suite (compiles schema first)
+make test-gnome42 # same suite using the GNOME 42 package and libsoup 2.4
+make pack-gnome42 # installable GNOME 42 zip under build/gnome42/
 make lint      # tools/lint.sh: trailing-newline + no imports.* + no SPDX header
 make eslint    # npx eslint .: GNOME Shell flat config (needs `npm ci` first)
 make validate  # tools/validate.sh: metadata.json + schema --strict
@@ -123,14 +130,15 @@ trailing `⏸` when stale); the **popup sub-section** = `adapter.buildSection(..
 widgets laid out as a libadwaita boxed-list card; loading/error states get a
 single message row.
 
-Only the **active** vendor is polled on the timer; other enabled vendors render
-from an in-memory results map, populated lazily on scroll-cycle or "Refresh all".
-`lib/fetch-guard.js` keeps one active fetch in flight, coalesces requests made
-meanwhile, and lets a vendor switch supersede a slow fetch (its late result is
-stored, never painted or notified).
-Scrolling the panel button cycles `active-vendor` among enabled vendors. While
-the popup is open a 60s timer re-renders the active section so countdowns tick
-without hitting the network.
+With `show-all-vendors` enabled (the default), every enabled vendor has its own
+panel badge/label and is polled on the timer. `panelVendors(config)` supplies both
+the displayed and polled list; in single-vendor mode it resolves only the active
+vendor, and when all vendors are disabled it returns an empty list.
+`lib/fetch-guard.js` provides one fetch slot per vendor, coalescing overlapping
+requests without blocking another vendor. The results map retains each vendor's
+last result. Clicking a panel label selects its popup section; scrolling cycles
+`active-vendor`. A 60s timer always updates panel countdowns and repaints popup
+sections while the popup is open. All timers are removed in `destroy()`.
 
 **Pace** (`lib/pacing.js` `calc()`) reports a `state`: `estimating` in the first
 1% of a window (clamped to 60 s–1 h) while usage is above zero, `limit` at
@@ -222,8 +230,9 @@ user-facing string is wrapped in `_()` (gettext) using a **plain string literal*
 as the argument, never a template literal, which `xgettext` cannot extract.
 
 - **Where `_` comes from.** gi-bound modules import the real translator:
-  `ui/indicator.js` from
-  `resource:///org/gnome/shell/extensions/extension.js`; `prefs.js` from
+  `ui/indicator.js` through `compat/shell.js` (the modern bridge exports
+  `resource:///org/gnome/shell/extensions/extension.js` and the GNOME 42 build
+  substitutes the legacy bridge); `prefs.js` from
   `resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js`. **Pure modules
   never import gettext** (it is gi-bound); see the injected-translator rule below.
 - **Injected translator (pure modules).** `lib/countdown.js`,
@@ -294,8 +303,8 @@ spot-check the other catalogs.
   commit real OAuth creds or API keys. Don't `cat` credential files; use
   `jq 'keys'`.
 - Keep API usage on the GNOME 50 ESM surface: `gi://` imports and
-  `resource:///org/gnome/shell/…`, no legacy `imports.*` syntax (the lint
-  enforces this).
+  `resource:///org/gnome/shell/…`, legacy `imports.*` syntax is allowed only under `compat/gnome42/`
+  for the GNOME 42 build. The lint enforces ESM elsewhere.
 - **Pure modules stay `gi://`-free, including gettext.** They never import the
   translator; they take an injected `_ = (s) => s` parameter (default identity)
   that the gi-bound caller supplies. User-facing text is always a plain string

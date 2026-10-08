@@ -19,16 +19,18 @@ function testsDir() {
 
 function discoverTests(dir) {
     const found = [];
-    const d = GLib.Dir.open(dir, 0);
-    let name;
-    while ((name = d.read_name()) !== null) {
+    const d = Gio.File.new_for_path(dir).enumerate_children(
+        'standard::name,standard::type', Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
+    let info;
+    while ((info = d.next_file(null)) !== null) {
+        const name = info.get_name();
         const path = GLib.build_filenamev([dir, name]);
-        if (GLib.file_test(path, GLib.FileTest.IS_DIR))
+        if (info.get_file_type() === Gio.FileType.DIRECTORY)
             found.push(...discoverTests(path));
         else if (name.endsWith('.test.js'))
             found.push(path);
     }
-    d.close();
+    d.close(null);
     found.sort();
     return found;
 }

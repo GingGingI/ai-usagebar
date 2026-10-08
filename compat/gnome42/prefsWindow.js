@@ -1,9 +1,11 @@
-import Adw from 'gi://Adw';
-import Gdk from 'gi://Gdk';
+// GNOME 42 port: written against libadwaita 1.1 / GTK 4.6, which lack the
+// entry, switch and spin rows, the navigation split view and the alert dialog.
+import Adw from 'gi://Adw?version=1';
+import Gdk from 'gi://Gdk?version=4.0';
 import Gio from 'gi://Gio';
-import Gtk from 'gi://Gtk';
+import Gtk from 'gi://Gtk?version=4.0';
 
-import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {gettext as _} from './compat/gettext.js';
 
 import {rgbToHex} from './lib/color.js';
 import {vformat} from './lib/format.js';
@@ -26,7 +28,15 @@ const COLOR_KEY_PALETTE = {
 // `fillPreferencesWindow`/the page builders), never at module top level: the
 // gettext domain is not yet bound when this module is first evaluated.
 
-export default class AiUsagebarPreferences extends ExtensionPreferences {
+export default class AiUsagebarPreferences {
+    constructor(me) {
+        this.path = me.path;
+    }
+
+    getSettings() {
+        return imports.misc.extensionUtils.getSettings();
+    }
+
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         const cleanups = [];
@@ -55,10 +65,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             pages.set(id, builders[id]());
         }
 
-        // The shell rejects a window with no visible_page, so one stays behind our content.
-        window.add(new Adw.PreferencesPage());
-        window.set_default_size(860, 640);
-        // Last: past this point the shell's own error page is no longer on screen.
+        // The placeholder page and the default size are set by prefs.js.
         window.set_content(this._buildSplitView(window, nav, pages, cleanups));
 
         window.connect('close-request', () => {
@@ -69,13 +76,19 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _buildSplitView(window, nav, pages, cleanups) {
-        const stack = new Gtk.Stack();
+        const stack = new Gtk.Stack({vexpand: true});
         for (const [id, page] of pages)
             stack.add_named(page, id);
-        const content = new Adw.NavigationPage({
-            title: window.title,
-            child: this._toolbarView(stack),
-        });
+
+        const leaflet = new Adw.Leaflet({can_navigate_back: true});
+
+        const contentTitle = new Adw.WindowTitle({title: window.title ?? ''});
+        const back = new Gtk.Button({icon_name: 'go-previous-symbolic', tooltip_text: _('Back')});
+        const contentBar = new Adw.HeaderBar({title_widget: contentTitle});
+        contentBar.pack_start(back);
+        const content = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, hexpand: true});
+        content.append(contentBar);
+        content.append(stack);
 
         const items = prefsNavItems(nav);
         const sectionTitles = new Map();
@@ -98,43 +111,52 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
                 css_classes: ['caption-heading', 'dim-label'],
             }) : null);
         });
-        const sidebar = new Adw.NavigationPage({
-            title: window.title,
-            child: this._toolbarView(new Gtk.ScrolledWindow({
-                hscrollbar_policy: Gtk.PolicyType.NEVER,
-                child: list,
-            })),
+        const sidebarBar = new Adw.HeaderBar({
+            title_widget: new Adw.WindowTitle({title: window.title ?? ''}),
         });
+        const sidebar = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, width_request: 220});
+        sidebar.append(sidebarBar);
+        sidebar.append(new Gtk.ScrolledWindow({
+            hscrollbar_policy: Gtk.PolicyType.NEVER,
+            vexpand: true,
+            child: list,
+        }));
 
-        const splitView = new Adw.NavigationSplitView({sidebar, content});
+        leaflet.append(sidebar);
+        leaflet.append(new Gtk.Separator({orientation: Gtk.Orientation.VERTICAL})).navigatable = false;
+        leaflet.append(content);
+
+        // Side by side each pane keeps half of the window buttons; folded,
+        // the pane on screen carries them all and the content gets a way back.
+        const syncFolded = () => {
+            const folded = leaflet.folded;
+            back.visible = folded;
+            sidebarBar.show_end_title_buttons = folded;
+            contentBar.show_start_title_buttons = folded;
+        };
+        const foldedId = leaflet.connect('notify::folded', syncFolded);
+        syncFolded();
+
         const selectedId = list.connect('row-selected', (_list, row) => {
             if (!row)
                 return;
             const item = items[row.get_index()];
             stack.set_visible_child_name(item.id);
-            content.set_title(item.title);
+            contentTitle.set_title(item.title);
         });
-        const activatedId = list.connect('row-activated', () => splitView.set_show_content(true));
+        const activatedId = list.connect('row-activated', () => leaflet.set_visible_child(content));
+        const backId = back.connect('clicked', () => leaflet.set_visible_child(sidebar));
         cleanups.push(() => {
             list.disconnect(selectedId);
             list.disconnect(activatedId);
+            back.disconnect(backId);
+            leaflet.disconnect(foldedId);
             list.set_header_func(null);
         });
         list.select_row(list.get_row_at_index(0));
+        leaflet.set_visible_child(sidebar);
 
-        const narrow = new Adw.Breakpoint({
-            condition: Adw.BreakpointCondition.parse('max-width: 560sp'),
-        });
-        narrow.add_setter(splitView, 'collapsed', true);
-        window.add_breakpoint(narrow);
-
-        return splitView;
-    }
-
-    _toolbarView(child) {
-        const view = new Adw.ToolbarView({content: child});
-        view.add_top_bar(new Adw.HeaderBar());
-        return view;
+        return leaflet;
     }
 
     _navRow(item) {
@@ -172,13 +194,11 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             settings.disconnect(boxResyncId);
         });
         positionGroup.add(boxRow);
-        const indexRow = new Adw.SpinRow({
-            title: _('Position within the area'),
-            subtitle: _('0 is leftmost; in the center, 0 is left of the clock and 1 right of it'),
-            adjustment: new Gtk.Adjustment({lower: 0, upper: 20, step_increment: 1, page_increment: 1}),
-            digits: 0,
-        });
-        settings.bind('panel-index', indexRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        const [indexRow, indexSpin] = this._spinRow(
+            _('Position within the area'),
+            new Gtk.Adjustment({lower: 0, upper: 20, step_increment: 1, page_increment: 1}),
+            _('0 is leftmost; in the center, 0 is left of the clock and 1 right of it'));
+        settings.bind('panel-index', indexSpin, 'value', Gio.SettingsBindFlags.DEFAULT);
         positionGroup.add(indexRow);
         page.add(positionGroup);
 
@@ -193,9 +213,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             // types: keep them verbatim, only translate the surrounding prose.
             description: _('Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}'),
         });
-        const barFormat = new Adw.EntryRow({title: _('Bar format')});
-        settings.bind('bar-format', barFormat, 'text', Gio.SettingsBindFlags.DEFAULT);
-        labelGroup.add(barFormat);
+        labelGroup.add(this._entryRow(settings, 'bar-format', _('Bar format')));
         page.add(labelGroup);
 
         return page;
@@ -282,11 +300,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             step_increment: 60,
             page_increment: 300,
         });
-        const interval = new Adw.SpinRow({
-            title: _('Refresh interval (seconds)'),
-            adjustment,
-            digits: 0,
-        });
+        const [intervalRow, interval] = this._spinRow(_('Refresh interval (seconds)'), adjustment);
         interval.set_value(settings.get_int('refresh-interval'));
         const intervalNotifyId = interval.connect('notify::value', () => {
             const v = Math.round(interval.get_value());
@@ -302,7 +316,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             interval.disconnect(intervalNotifyId);
             settings.disconnect(intervalResyncId);
         });
-        cadenceGroup.add(interval);
+        cadenceGroup.add(intervalRow);
         page.add(cadenceGroup);
 
         const notifyGroup = new Adw.PreferencesGroup({
@@ -316,11 +330,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             step_increment: 5,
             page_increment: 10,
         });
-        const threshold = new Adw.SpinRow({
-            title: _('Notification threshold (%)'),
-            adjustment: notifyAdj,
-            digits: 0,
-        });
+        const [thresholdRow, threshold] = this._spinRow(_('Notification threshold (%)'), notifyAdj);
         threshold.set_value(settings.get_int('notify-threshold'));
         const thresholdNotifyId = threshold.connect('notify::value', () => {
             const v = Math.round(threshold.get_value());
@@ -336,7 +346,7 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             threshold.disconnect(thresholdNotifyId);
             settings.disconnect(thresholdResyncId);
         });
-        notifyGroup.add(threshold);
+        notifyGroup.add(thresholdRow);
         page.add(notifyGroup);
 
         const updateGroup = new Adw.PreferencesGroup({title: _('Updates')});
@@ -348,11 +358,17 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             title: _('Reset'),
             description: _('Restore every setting (vendor toggles, paths, keys, formats, and colors) to its built-in default.'),
         });
-        const resetRow = new Adw.ButtonRow({title: _('Reset all settings')});
-        resetRow.add_css_class('destructive-action');
-        const resetActivatedId = resetRow.connect('activated', () =>
+        const resetRow = new Adw.ActionRow({title: _('Reset all settings')});
+        const resetButton = new Gtk.Button({
+            label: _('Reset'),
+            valign: Gtk.Align.CENTER,
+            css_classes: ['destructive-action'],
+        });
+        const resetActivatedId = resetButton.connect('clicked', () =>
             this._confirmResetAll(settings, resetRow.get_root()));
-        cleanups.push(() => resetRow.disconnect(resetActivatedId));
+        cleanups.push(() => resetButton.disconnect(resetActivatedId));
+        resetRow.add_suffix(resetButton);
+        resetRow.set_activatable_widget(resetButton);
         resetGroup.add(resetRow);
         page.add(resetGroup);
 
@@ -369,20 +385,23 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _confirmResetAll(settings, parent) {
-        const dialog = new Adw.AlertDialog({
-            heading: _('Reset all settings?'),
-            body: _('This restores every setting to its built-in default and cannot be undone.'),
+        const dialog = new Gtk.MessageDialog({
+            transient_for: parent,
+            modal: true,
+            message_type: Gtk.MessageType.WARNING,
+            text: _('Reset all settings?'),
+            secondary_text: _('This restores every setting to its built-in default and cannot be undone.'),
         });
-        dialog.add_response('cancel', _('Cancel'));
-        dialog.add_response('reset', _('Reset'));
-        dialog.set_response_appearance('reset', Adw.ResponseAppearance.DESTRUCTIVE);
-        dialog.set_default_response('cancel');
-        dialog.set_close_response('cancel');
+        dialog.add_button(_('Cancel'), Gtk.ResponseType.CANCEL);
+        dialog.add_button(_('Reset'), Gtk.ResponseType.ACCEPT)
+            .add_css_class('destructive-action');
+        dialog.set_default_response(Gtk.ResponseType.CANCEL);
         dialog.connect('response', (_d, response) => {
-            if (response === 'reset')
+            if (response === Gtk.ResponseType.ACCEPT)
                 this._resetAll(settings);
+            dialog.destroy();
         });
-        dialog.present(parent);
+        dialog.present();
     }
 
     _resetAll(settings) {
@@ -408,13 +427,10 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
         context.add(this._switchRow(settings, 'context-enabled', _('Show session context')));
         context.add(this._entryRow(settings, 'context-projects-path', _('Projects directory (empty: ~/.claude/projects)')));
         const windowAdj = new Gtk.Adjustment({lower: 0, upper: 100000000, step_increment: 1000, page_increment: 100000});
-        const windowRow = new Adw.SpinRow({
-            title: _('Default context window (tokens)'),
-            subtitle: _('0 shows raw token counts instead of a percentage'),
-            adjustment: windowAdj,
-            digits: 0,
-        });
-        settings.bind('context-window-tokens', windowRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        const [windowRow, windowSpin] = this._spinRow(
+            _('Default context window (tokens)'), windowAdj,
+            _('0 shows raw token counts instead of a percentage'));
+        settings.bind('context-window-tokens', windowSpin, 'value', Gio.SettingsBindFlags.DEFAULT);
         context.add(windowRow);
         context.add(this._entryRow(settings, 'context-model-windows', _('Window per model (JSON, e.g. {"claude-opus-5": 1000000})')));
         page.add(context);
@@ -609,22 +625,36 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     }
 
     _switchRow(settings, key, title, subtitle = null) {
-        const row = new Adw.SwitchRow(subtitle ? {title, subtitle} : {title});
-        settings.bind(key, row, 'active', Gio.SettingsBindFlags.DEFAULT);
+        const row = new Adw.ActionRow(subtitle ? {title, subtitle} : {title});
+        const toggle = new Gtk.Switch({valign: Gtk.Align.CENTER});
+        settings.bind(key, toggle, 'active', Gio.SettingsBindFlags.DEFAULT);
+        row.add_suffix(toggle);
+        row.set_activatable_widget(toggle);
         return row;
     }
 
     _entryRow(settings, key, title) {
-        const row = new Adw.EntryRow({title});
-        settings.bind(key, row, 'text', Gio.SettingsBindFlags.DEFAULT);
+        const row = new Adw.ActionRow({title, title_lines: 2});
+        const entry = new Gtk.Entry({valign: Gtk.Align.CENTER, hexpand: true, width_chars: 22});
+        settings.bind(key, entry, 'text', Gio.SettingsBindFlags.DEFAULT);
+        row.add_suffix(entry);
+        row.set_activatable_widget(entry);
         return row;
+    }
+
+    // The row and its spin button; the caller binds or wires the button's value.
+    _spinRow(title, adjustment, subtitle = null) {
+        const row = new Adw.ActionRow(subtitle ? {title, subtitle} : {title});
+        const spin = new Gtk.SpinButton({adjustment, digits: 0, numeric: true, valign: Gtk.Align.CENTER});
+        row.add_suffix(spin);
+        row.set_activatable_widget(spin);
+        return [row, spin];
     }
 
     _colorRow(settings, key, title, defaultHex, cleanups) {
         const row = new Adw.ActionRow({title});
 
-        const dialog = new Gtk.ColorDialog({with_alpha: false});
-        const button = new Gtk.ColorDialogButton({dialog, valign: Gtk.Align.CENTER});
+        const button = new Gtk.ColorButton({use_alpha: false, valign: Gtk.Align.CENTER});
         const reset = new Gtk.Button({
             icon_name: 'edit-clear-symbolic',
             valign: Gtk.Align.CENTER,
@@ -704,16 +734,18 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
     // Shortcuts the shell already grabs never reach this window, so a
     // combination taken by GNOME cannot be recorded here.
     _captureShortcut(settings, key, parent) {
-        const dialog = new Adw.AlertDialog({
-            heading: _('Set shortcut'),
-            body: _('Press the new shortcut for opening the popup, or Esc to cancel.'),
+        const dialog = new Gtk.MessageDialog({
+            transient_for: parent,
+            modal: true,
+            text: _('Set shortcut'),
+            secondary_text: _('Press the new shortcut for opening the popup, or Esc to cancel.'),
         });
-        dialog.add_response('cancel', _('Cancel'));
-        dialog.add_response('disable', _('Disable'));
-        dialog.set_close_response('cancel');
+        dialog.add_button(_('Cancel'), Gtk.ResponseType.CANCEL);
+        dialog.add_button(_('Disable'), Gtk.ResponseType.REJECT);
         dialog.connect('response', (_d, response) => {
-            if (response === 'disable')
+            if (response === Gtk.ResponseType.REJECT)
                 settings.set_strv(key, []);
+            dialog.destroy();
         });
 
         const controller = new Gtk.EventControllerKey({propagation_phase: Gtk.PropagationPhase.CAPTURE});
@@ -731,12 +763,20 @@ export default class AiUsagebarPreferences extends ExtensionPreferences {
             return Gdk.EVENT_STOP;
         });
         dialog.add_controller(controller);
-        dialog.present(parent);
+        dialog.present();
     }
 
     _passwordRow(settings, key, title) {
-        const row = new Adw.PasswordEntryRow({title});
-        settings.bind(key, row, 'text', Gio.SettingsBindFlags.DEFAULT);
+        const row = new Adw.ActionRow({title, title_lines: 2});
+        const entry = new Gtk.PasswordEntry({
+            show_peek_icon: true,
+            valign: Gtk.Align.CENTER,
+            hexpand: true,
+            width_chars: 22,
+        });
+        settings.bind(key, entry, 'text', Gio.SettingsBindFlags.DEFAULT);
+        row.add_suffix(entry);
+        row.set_activatable_widget(entry);
         return row;
     }
 }

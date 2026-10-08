@@ -5,9 +5,10 @@ A GNOME Shell extension that shows your AI plan usage in the top panel for
 **DeepSeek**, **Kimi** and **Ollama Cloud**, plus one **custom provider** you
 map yourself.
 
-The panel shows a compact label for the active vendor (e.g. `42% · 3h12m`),
-colored by severity. Click it for a popup with a section per enabled vendor;
-scroll over it to cycle between them.
+The panel shows a separate logo and compact usage label for every enabled vendor
+(e.g. Claude `42% · 3h12m` beside Codex `18% · 2h05m`), each colored by its own
+severity. Click a vendor to open its popup section; scroll to change the selected
+section. Turn off **Show all enabled vendors** to display one vendor at a time.
 
 ![AI Usage Bar: the popup under the panel label, showing plan usage, pace and reset countdowns](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/popup.png)
 
@@ -30,13 +31,34 @@ are configurable.
 
 ## Install
 
-Requires **GNOME Shell 47–51** (developed and tested on 50; please
-[report](https://github.com/wilfison/ai-usagebar/issues) anything that breaks
-elsewhere). It is distributed only through GitHub releases, not
-extensions.gnome.org.
+This fork provides a **GNOME Shell 42** package alongside the original
+**GNOME Shell 47–51** package. The entry points, GTK preferences and HTTP backend
+differ, so install the package matching your Shell version. GNOME 43–46 are not
+supported.
+
+### GNOME Shell 42 (Ubuntu 22.04)
+
+```bash
+sudo apt install gjs libglib2.0-bin gettext python3 gir1.2-soup-2.4
+git clone https://github.com/GingGingI/ai-usagebar.git
+cd ai-usagebar
+make pack-gnome42
+gnome-extensions install --force build/gnome42/ai-usagebar@wilfison.shell-extension.zip
+```
+
+Log out and back in, then run `gnome-extensions enable ai-usagebar@wilfison`.
+This replaces the package with the same extension UUID and preserves its settings.
+GNOME 42 uses a legacy loader, libadwaita 1.1-compatible preferences and libsoup 2.4.
+The staged extension is in `build/gnome42/ai-usagebar@wilfison/`.
+
+### GNOME Shell 47–51
+
+Build this fork with `make pack`, then install the resulting
+`ai-usagebar@wilfison.shell-extension.zip`. These instructions also apply to a
+matching package downloaded from this fork's releases:
 
 1. Download `ai-usagebar@wilfison.shell-extension.zip` from the
-   [latest release](https://github.com/wilfison/ai-usagebar/releases/latest).
+   [releases](https://github.com/GingGingI/ai-usagebar/releases).
 2. Install it:
 
    ```bash
@@ -54,22 +76,26 @@ extensions.gnome.org.
 Open preferences with the gear button in the popup footer, or
 `gnome-extensions prefs ai-usagebar@wilfison`. The sidebar has two sections:
 
-- **General**: *Panel* (position and label format), *Popup* (extra rows, pace
+- **General**: *Panel* (position, simultaneous vendor display and label format), *Popup* (extra rows, pace
   marker, the `Super+U` shortcut), *Display* (primary vendor, vendor logos,
   severity colors) and *Behavior* (refresh interval, notifications, update check, reset all).
 - **Vendors**: one page per vendor: enable it and set its credentials.
 
 ![The preferences window with its sidebar](https://raw.githubusercontent.com/wilfison/ai-usagebar/main/screenshots/preferences.png)
 
-Only the active vendor is polled, every 300 s at the least (the endpoints
-rate-limit below that); the others refresh when you scroll to them or press
-"Refresh all".
+**Show all enabled vendors** is on by default. Every enabled vendor is displayed
+and polled at the configured interval, at least 300 seconds. Requests have
+independent fetch slots, so a slow or failed vendor does not block another.
+Disable unwanted vendors on their preferences pages. For a narrower panel, use
+`{session_pct}%` as the bar format or switch to single-vendor mode. In that mode,
+only the active vendor is polled; **Refresh all** still refreshes every enabled
+vendor. Panel countdowns update once a minute without making HTTP requests.
 
 ### Label placeholders
 
 The panel label (`bar-format`, default `{session_pct}% · {session_reset}`) and
 the optional popup rows (`tooltip-format`) substitute `{token}` placeholders
-from the active vendor. An unknown token is left as is; a window the vendor did
+from each label's vendor. An unknown token is left as is; a window the vendor did
 not report resolves to an empty string.
 
 Every vendor provides `{icon}`, `{vendor_short}`, `{plan}`, `{session_pct}`,

@@ -7,6 +7,7 @@ import {
     enabledVendors,
     normalizePrimary,
     normalizeActive,
+    panelVendors,
     cycleVendor,
 } from '../lib/config-resolve.js';
 import {describe, it, assertEqual, assertDeepEqual, summary} from './_assert.js';
@@ -23,6 +24,7 @@ function snapshot(overrides = {}) {
     return {
         primaryVendor: overrides.primaryVendor ?? 'anthropic',
         activeVendor: overrides.activeVendor ?? '',
+        showAllVendors: overrides.showAllVendors ?? true,
         vendors: {
             anthropic: {enabled: enabled.anthropic},
             openai: {enabled: enabled.openai},
@@ -154,6 +156,27 @@ describe('cycleVendor', () => {
         assertEqual(cycleVendor(['zai'], 'zai', +1), 'zai'));
     it('empty list returns current unchanged', () =>
         assertEqual(cycleVendor([], 'zai', +1), 'zai'));
+});
+
+describe('panelVendors', () => {
+    it('shows every enabled vendor in canonical order', () => {
+        assertDeepEqual(panelVendors(snapshot({activeVendor: 'zai'})),
+            ['anthropic', 'openai', 'zai', 'openrouter']);
+    });
+    it('single-vendor mode follows the active vendor', () => {
+        assertDeepEqual(panelVendors(snapshot({showAllVendors: false, activeVendor: 'openai'})), ['openai']);
+    });
+    it('single-vendor mode resolves a disabled selection', () => {
+        assertDeepEqual(panelVendors(snapshot({showAllVendors: false, activeVendor: 'deepseek'})), ['anthropic']);
+    });
+    it('disabling a vendor removes it from the displayed and polled list', () => {
+        assertDeepEqual(panelVendors(snapshot({enabled: {anthropic: false, zai: false}})), ['openai', 'openrouter']);
+    });
+    it('all-disabled configurations have no panel fetch targets in either mode', () => {
+        const enabled = {anthropic: false, openai: false, zai: false, openrouter: false, deepseek: false};
+        assertDeepEqual(panelVendors(snapshot({enabled})), []);
+        assertDeepEqual(panelVendors(snapshot({enabled, showAllVendors: false})), []);
+    });
 });
 
 system.exit(summary());

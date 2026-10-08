@@ -1,6 +1,7 @@
 /tmp
 /docs
 /tasks
+/build
 *.compiled
 *.shell-extension.zip
 

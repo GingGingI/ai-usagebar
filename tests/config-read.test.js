@@ -32,6 +32,7 @@ describe('readConfig: schema defaults', () => {
     const cfg = readConfig(makeSettings());
     it('refresh interval defaults to 300', () => assertEqual(cfg.refreshIntervalSecs, 300));
     it('vendor logos shown by default', () => assertEqual(cfg.showVendorIcons, true));
+    it('all enabled vendors shown by default', () => assertEqual(cfg.showAllVendors, true));
     it('panel position defaults to right of the clock', () => {
         assertEqual(cfg.panel.box, 'center');
         assertEqual(cfg.panel.index, 1);
@@ -87,6 +88,7 @@ describe('readConfig: overrides', () => {
     settings.set_string('deepseek-api-key', 'dsk');
     settings.set_string('active-vendor', 'zai');
     settings.set_boolean('show-pace-marker', true);
+    settings.set_boolean('show-all-vendors', false);
     settings.set_int('refresh-interval', 600);
     settings.set_boolean('deepseek-enabled', true);
     settings.set_boolean('notify-enabled', true);
@@ -109,6 +111,7 @@ describe('readConfig: overrides', () => {
         assertEqual(cfg.vendors.deepseek.apiKey, 'dsk'));
     it('honors the active-vendor override', () => assertEqual(cfg.activeVendor, 'zai'));
     it('honors the pace-marker toggle', () => assertEqual(cfg.showPaceMarker, true));
+    it('honors single-vendor panel mode', () => assertEqual(cfg.showAllVendors, false));
     it('honors the refresh-interval override', () => assertEqual(cfg.refreshIntervalSecs, 600));
     it('honors a vendor enable toggle', () => assertEqual(cfg.vendors.deepseek.enabled, true));
     it('honors the notify-enabled toggle', () => assertEqual(cfg.notifications.enabled, true));

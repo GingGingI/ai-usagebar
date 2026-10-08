@@ -60,7 +60,7 @@ const rules = {
 
 export default [
     {
-        ignores: ['node_modules/**', '**/*.compiled', '**/*.shell-extension.zip'],
+        ignores: ['node_modules/**', 'build/**', '**/*.compiled', '**/*.shell-extension.zip'],
     },
     {
         files: ['**/*.js'],
@@ -70,5 +70,15 @@ export default [
             globals: gjsGlobals,
         },
         rules,
+    },
+    {
+        files: ['compat/gnome42/**/*.js'],
+        languageOptions: {
+            globals: {imports: 'readonly'},
+        },
+    },
+    {
+        files: ['compat/gnome42/extension.js', 'compat/gnome42/prefs.js'],
+        languageOptions: {sourceType: 'script'},
     },
 ];

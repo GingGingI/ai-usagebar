@@ -908,3 +908,26 @@ msgstr "Aktualisierung verfügbar: %s"
 
 #~ msgid "Usage is critical"
 #~ msgstr "Nutzung kritisch"
+
+msgid "Back"
+msgstr "Zurück"
+
+
+msgid "Display and automatically refresh every enabled vendor. Click a vendor to open its details."
+msgstr "Alle aktivierten Anbieter anzeigen und automatisch aktualisieren. Klicken Sie auf einen Anbieter, um seine Details zu öffnen."
+
+
+msgid "No vendors enabled"
+msgstr "Keine Anbieter aktiviert"
+
+
+msgid "Panel vendors"
+msgstr "Anbieter im Panel"
+
+
+msgid "Selected by default in the popup; shown on the panel when displaying one vendor"
+msgstr "Standardmäßig im Popup ausgewählt; bei Einzelanzeige im Panel sichtbar"
+
+
+msgid "Show all enabled vendors"
+msgstr "Alle aktivierten Anbieter anzeigen"

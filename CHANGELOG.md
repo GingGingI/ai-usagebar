@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- GNOME Shell 42 packages via `make pack-gnome42`, with a legacy extension
+  loader, libadwaita 1.1-compatible preferences and an asynchronous libsoup 2.4
+  HTTP backend. The original GNOME 47–51 package is still built with `make pack`.
+- Simultaneous panel labels for all enabled vendors, with independent usage
+  colors, error states and polling. Click a label to select its popup section.
+- **Show all enabled vendors** under Panel preferences, enabled by default.
+  Turn it off to restore single-vendor display and polling.
+- `make test-gnome42` runs the unit suite against the staged GNOME 42 package.
+
+### Fixed
+
+- Panel countdowns update while the popup is closed.
+- All-disabled configurations do not fetch a fallback vendor.
+- Format substitution, JSON Pointer resolution and test discovery work with
+  the older JavaScript and GLib APIs shipped in Ubuntu 22.04.
+
 ## [1.5.0] - 2026-10-02
 
 ### Added

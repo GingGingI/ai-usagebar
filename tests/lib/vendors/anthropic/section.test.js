@@ -238,7 +238,7 @@ describe('buildSection: elapsedPct marker data', () => {
     it('sonnet row (no window length) omits elapsedPct', () => {
         const r = model.rows[2];
         assertEqual(r.title, 'Sonnet only');
-        assertEqual(Object.hasOwn(r, 'elapsedPct'), false);
+        assertEqual(Object.prototype.hasOwnProperty.call(r, 'elapsedPct'), false);
     });
 
     it('windowed row carries paceColor: base from pct, tail from the verdict', () => {
@@ -250,7 +250,7 @@ describe('buildSection: elapsedPct marker data', () => {
     });
 
     it('markerless row (sonnet) has no paceColor → single-colour bar preserved', () => {
-        assertEqual(Object.hasOwn(model.rows[2], 'paceColor'), false);
+        assertEqual(Object.prototype.hasOwnProperty.call(model.rows[2], 'paceColor'), false);
     });
 });
 

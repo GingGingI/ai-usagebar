@@ -1,26 +1,32 @@
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
+const soup2 = Soup.MAJOR_VERSION === 2;
+
 function collectRequest(msg) {
-    const method = msg.get_method();
+    const method = soup2 ? msg.method : msg.get_method();
     const uri = msg.get_uri();
     const path = uri?.get_path() ?? '/';
     const headers = {};
-    msg.get_request_headers().foreach((name, value) => {
+    const requestHeaders = soup2 ? msg.request_headers : msg.get_request_headers();
+    requestHeaders.foreach((name, value) => {
         headers[name.toLowerCase()] = value;
     });
     let bodyBytes = new Uint8Array(0);
-    const reqBody = msg.get_request_body();
+    const reqBody = soup2 ? msg.request_body : msg.get_request_body();
     const flat = reqBody?.flatten?.();
-    const data = flat?.get_data?.();
+    const data = soup2 ? flat?.get_as_bytes()?.get_data() : flat?.get_data?.();
     if (data)
         bodyBytes = data instanceof Uint8Array ? data : new Uint8Array(data);
     return {method, path, headers, bodyBytes};
 }
 
 function writeResponse(msg, r) {
-    msg.set_status(r.status ?? 200, null);
-    const respHeaders = msg.get_response_headers();
+    if (soup2)
+        msg.set_status(r.status ?? 200);
+    else
+        msg.set_status(r.status ?? 200, null);
+    const respHeaders = soup2 ? msg.response_headers : msg.get_response_headers();
     let contentType = null;
     if (r.headers) {
         for (const [k, v] of Object.entries(r.headers)) {
@@ -66,7 +72,8 @@ export function startServer(handler) {
         server.disconnect();
         return Promise.reject(new Error('startServer: no listening URI'));
     }
-    const url = uris[0].to_string().replace(/\/$/, '');
+    const uri = soup2 ? uris[0].to_string(false) : uris[0].to_string();
+    const url = uri.replace(/\/$/, '');
 
     return Promise.resolve({
         url,
