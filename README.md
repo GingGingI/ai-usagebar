@@ -105,12 +105,16 @@ from each label's vendor. An unknown token is left as is; a window the vendor di
 not report resolves to an empty string.
 
 Every vendor provides `{icon}`, `{vendor_short}`, `{plan}`, `{session_pct}`,
-`{session_reset}`, `{session_elapsed}`, `{weekly_pct}`, `{weekly_reset}` and
-`{weekly_elapsed}`. Reset tokens are countdowns such as `4h 05m`; `*_elapsed` is
+`{session_remain}`, `{session_reset}`, `{session_elapsed}`, `{weekly_pct}`,
+`{weekly_remain}`, `{weekly_reset}` and `{weekly_elapsed}`. The `*_remain` tokens
+are the percentage still available (`100 - *_pct`), so append `%` in a label:
+`{session_remain}% · {weekly_remain}%`. An unreported quota yields an empty
+remaining value. Reset tokens are countdowns such as `4h 05m`; `*_elapsed` is
 the share of the window that has passed. Vendors with a reset instant also give
 `{session_pace}` and `{weekly_pace}` (`↑` ahead of pace, `→` on track, `↓`
-under). OpenRouter and DeepSeek have no usage windows, so there the `session_` /
-`weekly_` tokens hold the consumed share (OpenRouter) or `0`.
+under). OpenRouter and DeepSeek have no usage windows: OpenRouter's shared
+percent tokens reflect the consumed or remaining share of its credits, while
+DeepSeek's `*_pct` tokens are `0` and its `*_remain` tokens are empty.
 
 <details>
 <summary>Vendor-specific tokens</summary>

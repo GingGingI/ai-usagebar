@@ -935,8 +935,8 @@ msgstr "Alle aktivierten Anbieter anzeigen"
 msgid "Default label"
 msgstr "Standardbeschriftung"
 
-msgid "Leave a vendor label empty to use the default label. Placeholders: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}"
-msgstr "Lassen Sie die Beschriftung eines Anbieters leer, um die Standardbeschriftung zu verwenden. Platzhalter: {vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} {weekly_reset}"
+msgid "Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. Remaining: {session_remain}%, {weekly_remain}%. Reset: {session_reset}, {weekly_reset}."
+msgstr "Leere Anbieterbeschriftungen verwenden den Standard. Nutzung: {session_pct}%, {weekly_pct}%. Verbleibend: {session_remain}%, {weekly_remain}%. Zurücksetzung: {session_reset}, {weekly_reset}."
 
 msgid "No panel vendors selected"
 msgstr "Keine Panel-Anbieter ausgewählt"

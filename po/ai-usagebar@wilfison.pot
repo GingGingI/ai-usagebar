@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ai-usagebar@wilfison\n"
 "Report-Msgid-Bugs-To: https://github.com/wilfison/ai-usagebar/issues\n"
-"POT-Creation-Date: 2026-10-08 13:48+0900\n"
+"POT-Creation-Date: 2026-10-08 14:00+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr ""
 msgid "Resets in %s · %s"
 msgstr ""
 
-#: lib/format.js:107
+#: lib/format.js:114
 #, javascript-format
 msgid "%d reset available"
 msgid_plural "%d resets available"
@@ -130,19 +130,19 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: lib/vendors/anthropic/parser.js:309 lib/vendors/anthropic/section.js:98
-#: lib/vendors/ollama/parser.js:145 lib/vendors/ollama/section.js:51
+#: lib/vendors/anthropic/parser.js:311 lib/vendors/anthropic/section.js:98
+#: lib/vendors/ollama/parser.js:146 lib/vendors/ollama/section.js:51
 msgid "Session"
 msgstr ""
 
-#: lib/vendors/anthropic/parser.js:310 lib/vendors/anthropic/section.js:99
-#: lib/vendors/kimi/parser.js:233 lib/vendors/kimi/section.js:35
-#: lib/vendors/ollama/parser.js:145 lib/vendors/ollama/section.js:52
-#: lib/vendors/zai/parser.js:222 lib/vendors/zai/section.js:29
+#: lib/vendors/anthropic/parser.js:312 lib/vendors/anthropic/section.js:99
+#: lib/vendors/kimi/parser.js:235 lib/vendors/kimi/section.js:35
+#: lib/vendors/ollama/parser.js:146 lib/vendors/ollama/section.js:52
+#: lib/vendors/zai/parser.js:224 lib/vendors/zai/section.js:29
 msgid "Weekly"
 msgstr ""
 
-#: lib/vendors/anthropic/parser.js:313 lib/vendors/anthropic/section.js:101
+#: lib/vendors/anthropic/parser.js:315 lib/vendors/anthropic/section.js:101
 msgid "Sonnet only"
 msgstr ""
 
@@ -232,7 +232,7 @@ msgstr ""
 msgid "Custom provider"
 msgstr ""
 
-#: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/parser.js:185
+#: lib/vendors/deepseek/section.js:16 lib/vendors/openrouter/parser.js:187
 #: lib/vendors/openrouter/section.js:18
 msgid "Balance"
 msgstr ""
@@ -251,12 +251,12 @@ msgstr ""
 msgid "API unavailable"
 msgstr ""
 
-#: lib/vendors/kimi/parser.js:231 lib/vendors/kimi/section.js:33
+#: lib/vendors/kimi/parser.js:233 lib/vendors/kimi/section.js:33
 msgid "Window (5h)"
 msgstr ""
 
-#: lib/vendors/kimi/parser.js:235 lib/vendors/kimi/section.js:37
-#: lib/vendors/ollama/parser.js:145 lib/vendors/ollama/section.js:53
+#: lib/vendors/kimi/parser.js:237 lib/vendors/kimi/section.js:37
+#: lib/vendors/ollama/parser.js:146 lib/vendors/ollama/section.js:53
 msgid "Monthly"
 msgstr ""
 
@@ -292,15 +292,15 @@ msgstr ""
 msgid "Ollama %s"
 msgstr ""
 
-#: lib/vendors/openai/parser.js:294 lib/vendors/openai/section.js:39
+#: lib/vendors/openai/parser.js:296 lib/vendors/openai/section.js:39
 msgid "Codex 5h"
 msgstr ""
 
-#: lib/vendors/openai/parser.js:295 lib/vendors/openai/section.js:41
+#: lib/vendors/openai/parser.js:297 lib/vendors/openai/section.js:41
 msgid "Codex weekly"
 msgstr ""
 
-#: lib/vendors/openai/parser.js:296 lib/vendors/openai/section.js:45
+#: lib/vendors/openai/parser.js:298 lib/vendors/openai/section.js:45
 msgid "Code review (weekly)"
 msgstr ""
 
@@ -450,11 +450,11 @@ msgstr ""
 msgid "%d%% elapsed · %s"
 msgstr ""
 
-#: lib/vendors/zai/parser.js:221 lib/vendors/zai/section.js:27
+#: lib/vendors/zai/parser.js:223 lib/vendors/zai/section.js:27
 msgid "Session (5h)"
 msgstr ""
 
-#: lib/vendors/zai/parser.js:223 lib/vendors/zai/section.js:31
+#: lib/vendors/zai/parser.js:225 lib/vendors/zai/section.js:31
 msgid "MCP tools (monthly)"
 msgstr ""
 
@@ -506,9 +506,9 @@ msgstr ""
 #. types: keep them verbatim, only translate the surrounding prose.
 #: prefs.js:201 compat/gnome42/prefsWindow.js:224
 msgid ""
-"Leave a vendor label empty to use the default label. Placeholders: "
-"{vendor_short} {session_pct}% {session_reset} {plan} {weekly_pct} "
-"{weekly_reset}"
+"Empty vendor labels use the default. Usage: {session_pct}%, {weekly_pct}%. "
+"Remaining: {session_remain}%, {weekly_remain}%. Reset: {session_reset}, "
+"{weekly_reset}."
 msgstr ""
 
 #: prefs.js:203 compat/gnome42/prefsWindow.js:226
